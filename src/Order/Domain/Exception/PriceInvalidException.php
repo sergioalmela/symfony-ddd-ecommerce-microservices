@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace OrderService\Domain\Order;
+namespace App\Order\Domain\Exception;
 
-use Shared\Domain\Exceptions\DomainException;
+use App\Shared\Domain\Exception\DomainException;
 
 class PriceInvalidException extends DomainException
 {

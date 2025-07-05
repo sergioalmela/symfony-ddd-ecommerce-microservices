@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace OrderService\Domain\Order;
+namespace App\Order\Domain\Exception;
 
 use InvalidArgumentException;
 
