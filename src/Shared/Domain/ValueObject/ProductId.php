@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Shared\Domain\Common;
+namespace App\Shared\Domain\ValueObject;
+
+use App\Shared\Domain\Entity\Uuid;
 
 final readonly class ProductId extends Uuid
 {

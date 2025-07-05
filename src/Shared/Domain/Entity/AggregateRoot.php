@@ -2,9 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Shared\Domain\Common;
+namespace App\Shared\Domain\Entity;
 
-use Shared\Domain\Event\DomainEvent;
+use App\Shared\Domain\Event\DomainEvent;
+
+;
 
 abstract class AggregateRoot
 {

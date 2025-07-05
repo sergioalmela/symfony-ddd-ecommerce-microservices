@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Shared\Domain\Event;
+namespace App\Shared\Domain\Event;
 
 use DateTimeImmutable;
 use DateTimeInterface;

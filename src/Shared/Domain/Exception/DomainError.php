@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Shared\Domain\Exceptions;
+namespace App\Shared\Domain\Exception;
 
 use Exception;
 

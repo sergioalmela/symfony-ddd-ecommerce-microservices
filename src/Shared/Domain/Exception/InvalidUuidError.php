@@ -2,9 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Shared\Domain\Exceptions;
-
-use Shared\Domain\Exceptions\DomainException;
+namespace App\Shared\Domain\Exception;
 
 class InvalidUuidError extends DomainException
 {

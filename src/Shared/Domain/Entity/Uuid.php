@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Shared\Domain\Common;
+namespace App\Shared\Domain\Entity;
 
-use Shared\Domain\Exceptions\InvalidUuidError;
+use App\Shared\Domain\Exception\InvalidUuidError;
 
 abstract readonly class Uuid
 {
