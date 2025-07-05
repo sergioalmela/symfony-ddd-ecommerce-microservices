@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Shared\Domain\Common;
 
-class AggregateRoot
+use Shared\Domain\Event\DomainEvent;
+
+abstract class AggregateRoot
 {
     private array $events = [];
 
@@ -26,8 +28,15 @@ class AggregateRoot
         $this->events = [];
     }
 
+    final public function hasRecordedEvents(): bool
+    {
+        return !empty($this->events);
+    }
+
     final protected function recordEvent(DomainEvent $domainEvent): void
     {
         $this->events[] = $domainEvent;
     }
+
+    abstract public function toPrimitives(): array;
 }
