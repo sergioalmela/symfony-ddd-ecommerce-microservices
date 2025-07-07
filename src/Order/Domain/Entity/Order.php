@@ -25,7 +25,7 @@ final class Order extends AggregateRoot
     private SellerId $sellerId;
     private OrderStatus $status;
 
-    private function __construct(
+    public function __construct(
         OrderId     $id,
         ProductId   $productId,
         Quantity    $quantity,
