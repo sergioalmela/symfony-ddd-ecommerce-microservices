@@ -1,0 +1,11 @@
+# config/packages/nelmio_api_doc.yaml
+nelmio_api_doc:
+    documentation:
+        info:
+            title: Ecommerce API
+            description: Symfony Ecommerce Microservice API Documentation
+            version: 1.0.0
+    areas:
+        path_patterns:
+            - ^/orders
+            - ^/api
