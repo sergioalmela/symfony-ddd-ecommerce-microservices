@@ -1,0 +1,3 @@
+controllers:
+    resource: ../src/Order/Infrastructure/Http/Controller/
+    type: attribute
