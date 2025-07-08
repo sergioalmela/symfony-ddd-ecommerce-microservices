@@ -24,7 +24,7 @@ final class GetOrdersController extends BaseController
         description: 'The seller ID to filter orders',
         in: 'query',
         required: false,
-        schema: new OA\Schema(type: 'string', example: '80ebe6dd-fc51-41d5-ad53-59386d3ee6aa')
+        schema: new OA\Schema(type: 'string', example: '50ebe6dd-fc51-41d5-ad53-59386d3ee6dd')
     )]
     #[OA\Response(
         response: 200,
@@ -48,7 +48,7 @@ final class GetOrdersController extends BaseController
     public function getOrders(Request $request): JsonResponse
     {
         $query = new GetOrdersQuery(
-            sellerId: $request->query->get('sellerId', '80ebe6dd-fc51-41d5-ad53-59386d3ee6aa'),
+            sellerId: $request->query->get('sellerId'),
         );
 
         $response = $this->ask($query);
