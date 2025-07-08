@@ -24,6 +24,10 @@ services:
     App\Order\Application\Query\GetOrders\GetOrdersQueryHandler:
         tags:
             - { name: messenger.message_handler, bus: query.bus }
+            
+    App\Order\Application\Query\GetOrderDetails\GetOrderDetailsQueryHandler:
+        tags:
+            - { name: messenger.message_handler, bus: query.bus }
                 
     App\Order\Application\Command\CreateOrder\CreateOrderCommandHandler:
         tags:
