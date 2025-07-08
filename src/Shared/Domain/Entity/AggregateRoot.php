@@ -6,8 +6,6 @@ namespace App\Shared\Domain\Entity;
 
 use App\Shared\Domain\Event\DomainEvent;
 
-;
-
 abstract class AggregateRoot
 {
     private array $events = [];
