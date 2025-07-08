@@ -24,6 +24,10 @@ services:
     App\Order\Application\Query\GetOrders\GetOrdersQueryHandler:
         tags:
             - { name: messenger.message_handler, bus: query.bus }
+                
+    App\Order\Application\Command\CreateOrder\CreateOrderCommandHandler:
+        tags:
+            - { name: messenger.message_handler, bus: command.bus }
 
     # === CONTROLLERS (must be public) ===
     App\Order\Infrastructure\Http\Controller\:
@@ -34,3 +38,9 @@ services:
     # === REPOSITORY BINDINGS ===
     App\Order\Domain\Repository\OrderRepository:
         class: App\Order\Infrastructure\Persistence\Doctrine\Repository\DoctrineOrderRepository
+
+    App\Shared\Infrastructure\Http\EventListener\ApiExceptionListener:
+        arguments:
+            $debug: '%kernel.debug%'
+        tags:
+            - { name: kernel.event_listener, event: kernel.exception, method: onKernelException, priority: 100 }

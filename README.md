@@ -42,10 +42,12 @@ with [FrankenPHP](https://frankenphp.dev) and [Caddy](https://caddyserver.com/) 
 10. [Updating the template](docs/updating.md)
 11. [Troubleshooting](docs/troubleshooting.md)
 
-## License
+## Database
 
-Symfony Docker is available under the MIT License.
+make bash
+php bin/console doctrine:schema:validate
+php bin/console doctrine:schema:update --dump-sql
+php bin/console doctrine:schema:update --force
 
-## Credits
-
-Created by [Kévin Dunglas](https://dunglas.dev), co-maintained by [Maxime Helias](https://twitter.com/maxhelias) and sponsored by [Les-Tilleuls.coop](https://les-tilleuls.coop).
+php bin/console doctrine:migrations:diff
+php bin/console doctrine:migrations:migrate
