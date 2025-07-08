@@ -9,6 +9,7 @@ use App\Shared\Domain\Bus\Command\CommandBus;
 use App\Shared\Domain\Bus\Query\Query;
 use App\Shared\Domain\Bus\Query\QueryBus;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 abstract class BaseController
 {
@@ -28,7 +29,7 @@ abstract class BaseController
         $this->commandBus->dispatch($command);
     }
 
-    protected function jsonResponse(mixed $data, int $status = 200, array $headers = []): JsonResponse
+    protected function jsonResponse(mixed $data, int $status = Response::HTTP_OK, array $headers = []): JsonResponse
     {
         return new JsonResponse($data, $status, $headers);
     }
