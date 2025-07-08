@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Shared\Infrastructure\Http\EventListener;
 
 use App\Order\Domain\Exception\OrderAlreadyExistsException;
+use App\Order\Domain\Exception\OrderNotFoundException;
 use App\Shared\Domain\Exception\DomainException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -66,6 +67,7 @@ final readonly class ApiExceptionListener
         if ($exception instanceof DomainException) {
             return match (true) {
                 $exception instanceof OrderAlreadyExistsException => Response::HTTP_CONFLICT,
+                $exception instanceof OrderNotFoundException => Response::HTTP_NOT_FOUND,
                 default => Response::HTTP_BAD_REQUEST,
             };
         }
