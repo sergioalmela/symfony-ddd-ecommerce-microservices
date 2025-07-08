@@ -6,7 +6,7 @@ namespace App\Order\Domain\ValueObject;
 
 use App\Order\Domain\Exception\PriceInvalidException;
 
-readonly class Price
+final readonly class Price
 {
     private readonly float $value;
 
