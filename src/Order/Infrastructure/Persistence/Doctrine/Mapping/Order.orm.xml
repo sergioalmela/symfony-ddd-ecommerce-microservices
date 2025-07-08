@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
+                          https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+
+    <entity name="App\Order\Domain\Entity\Order" table="`order`">
+
+        <id name="id" type="order_id" column="id" />
+
+        <field name="productId" type="product_id" column="product_id" />
+        <field name="quantity" type="quantity" column="quantity" />
+        <field name="price" type="price" column="price" />
+        <field name="customerId" type="customer_id" column="customer_id" />
+        <field name="sellerId" type="seller_id" column="seller_id" />
+        <field name="status" type="order_status" column="status" />
+
+        <indexes>
+            <index name="idx_order_seller_id" columns="seller_id"/>
+            <index name="idx_order_seller_id_id" columns="seller_id,id"/>
+        </indexes>
+    </entity>
+
+</doctrine-mapping>
