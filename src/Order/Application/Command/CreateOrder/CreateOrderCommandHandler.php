@@ -11,17 +11,16 @@ use App\Order\Domain\ValueObject\OrderId;
 use App\Order\Domain\ValueObject\Price;
 use App\Order\Domain\ValueObject\Quantity;
 use App\Shared\Domain\Bus\Command\CommandHandler;
+use App\Shared\Domain\Bus\Event\EventBus;
 use App\Shared\Domain\ValueObject\CustomerId;
 use App\Shared\Domain\ValueObject\ProductId;
 use App\Shared\Domain\ValueObject\SellerId;
-
-//use App\Shared\Domain\Bus\Event\EventBus;
 
 final readonly class CreateOrderCommandHandler implements CommandHandler
 {
     public function __construct(
         private OrderRepository $orderRepository,
-        //private EventBus        $eventBus
+        private EventBus        $eventBus
     )
     {
     }
@@ -53,7 +52,7 @@ final readonly class CreateOrderCommandHandler implements CommandHandler
         $events = $order->releaseEvents();
 
         foreach ($events as $event) {
-            //$this->eventBus->publish($event);
+            $this->eventBus->publish($event);
         }
     }
 }
