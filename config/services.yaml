@@ -32,6 +32,10 @@ services:
     App\Order\Application\Command\CreateOrder\CreateOrderCommandHandler:
         tags:
             - { name: messenger.message_handler, bus: command.bus }
+                
+    App\Order\Application\Command\UpdateOrderStatus\UpdateOrderStatusCommandHandler:
+        tags:
+            - { name: messenger.message_handler, bus: command.bus }
 
     # === CONTROLLERS (must be public) ===
     App\Order\Infrastructure\Http\Controller\:
