@@ -13,18 +13,18 @@ use App\Shared\Domain\ValueObject\SellerId;
 
 final class Invoice extends AggregateRoot
 {
-    public function __construct(private readonly InvoiceId $id, private readonly OrderId $orderId, private readonly SellerId $sellerId, private readonly FilePath $filePath, private ?SentAt $sentAt = null)
+    public function __construct(private readonly InvoiceId $invoiceId, private readonly OrderId $orderId, private readonly SellerId $sellerId, private readonly FilePath $filePath, private ?SentAt $sentAt = null)
     {
     }
 
     public static function create(
-        InvoiceId $id,
+        InvoiceId $invoiceId,
         OrderId $orderId,
         SellerId $sellerId,
         FilePath $filePath,
     ): self {
         return new self(
-            $id,
+            $invoiceId,
             $orderId,
             $sellerId,
             $filePath
@@ -47,7 +47,7 @@ final class Invoice extends AggregateRoot
 
     public function id(): InvoiceId
     {
-        return $this->id;
+        return $this->invoiceId;
     }
 
     public function orderId(): OrderId
@@ -73,7 +73,7 @@ final class Invoice extends AggregateRoot
     public function toPrimitives(): array
     {
         return [
-            'id' => $this->id->value(),
+            'id' => $this->invoiceId->value(),
             'orderId' => $this->orderId->value(),
             'sellerId' => $this->sellerId->value(),
             'filePath' => $this->filePath->value(),

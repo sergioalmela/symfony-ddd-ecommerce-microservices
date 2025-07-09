@@ -24,21 +24,21 @@ final readonly class CreateOrderCommandHandler implements CommandHandler
     ) {
     }
 
-    public function __invoke(CreateOrderCommand $command): void
+    public function __invoke(CreateOrderCommand $createOrderCommand): void
     {
-        $orderId = OrderId::of($command->id);
+        $orderId = OrderId::of($createOrderCommand->id);
 
-        if ($this->orderRepository->find($orderId)) {
+        if ($this->orderRepository->find($orderId) instanceof Order) {
             throw new OrderAlreadyExistsException($orderId->value());
         }
 
         $order = Order::create(
             id: $orderId,
-            productId: ProductId::of($command->productId),
-            quantity: Quantity::of($command->quantity),
-            price: Price::of($command->price),
-            customerId: CustomerId::of($command->customerId),
-            sellerId: SellerId::of($command->sellerId)
+            productId: ProductId::of($createOrderCommand->productId),
+            quantity: Quantity::of($createOrderCommand->quantity),
+            price: Price::of($createOrderCommand->price),
+            customerId: CustomerId::of($createOrderCommand->customerId),
+            sellerId: SellerId::of($createOrderCommand->sellerId)
         );
 
         $this->orderRepository->save($order);

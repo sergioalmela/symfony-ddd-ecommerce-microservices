@@ -24,53 +24,53 @@ final readonly class ApiExceptionListener
     ) {
     }
 
-    public function onKernelException(ExceptionEvent $event): void
+    public function onKernelException(ExceptionEvent $exceptionEvent): void
     {
-        $exception = $event->getThrowable();
+        $throwable = $exceptionEvent->getThrowable();
 
         $this->logger->error(
-            'API Exception: '.$exception->getMessage(),
+            'API Exception: '.$throwable->getMessage(),
             [
-                'exception' => $exception,
-                'request' => $event->getRequest()->getUri(),
+                'exception' => $throwable,
+                'request' => $exceptionEvent->getRequest()->getUri(),
             ]
         );
 
-        $response = $this->createApiErrorResponse($exception);
-        $event->setResponse($response);
+        $jsonResponse = $this->createApiErrorResponse($throwable);
+        $exceptionEvent->setResponse($jsonResponse);
     }
 
-    private function createApiErrorResponse(Throwable $exception): JsonResponse
+    private function createApiErrorResponse(Throwable $throwable): JsonResponse
     {
-        $statusCode = $this->getStatusCode($exception);
+        $statusCode = $this->getStatusCode($throwable);
         $errorData = [
             'statusCode' => $statusCode,
-            'message' => $this->getErrorMessage($exception),
+            'message' => $this->getErrorMessage($throwable),
             'timestamp' => new DateTimeImmutable()->format(DateTimeInterface::ATOM),
         ];
 
         if ($this->debug) {
             $errorData['debug'] = [
-                'exception' => $exception::class,
-                'file' => $exception->getFile(),
-                'line' => $exception->getLine(),
-                'trace' => $exception->getTraceAsString(),
+                'exception' => $throwable::class,
+                'file' => $throwable->getFile(),
+                'line' => $throwable->getLine(),
+                'trace' => $throwable->getTraceAsString(),
             ];
         }
 
         return new JsonResponse($errorData, $statusCode);
     }
 
-    private function getStatusCode(Throwable $exception): int
+    private function getStatusCode(Throwable $throwable): int
     {
-        if ($exception instanceof HttpExceptionInterface) {
-            return $exception->getStatusCode();
+        if ($throwable instanceof HttpExceptionInterface) {
+            return $throwable->getStatusCode();
         }
 
-        if ($exception instanceof DomainException) {
+        if ($throwable instanceof DomainException) {
             return match (true) {
-                $exception instanceof OrderAlreadyExistsException => Response::HTTP_CONFLICT,
-                $exception instanceof OrderNotFoundException => Response::HTTP_NOT_FOUND,
+                $throwable instanceof OrderAlreadyExistsException => Response::HTTP_CONFLICT,
+                $throwable instanceof OrderNotFoundException => Response::HTTP_NOT_FOUND,
                 default => Response::HTTP_BAD_REQUEST,
             };
         }
@@ -78,18 +78,18 @@ final readonly class ApiExceptionListener
         return Response::HTTP_INTERNAL_SERVER_ERROR;
     }
 
-    private function getErrorMessage(Throwable $exception): string
+    private function getErrorMessage(Throwable $throwable): string
     {
         if ($this->debug) {
-            return $exception->getMessage();
+            return $throwable->getMessage();
         }
 
-        if ($exception instanceof HttpExceptionInterface) {
-            return $exception->getMessage();
+        if ($throwable instanceof HttpExceptionInterface) {
+            return $throwable->getMessage();
         }
 
-        if ($exception instanceof DomainException) {
-            return $exception->getMessage();
+        if ($throwable instanceof DomainException) {
+            return $throwable->getMessage();
         }
 
         return 'An internal error occurred';

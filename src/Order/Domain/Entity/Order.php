@@ -17,12 +17,12 @@ use App\Shared\Domain\ValueObject\SellerId;
 
 final class Order extends AggregateRoot
 {
-    public function __construct(private readonly OrderId $id, private readonly ProductId $productId, private readonly Quantity $quantity, private readonly Price $price, private readonly CustomerId $customerId, private readonly SellerId $sellerId, private OrderStatus $status)
+    public function __construct(private readonly OrderId $orderId, private readonly ProductId $productId, private readonly Quantity $quantity, private readonly Price $price, private readonly CustomerId $customerId, private readonly SellerId $sellerId, private OrderStatus $orderStatus)
     {
     }
 
     public static function create(
-        OrderId $id,
+        OrderId $orderId,
         ProductId $productId,
         Quantity $quantity,
         Price $price,
@@ -30,7 +30,7 @@ final class Order extends AggregateRoot
         SellerId $sellerId,
     ): self {
         $order = new self(
-            $id,
+            $orderId,
             $productId,
             $quantity,
             $price,
@@ -39,42 +39,42 @@ final class Order extends AggregateRoot
             OrderStatus::created()
         );
 
-        $order->recordEvent(OrderCreatedEvent::create($id, $customerId, $price, $quantity));
+        $order->recordEvent(OrderCreatedEvent::create($orderId, $customerId, $price, $quantity));
 
         return $order;
     }
 
-    public function updateStatus(OrderStatus $status): void
+    public function updateStatus(OrderStatus $orderStatus): void
     {
-        if ($this->hasSameStatus($status)) {
+        if ($this->hasSameStatus($orderStatus)) {
             return;
         }
 
-        $this->status = $status;
+        $this->orderStatus = $orderStatus;
 
-        if ($status->isShipped()) {
+        if ($orderStatus->isShipped()) {
             $this->recordEvent(OrderShippedEvent::create(
-                $this->id,
+                $this->orderId,
                 $this->customerId,
             ));
         }
     }
 
-    private function hasSameStatus(OrderStatus $status): bool
+    private function hasSameStatus(OrderStatus $orderStatus): bool
     {
-        return $this->status->equals($status);
+        return $this->orderStatus->equals($orderStatus);
     }
 
     public function toPrimitives(): array
     {
         return [
-            'id' => $this->id->value(),
+            'id' => $this->orderId->value(),
             'productId' => $this->productId->value(),
             'quantity' => $this->quantity->value(),
             'price' => $this->price->value(),
             'customerId' => $this->customerId->value(),
             'sellerId' => $this->sellerId->value(),
-            'status' => $this->status->value(),
+            'status' => $this->orderStatus->value(),
         ];
     }
 }

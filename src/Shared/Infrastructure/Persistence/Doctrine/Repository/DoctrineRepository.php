@@ -18,14 +18,14 @@ abstract class DoctrineRepository
         return $this->entityManager;
     }
 
-    protected function persist($entity): void
+    protected function persist(object $entity): void
     {
         $this->entityManager()->persist($entity);
 
         $this->entityManager()->flush();
     }
 
-    protected function remove($entity): void
+    protected function remove(object $entity): void
     {
         $this->entityManager()->remove($entity);
     }

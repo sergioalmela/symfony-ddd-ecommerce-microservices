@@ -18,7 +18,7 @@ final readonly class FilePath implements Stringable
     {
         $trimmedValue = mb_trim($value);
 
-        if (empty($trimmedValue)) {
+        if ($trimmedValue === '' || $trimmedValue === '0') {
             throw new InvalidFilePathException('File path cannot be empty');
         }
 

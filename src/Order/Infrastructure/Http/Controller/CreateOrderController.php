@@ -59,7 +59,7 @@ final class CreateOrderController extends BaseController
     {
         $data = json_decode($request->getContent(), true);
 
-        $command = new CreateOrderCommand(
+        $createOrderCommand = new CreateOrderCommand(
             id: $data['id'],
             productId: $data['productId'],
             quantity: $data['quantity'],
@@ -68,7 +68,7 @@ final class CreateOrderController extends BaseController
             sellerId: $data['sellerId']
         );
 
-        $this->dispatch($command);
+        $this->dispatch($createOrderCommand);
 
         return $this->jsonResponse(['message' => 'Order created successfully'], Response::HTTP_CREATED);
     }

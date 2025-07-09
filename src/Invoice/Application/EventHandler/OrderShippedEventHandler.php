@@ -16,20 +16,20 @@ final readonly class OrderShippedEventHandler
     ) {
     }
 
-    public function __invoke(OrderShippedEvent $event): void
+    public function __invoke(OrderShippedEvent $orderShippedEvent): void
     {
         $this->logger->info('Order shipped event received', [
-            'orderId' => $event->aggregateId(),
-            'customerId' => $event->customerId->value(),
-            'eventType' => $event->eventType(),
-            'occurredOn' => $event->occurredOn()->format('Y-m-d H:i:s'),
+            'orderId' => $orderShippedEvent->aggregateId(),
+            'customerId' => $orderShippedEvent->customerId->value(),
+            'eventType' => $orderShippedEvent->eventType(),
+            'occurredOn' => $orderShippedEvent->occurredOn()->format('Y-m-d H:i:s'),
         ]);
 
         // TODO: Implement invoice generation logic here
         // For now, just log the event
         $this->logger->info('Invoice generation triggered for order', [
-            'orderId' => $event->aggregateId(),
-            'customerId' => $event->customerId->value(),
+            'orderId' => $orderShippedEvent->aggregateId(),
+            'customerId' => $orderShippedEvent->customerId->value(),
         ]);
     }
 }

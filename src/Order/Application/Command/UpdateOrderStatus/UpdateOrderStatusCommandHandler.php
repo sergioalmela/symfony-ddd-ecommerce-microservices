@@ -21,20 +21,20 @@ final readonly class UpdateOrderStatusCommandHandler implements CommandHandler
     ) {
     }
 
-    public function __invoke(UpdateOrderStatusCommand $command): void
+    public function __invoke(UpdateOrderStatusCommand $updateOrderStatusCommand): void
     {
-        $orderId = OrderId::of($command->id);
-        $sellerId = SellerId::of($command->sellerId);
-        $status = OrderStatus::of($command->status);
+        $orderId = OrderId::of($updateOrderStatusCommand->id);
+        $sellerId = SellerId::of($updateOrderStatusCommand->sellerId);
+        $orderStatus = OrderStatus::of($updateOrderStatusCommand->status);
 
         $order = $this->orderRepository->findByIdAndSeller($orderId, $sellerId);
 
         if (!$order instanceof Order) {
-            throw new OrderNotFoundException($command->id);
+            throw new OrderNotFoundException($updateOrderStatusCommand->id);
         }
 
         $order->updateStatus(
-            $status,
+            $orderStatus,
         );
 
         $this->orderRepository->save($order);

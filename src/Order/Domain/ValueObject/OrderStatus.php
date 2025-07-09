@@ -19,7 +19,7 @@ enum OrderStatusType: string
 final readonly class OrderStatus implements Stringable
 {
     private function __construct(
-        private OrderStatusType $value,
+        private OrderStatusType $orderStatusType,
     ) {
     }
 
@@ -46,22 +46,18 @@ final readonly class OrderStatus implements Stringable
 
     public function isShipped(): bool
     {
-        return OrderStatusType::SHIPPED === $this->value;
+        return OrderStatusType::SHIPPED === $this->orderStatusType;
     }
 
     public function canTransitionTo(self $newStatus): bool
     {
-        return match ($this->value) {
-            OrderStatusType::CREATED => \in_array($newStatus->value, [
+        return match ($this->orderStatusType) {
+            OrderStatusType::CREATED => \in_array($newStatus->orderStatusType, [
                 OrderStatusType::ACCEPTED,
                 OrderStatusType::REJECTED,
             ], true),
-            OrderStatusType::ACCEPTED => \in_array($newStatus->value, [
-                OrderStatusType::SHIPPING_IN_PROGRESS,
-            ], true),
-            OrderStatusType::SHIPPING_IN_PROGRESS => \in_array($newStatus->value, [
-                OrderStatusType::SHIPPED,
-            ], true),
+            OrderStatusType::ACCEPTED => $newStatus->orderStatusType === OrderStatusType::SHIPPING_IN_PROGRESS,
+            OrderStatusType::SHIPPING_IN_PROGRESS => $newStatus->orderStatusType === OrderStatusType::SHIPPED,
             OrderStatusType::REJECTED,
             OrderStatusType::SHIPPED => false,
         };
@@ -69,16 +65,16 @@ final readonly class OrderStatus implements Stringable
 
     public function value(): string
     {
-        return $this->value->value;
+        return $this->orderStatusType->value;
     }
 
     public function equals(self $other): bool
     {
-        return $this->value === $other->value;
+        return $this->orderStatusType === $other->orderStatusType;
     }
 
     public function __toString(): string
     {
-        return $this->value->value;
+        return (string) $this->orderStatusType->value;
     }
 }

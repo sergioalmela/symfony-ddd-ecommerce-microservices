@@ -15,9 +15,9 @@ final readonly class GetOrdersQueryHandler implements QueryHandler
     ) {
     }
 
-    public function __invoke(GetOrdersQuery $query): GetOrdersResponse
+    public function __invoke(GetOrdersQuery $getOrdersQuery): GetOrdersResponse
     {
-        $sellerId = SellerId::of($query->sellerId);
+        $sellerId = SellerId::of($getOrdersQuery->sellerId);
 
         $orders = $this->orderRepository->findBySeller($sellerId);
 

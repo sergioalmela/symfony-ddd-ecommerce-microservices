@@ -11,22 +11,22 @@ use Symfony\Component\Messenger\MessageBusInterface;
 
 final readonly class MessengerCommandBus implements CommandBus
 {
-    public function __construct(private MessageBusInterface $commandBus)
+    public function __construct(private MessageBusInterface $messageBus)
     {
     }
 
     public function dispatch(Command $command): void
     {
         try {
-            $this->commandBus->dispatch($command);
+            $this->messageBus->dispatch($command);
         } catch (HandlerFailedException $e) {
             $this->unwrapHandlerException($e);
         }
     }
 
-    private function unwrapHandlerException(HandlerFailedException $e): never
+    private function unwrapHandlerException(HandlerFailedException $handlerFailedException): never
     {
-        $originalException = $e;
+        $originalException = $handlerFailedException;
         while ($originalException instanceof HandlerFailedException) {
             $originalException = $originalException->getPrevious();
         }

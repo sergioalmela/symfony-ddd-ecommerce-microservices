@@ -47,11 +47,11 @@ final class GetOrdersController extends BaseController
     )]
     public function getOrders(Request $request): JsonResponse
     {
-        $query = new GetOrdersQuery(
+        $getOrdersQuery = new GetOrdersQuery(
             sellerId: $request->query->get('sellerId'),
         );
 
-        $response = $this->ask($query);
+        $response = $this->ask($getOrdersQuery);
 
         $orders = array_map(fn ($order) => $order->toPrimitives(), $response->orders);
 

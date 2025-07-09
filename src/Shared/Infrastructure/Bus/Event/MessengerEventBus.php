@@ -10,14 +10,14 @@ use Symfony\Component\Messenger\MessageBusInterface;
 
 final readonly class MessengerEventBus implements EventBus
 {
-    public function __construct(private MessageBusInterface $eventBus)
+    public function __construct(private MessageBusInterface $messageBus)
     {
     }
 
     public function publish(DomainEvent ...$events): void
     {
         foreach ($events as $event) {
-            $this->eventBus->dispatch($event);
+            $this->messageBus->dispatch($event);
         }
     }
 }

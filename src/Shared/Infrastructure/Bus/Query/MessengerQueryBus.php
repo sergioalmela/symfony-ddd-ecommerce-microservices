@@ -11,14 +11,14 @@ use Symfony\Component\Messenger\Stamp\HandledStamp;
 
 final readonly class MessengerQueryBus implements QueryBus
 {
-    public function __construct(private MessageBusInterface $queryBus)
+    public function __construct(private MessageBusInterface $messageBus)
     {
     }
 
     public function handle(Query $query): mixed
     {
         try {
-            $envelope = $this->queryBus->dispatch($query);
+            $envelope = $this->messageBus->dispatch($query);
 
             /** @var HandledStamp|null $handled */
             $handled = $envelope->last(HandledStamp::class);
@@ -29,9 +29,9 @@ final readonly class MessengerQueryBus implements QueryBus
         }
     }
 
-    private function unwrapHandlerException(HandlerFailedException $e): never
+    private function unwrapHandlerException(HandlerFailedException $handlerFailedException): never
     {
-        $originalException = $e;
+        $originalException = $handlerFailedException;
         while ($originalException instanceof HandlerFailedException) {
             /** @var Throwable $originalException */
             $originalException = $originalException->getPrevious();

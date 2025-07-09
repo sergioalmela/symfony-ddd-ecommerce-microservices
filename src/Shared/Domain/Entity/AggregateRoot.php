@@ -30,7 +30,7 @@ abstract class AggregateRoot
 
     final public function hasRecordedEvents(): bool
     {
-        return !empty($this->events);
+        return $this->events !== [];
     }
 
     final protected function recordEvent(DomainEvent $domainEvent): void

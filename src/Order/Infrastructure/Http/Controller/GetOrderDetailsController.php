@@ -51,9 +51,9 @@ final class GetOrderDetailsController extends BaseController
     )]
     public function __invoke(string $id): JsonResponse
     {
-        $query = new GetOrderDetailsQuery($id);
+        $getOrderDetailsQuery = new GetOrderDetailsQuery($id);
 
-        $order = $this->ask($query);
+        $order = $this->ask($getOrderDetailsQuery);
 
         return $this->jsonResponse($order->toPrimitives());
     }

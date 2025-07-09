@@ -27,14 +27,14 @@ final readonly class OrderCreatedEvent extends BaseDomainEvent
     }
 
     public static function create(
-        OrderId $aggregateId,
+        OrderId $orderId,
         CustomerId $customerId,
         Price $price,
         Quantity $quantity,
         ?DateTimeImmutable $occurredOn = null,
     ): self {
         return new self(
-            $aggregateId->value(),
+            $orderId->value(),
             $occurredOn ?? new DateTimeImmutable(),
             $customerId,
             $price,

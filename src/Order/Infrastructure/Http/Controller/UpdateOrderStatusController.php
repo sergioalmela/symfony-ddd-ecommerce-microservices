@@ -54,13 +54,13 @@ final class UpdateOrderStatusController extends BaseController
     {
         $data = json_decode($request->getContent(), true);
 
-        $command = new UpdateOrderStatusCommand(
+        $updateOrderStatusCommand = new UpdateOrderStatusCommand(
             id: $id,
             sellerId: $data['sellerId'],
             status: $data['status'],
         );
 
-        $this->dispatch($command);
+        $this->dispatch($updateOrderStatusCommand);
 
         return $this->jsonResponse(['message' => 'Order status updated successfully'], Response::HTTP_OK);
     }
