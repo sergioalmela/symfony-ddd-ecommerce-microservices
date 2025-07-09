@@ -14,6 +14,8 @@
         "doctrine/doctrine-migrations-bundle": "^3.4",
         "doctrine/orm": "^3.5",
         "nelmio/api-doc-bundle": "^5.4",
+        "phpstan/phpstan-doctrine": "*",
+        "phpstan/phpstan-symfony": "*",
         "runtime/frankenphp-symfony": "^0.2.0",
         "symfony/amqp-messenger": "7.3.*",
         "symfony/asset": "7.3.*",
