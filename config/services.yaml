@@ -37,6 +37,11 @@ services:
         tags:
             - { name: messenger.message_handler, bus: command.bus }
 
+    # === EVENT HANDLERS ===
+    App\Invoice\Application\EventHandler\OrderShippedEventHandler:
+        tags:
+            - { name: messenger.message_handler, bus: event.bus }
+
     # === CONTROLLERS (must be public) ===
     App\Order\Infrastructure\Http\Controller\:
         resource: '../src/Order/Infrastructure/Http/Controller/'
@@ -46,6 +51,12 @@ services:
     # === REPOSITORY BINDINGS ===
     App\Order\Domain\Repository\OrderRepository:
         class: App\Order\Infrastructure\Persistence\Doctrine\Repository\DoctrineOrderRepository
+
+    # === BUS BINDINGS ===
+    App\Shared\Domain\Bus\Event\EventBus:
+        class: App\Shared\Infrastructure\Bus\Event\MessengerEventBus
+        arguments:
+            $eventBus: '@event.bus'
 
     App\Shared\Infrastructure\Http\EventListener\ApiExceptionListener:
         arguments:

@@ -15,6 +15,7 @@
         "doctrine/orm": "^3.5",
         "nelmio/api-doc-bundle": "^5.4",
         "runtime/frankenphp-symfony": "^0.2.0",
+        "symfony/amqp-messenger": "7.3.*",
         "symfony/asset": "7.3.*",
         "symfony/console": "7.3.*",
         "symfony/dotenv": "7.3.*",

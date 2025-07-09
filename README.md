@@ -49,5 +49,8 @@ php bin/console doctrine:schema:validate
 php bin/console doctrine:schema:update --dump-sql
 php bin/console doctrine:schema:update --force
 
+php bin/console doctrine:database:create --connection=invoice
+php bin/console doctrine:database:create --connection=order
+
 php bin/console doctrine:migrations:diff
 php bin/console doctrine:migrations:migrate
