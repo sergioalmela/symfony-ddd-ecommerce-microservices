@@ -16,10 +16,10 @@ abstract readonly class Uuid
     public static function generate(): static
     {
         $data = random_bytes(16);
-        $data[6] = chr(ord($data[6]) & 0x0F | 0x40);
-        $data[8] = chr(ord($data[8]) & 0x3F | 0x80);
+        $data[6] = \chr(\ord($data[6]) & 0x0F | 0x40);
+        $data[8] = \chr(\ord($data[8]) & 0x3F | 0x80);
 
-        return new static(vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4)));
+        return new static(vsprintf('%s%s-%s-%s-%s-%s%s%s', mb_str_split(bin2hex($data), 4)));
     }
 
     public static function of(string $value): static

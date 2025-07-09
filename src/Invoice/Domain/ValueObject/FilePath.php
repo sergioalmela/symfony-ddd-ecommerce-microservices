@@ -15,13 +15,13 @@ final readonly class FilePath
 
     public static function of(string $value): self
     {
-        $trimmedValue = trim($value);
+        $trimmedValue = mb_trim($value);
 
         if (empty($trimmedValue)) {
             throw new InvalidFilePathException('File path cannot be empty');
         }
 
-        if (strlen($trimmedValue) > 500) {
+        if (mb_strlen($trimmedValue) > 500) {
             throw new InvalidFilePathException('File path cannot exceed 500 characters');
         }
 
@@ -32,10 +32,10 @@ final readonly class FilePath
 
         // Ensure it has a valid file extension for invoices
         $allowedExtensions = ['pdf', 'html', 'xml', 'txt'];
-        $extension = strtolower(pathinfo($trimmedValue, PATHINFO_EXTENSION));
+        $extension = mb_strtolower(pathinfo($trimmedValue, \PATHINFO_EXTENSION));
 
-        if (!in_array($extension, $allowedExtensions, true)) {
-            throw new InvalidFilePathException(sprintf('File must have one of these extensions: %s', implode(', ', $allowedExtensions)));
+        if (!\in_array($extension, $allowedExtensions, true)) {
+            throw new InvalidFilePathException(\sprintf('File must have one of these extensions: %s', implode(', ', $allowedExtensions)));
         }
 
         return new self($trimmedValue);
@@ -53,15 +53,15 @@ final readonly class FilePath
 
     public function extension(): string
     {
-        return strtolower(pathinfo($this->value, PATHINFO_EXTENSION));
+        return mb_strtolower(pathinfo($this->value, \PATHINFO_EXTENSION));
     }
 
     public function filename(): string
     {
-        return pathinfo($this->value, PATHINFO_BASENAME);
+        return pathinfo($this->value, \PATHINFO_BASENAME);
     }
 
-    public function equals(FilePath $other): bool
+    public function equals(self $other): bool
     {
         return $this->value === $other->value;
     }

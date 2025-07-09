@@ -48,7 +48,7 @@ final readonly class ApiExceptionListener
 
         if ($this->debug) {
             $errorData['debug'] = [
-                'exception' => get_class($exception),
+                'exception' => $exception::class,
                 'file' => $exception->getFile(),
                 'line' => $exception->getLine(),
                 'trace' => $exception->getTraceAsString(),

@@ -51,16 +51,16 @@ final readonly class OrderStatus
     public function canTransitionTo(self $newStatus): bool
     {
         return match ($this->value) {
-            OrderStatusType::CREATED => in_array($newStatus->value, [
+            OrderStatusType::CREATED => \in_array($newStatus->value, [
                 OrderStatusType::ACCEPTED,
                 OrderStatusType::REJECTED,
-            ]),
-            OrderStatusType::ACCEPTED => in_array($newStatus->value, [
+            ], true),
+            OrderStatusType::ACCEPTED => \in_array($newStatus->value, [
                 OrderStatusType::SHIPPING_IN_PROGRESS,
-            ]),
-            OrderStatusType::SHIPPING_IN_PROGRESS => in_array($newStatus->value, [
+            ], true),
+            OrderStatusType::SHIPPING_IN_PROGRESS => \in_array($newStatus->value, [
                 OrderStatusType::SHIPPED,
-            ]),
+            ], true),
             OrderStatusType::REJECTED,
             OrderStatusType::SHIPPED => false,
         };

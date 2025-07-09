@@ -18,7 +18,7 @@ final class OrderStatusType extends StringType
     public function convertToPHPValue($value, AbstractPlatform $platform): ?OrderStatus
     {
         // If the value from the DB is a string, use your static factory method to reconstruct the object.
-        return is_string($value) ? OrderStatus::fromPrimitives($value) : null;
+        return \is_string($value) ? OrderStatus::fromPrimitives($value) : null;
     }
 
     public function requiresSQLCommentHint(AbstractPlatform $platform): bool

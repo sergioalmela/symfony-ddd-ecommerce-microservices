@@ -76,9 +76,9 @@ final readonly class SentAt
         return $now->diff($this->value)->days;
     }
 
-    public function equals(SentAt $other): bool
+    public function equals(self $other): bool
     {
-        return $this->value == $other->value;
+        return $this->value === $other->value;
     }
 
     public function __toString(): string

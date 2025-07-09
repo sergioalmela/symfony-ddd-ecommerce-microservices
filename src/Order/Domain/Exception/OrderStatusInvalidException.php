@@ -13,7 +13,7 @@ final class OrderStatusInvalidException extends \InvalidArgumentException
         $validStatuses = implode(', ', array_column(OrderStatusType::cases(), 'value'));
 
         parent::__construct(
-            sprintf(
+            \sprintf(
                 'Invalid order status "%s". Valid statuses are: %s',
                 $value,
                 $validStatuses
