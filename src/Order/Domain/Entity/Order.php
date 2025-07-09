@@ -6,12 +6,12 @@ namespace App\Order\Domain\Entity;
 
 use App\Order\Domain\Event\OrderCreatedEvent;
 use App\Order\Domain\Event\OrderShippedEvent;
-use App\Order\Domain\ValueObject\OrderId;
 use App\Order\Domain\ValueObject\OrderStatus;
 use App\Order\Domain\ValueObject\Price;
 use App\Order\Domain\ValueObject\Quantity;
 use App\Shared\Domain\Entity\AggregateRoot;
 use App\Shared\Domain\ValueObject\CustomerId;
+use App\Shared\Domain\ValueObject\OrderId;
 use App\Shared\Domain\ValueObject\ProductId;
 use App\Shared\Domain\ValueObject\SellerId;
 
