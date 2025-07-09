@@ -6,14 +6,14 @@
 
     <entity name="App\Order\Domain\Entity\Order" table="`order`">
 
-        <id name="id" type="order_id" column="id" />
+        <id name="orderId" type="order_id" column="id" />
 
         <field name="productId" type="product_id" column="product_id" />
         <field name="quantity" type="quantity" column="quantity" />
         <field name="price" type="price" column="price" />
         <field name="customerId" type="customer_id" column="customer_id" />
         <field name="sellerId" type="seller_id" column="seller_id" />
-        <field name="status" type="order_status" column="status" />
+        <field name="orderStatus" type="order_status" column="status" />
 
         <indexes>
             <index name="idx_order_seller_id" columns="seller_id"/>

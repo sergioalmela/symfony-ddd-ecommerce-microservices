@@ -56,7 +56,7 @@ services:
     App\Shared\Domain\Bus\Event\EventBus:
         class: App\Shared\Infrastructure\Bus\Event\MessengerEventBus
         arguments:
-            $eventBus: '@event.bus'
+            $messageBus: '@event.bus'
 
     App\Shared\Infrastructure\Http\EventListener\ApiExceptionListener:
         arguments:
