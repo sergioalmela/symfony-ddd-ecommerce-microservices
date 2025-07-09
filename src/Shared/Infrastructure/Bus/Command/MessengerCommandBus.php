@@ -9,7 +9,7 @@ use App\Shared\Domain\Bus\Command\CommandBus;
 use Symfony\Component\Messenger\Exception\HandlerFailedException;
 use Symfony\Component\Messenger\MessageBusInterface;
 
-final class MessengerCommandBus implements CommandBus
+final readonly class MessengerCommandBus implements CommandBus
 {
     public function __construct(private MessageBusInterface $commandBus)
     {

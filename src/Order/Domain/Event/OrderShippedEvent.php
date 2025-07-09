@@ -11,8 +11,8 @@ use App\Shared\Domain\ValueObject\CustomerId;
 
 final readonly class OrderShippedEvent extends BaseDomainEvent
 {
-    public const EVENT_TYPE = 'order.shipped';
-    public const EVENT_VERSION = 1;
+    public const string EVENT_TYPE = 'order.shipped';
+    public const int EVENT_VERSION = 1;
 
     private function __construct(
         string $aggregateId,

@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace App\Order\Domain\ValueObject;
 
+use Stringable;
 use App\Order\Domain\Exception\InvalidQuantityException;
 
-final readonly class Quantity
+final readonly class Quantity implements Stringable
 {
     private function __construct(
         private int $value,

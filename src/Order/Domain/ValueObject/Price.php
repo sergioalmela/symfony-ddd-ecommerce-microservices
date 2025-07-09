@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace App\Order\Domain\ValueObject;
 
+use Stringable;
 use App\Order\Domain\Exception\PriceInvalidException;
 
-final readonly class Price
+final readonly class Price implements Stringable
 {
     private readonly float $value;
 

@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace App\Shared\Domain\Entity;
 
+use Stringable;
 use App\Shared\Domain\Exception\InvalidUuidError;
 
-abstract readonly class Uuid
+abstract readonly class Uuid implements Stringable
 {
     protected function __construct(
         private string $value,

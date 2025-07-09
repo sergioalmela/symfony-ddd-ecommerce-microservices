@@ -17,30 +17,8 @@ use App\Shared\Domain\ValueObject\SellerId;
 
 final class Order extends AggregateRoot
 {
-    private OrderId $id;
-    private ProductId $productId;
-    private Quantity $quantity;
-    private Price $price;
-    private CustomerId $customerId;
-    private SellerId $sellerId;
-    private OrderStatus $status;
-
-    public function __construct(
-        OrderId $id,
-        ProductId $productId,
-        Quantity $quantity,
-        Price $price,
-        CustomerId $customerId,
-        SellerId $sellerId,
-        OrderStatus $status,
-    ) {
-        $this->id = $id;
-        $this->productId = $productId;
-        $this->quantity = $quantity;
-        $this->price = $price;
-        $this->customerId = $customerId;
-        $this->sellerId = $sellerId;
-        $this->status = $status;
+    public function __construct(private readonly OrderId $id, private readonly ProductId $productId, private readonly Quantity $quantity, private readonly Price $price, private readonly CustomerId $customerId, private readonly SellerId $sellerId, private OrderStatus $status)
+    {
     }
 
     public static function create(

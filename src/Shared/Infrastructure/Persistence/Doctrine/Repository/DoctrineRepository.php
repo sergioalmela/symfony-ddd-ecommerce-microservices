@@ -9,11 +9,8 @@ use Doctrine\ORM\EntityRepository;
 
 abstract class DoctrineRepository
 {
-    private EntityManagerInterface $entityManager;
-
-    public function __construct(EntityManagerInterface $entityManager)
+    public function __construct(private readonly EntityManagerInterface $entityManager)
     {
-        $this->entityManager = $entityManager;
     }
 
     protected function entityManager(): EntityManagerInterface

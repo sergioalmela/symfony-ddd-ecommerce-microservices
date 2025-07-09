@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace App\Invoice\Domain\ValueObject;
 
+use Stringable;
 use App\Invoice\Domain\Exception\InvalidFilePathException;
 
-final readonly class FilePath
+final readonly class FilePath implements Stringable
 {
     private function __construct(
         private string $value,

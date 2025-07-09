@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace App\Invoice\Domain\ValueObject;
 
+use Stringable;
 use DateTimeImmutable;
 use Exception;
 use App\Invoice\Domain\Exception\InvalidSentAtException;
 
-final readonly class SentAt
+final readonly class SentAt implements Stringable
 {
     private function __construct(
         private DateTimeImmutable $value,
@@ -44,7 +45,7 @@ final readonly class SentAt
             $date = new DateTimeImmutable($dateString);
 
             return self::of($date);
-        } catch (Exception $e) {
+        } catch (Exception) {
             throw new InvalidSentAtException("Invalid date format: {$dateString}");
         }
     }

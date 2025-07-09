@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Order\Domain\ValueObject;
 
+use Stringable;
 use App\Order\Domain\Exception\OrderStatusInvalidException;
 
 enum OrderStatusType: string
@@ -15,7 +16,7 @@ enum OrderStatusType: string
     case SHIPPED = 'SHIPPED';
 }
 
-final readonly class OrderStatus
+final readonly class OrderStatus implements Stringable
 {
     private function __construct(
         private OrderStatusType $value,

@@ -13,8 +13,8 @@ use App\Shared\Domain\ValueObject\CustomerId;
 
 final readonly class OrderCreatedEvent extends BaseDomainEvent
 {
-    public const EVENT_TYPE = 'order.created';
-    public const EVENT_VERSION = 1;
+    public const string EVENT_TYPE = 'order.created';
+    public const int EVENT_VERSION = 1;
 
     private function __construct(
         string $aggregateId,
