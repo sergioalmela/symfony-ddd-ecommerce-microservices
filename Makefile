@@ -11,7 +11,7 @@ SYMFONY  = $(PHP) bin/console
 
 # Misc
 .DEFAULT_GOAL = help
-.PHONY        : help build up start down logs sh composer vendor sf cc test
+.PHONY        : help build up start down logs sh composer vendor sf cc test cs-fix cs-check phpstan rector qa
 
 ## —— 🎵 🐳 The Symfony Docker Makefile 🐳 🎵 ——————————————————————————————————
 help: ## Outputs this help screen
@@ -59,3 +59,35 @@ sf: ## List all Symfony commands or pass the parameter "c=" to run a given comma
 
 cc: c=c:c ## Clear the cache
 cc: sf
+
+## —— Code Quality 🔍 ——————————————————————————————————————————————————————————
+cs-fix: ## Fix code style with PHP-CS-Fixer
+	@$(PHP) vendor/bin/php-cs-fixer fix --verbose --allow-risky yes
+
+cs-check: ## Check code style with PHP-CS-Fixer (dry-run)
+	@$(PHP) vendor/bin/php-cs-fixer fix --dry-run --diff --allow-risky yes
+
+phpstan: ## Run PHPStan static analysis
+	@$(PHP) vendor/bin/phpstan analyse --memory-limit=1G
+
+rector: ## Run Rector for automated refactoring (dry-run)
+	@$(PHP) vendor/bin/rector process --dry-run
+
+rector-fix: ## Apply Rector automated refactoring
+	@$(PHP) vendor/bin/rector process
+
+qa: ## Run full quality assurance suite
+	@echo "🔍 Running code quality checks..."
+	@make cs-check
+	@echo "📊 Running static analysis..."
+	@make phpstan
+	@echo "🧪 Running tests..."
+	@make test
+	@echo "✅ Quality assurance complete!"
+
+qa-fix: ## Fix all code quality issues
+	@echo "🔧 Fixing code style..."
+	@make cs-fix
+	@echo "🔄 Applying automated refactoring..."
+	@make rector-fix
+	@echo "✅ All fixes applied!"
