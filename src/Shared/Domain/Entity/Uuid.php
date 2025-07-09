@@ -9,14 +9,15 @@ use App\Shared\Domain\Exception\InvalidUuidError;
 abstract readonly class Uuid
 {
     protected function __construct(
-        private string $value
-    ) {}
+        private string $value,
+    ) {
+    }
 
     public static function generate(): static
     {
         $data = random_bytes(16);
-        $data[6] = chr(ord($data[6]) & 0x0f | 0x40);
-        $data[8] = chr(ord($data[8]) & 0x3f | 0x80);
+        $data[6] = chr(ord($data[6]) & 0x0F | 0x40);
+        $data[8] = chr(ord($data[8]) & 0x3F | 0x80);
 
         return new static(vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4)));
     }
@@ -37,7 +38,7 @@ abstract readonly class Uuid
 
     private static function isValid(string $value): bool
     {
-        return preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i', $value) === 1;
+        return 1 === preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i', $value);
     }
 
     public function value(): string

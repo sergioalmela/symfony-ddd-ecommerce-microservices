@@ -20,9 +20,8 @@ final readonly class CreateOrderCommandHandler implements CommandHandler
 {
     public function __construct(
         private OrderRepository $orderRepository,
-        private EventBus        $eventBus
-    )
-    {
+        private EventBus $eventBus,
+    ) {
     }
 
     public function __invoke(CreateOrderCommand $command): void

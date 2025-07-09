@@ -24,7 +24,7 @@ final class Invoice extends AggregateRoot
         OrderId $orderId,
         SellerId $sellerId,
         FilePath $filePath,
-        ?SentAt $sentAt = null
+        ?SentAt $sentAt = null,
     ) {
         $this->id = $id;
         $this->orderId = $orderId;
@@ -37,7 +37,7 @@ final class Invoice extends AggregateRoot
         InvoiceId $id,
         OrderId $orderId,
         SellerId $sellerId,
-        FilePath $filePath
+        FilePath $filePath,
     ): self {
         return new self(
             $id,
@@ -49,7 +49,7 @@ final class Invoice extends AggregateRoot
 
     public function markAsSent(): void
     {
-        if ($this->sentAt !== null) {
+        if (null !== $this->sentAt) {
             return;
         }
 
@@ -58,7 +58,7 @@ final class Invoice extends AggregateRoot
 
     public function isSent(): bool
     {
-        return $this->sentAt !== null;
+        return null !== $this->sentAt;
     }
 
     public function id(): InvoiceId

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Order\Application\Command\CreateOrder;
@@ -13,7 +14,7 @@ final readonly class CreateOrderCommand implements Command
         public int $quantity,
         public float $price,
         public string $customerId,
-        public string $sellerId
+        public string $sellerId,
     ) {
     }
 }

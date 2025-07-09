@@ -5,18 +5,18 @@ declare(strict_types=1);
 namespace App\Invoice\Domain\ValueObject;
 
 use App\Invoice\Domain\Exception\InvalidSentAtException;
-use DateTimeImmutable;
 
 final readonly class SentAt
 {
     private function __construct(
-        private DateTimeImmutable $value
-    ) {}
+        private \DateTimeImmutable $value,
+    ) {
+    }
 
-    public static function of(DateTimeImmutable $value): self
+    public static function of(\DateTimeImmutable $value): self
     {
-        $now = new DateTimeImmutable();
-        
+        $now = new \DateTimeImmutable();
+
         // Don't allow future dates
         if ($value > $now) {
             throw new InvalidSentAtException('SentAt date cannot be in the future');
@@ -33,25 +33,26 @@ final readonly class SentAt
 
     public static function now(): self
     {
-        return new self(new DateTimeImmutable());
+        return new self(new \DateTimeImmutable());
     }
 
     public static function fromString(string $dateString): self
     {
         try {
-            $date = new DateTimeImmutable($dateString);
+            $date = new \DateTimeImmutable($dateString);
+
             return self::of($date);
         } catch (\Exception $e) {
             throw new InvalidSentAtException("Invalid date format: {$dateString}");
         }
     }
 
-    public static function fromPrimitives(DateTimeImmutable $value): self
+    public static function fromPrimitives(\DateTimeImmutable $value): self
     {
         return new self($value);
     }
 
-    public function value(): DateTimeImmutable
+    public function value(): \DateTimeImmutable
     {
         return $this->value;
     }
@@ -63,13 +64,15 @@ final readonly class SentAt
 
     public function isToday(): bool
     {
-        $today = new DateTimeImmutable('today');
+        $today = new \DateTimeImmutable('today');
+
         return $this->value >= $today && $this->value < $today->modify('+1 day');
     }
 
     public function daysSinceNow(): int
     {
-        $now = new DateTimeImmutable();
+        $now = new \DateTimeImmutable();
+
         return $now->diff($this->value)->days;
     }
 

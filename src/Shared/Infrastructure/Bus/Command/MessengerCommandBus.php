@@ -8,7 +8,6 @@ use App\Shared\Domain\Bus\Command\Command;
 use App\Shared\Domain\Bus\Command\CommandBus;
 use Symfony\Component\Messenger\Exception\HandlerFailedException;
 use Symfony\Component\Messenger\MessageBusInterface;
-use Throwable;
 
 final class MessengerCommandBus implements CommandBus
 {
@@ -29,7 +28,6 @@ final class MessengerCommandBus implements CommandBus
     {
         $originalException = $e;
         while ($originalException instanceof HandlerFailedException) {
-            /** @var Throwable $originalException */
             $originalException = $originalException->getPrevious();
         }
 

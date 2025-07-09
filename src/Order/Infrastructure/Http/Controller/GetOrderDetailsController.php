@@ -24,7 +24,7 @@ final class GetOrderDetailsController extends BaseController
                 in: 'path',
                 required: true,
                 schema: new OA\Schema(type: 'string', format: 'uuid', example: 'a7a4f438-e4b7-4123-9a39-435345e274f4')
-            )
+            ),
         ],
         responses: [
             new OA\Response(
@@ -46,7 +46,7 @@ final class GetOrderDetailsController extends BaseController
             new OA\Response(
                 response: 404,
                 description: 'Order not found'
-            )
+            ),
         ]
     )]
     public function __invoke(string $id): JsonResponse

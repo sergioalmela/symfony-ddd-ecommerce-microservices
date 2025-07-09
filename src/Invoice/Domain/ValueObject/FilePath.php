@@ -9,13 +9,14 @@ use App\Invoice\Domain\Exception\InvalidFilePathException;
 final readonly class FilePath
 {
     private function __construct(
-        private string $value
-    ) {}
+        private string $value,
+    ) {
+    }
 
     public static function of(string $value): self
     {
         $trimmedValue = trim($value);
-        
+
         if (empty($trimmedValue)) {
             throw new InvalidFilePathException('File path cannot be empty');
         }
@@ -32,11 +33,9 @@ final readonly class FilePath
         // Ensure it has a valid file extension for invoices
         $allowedExtensions = ['pdf', 'html', 'xml', 'txt'];
         $extension = strtolower(pathinfo($trimmedValue, PATHINFO_EXTENSION));
-        
+
         if (!in_array($extension, $allowedExtensions, true)) {
-            throw new InvalidFilePathException(
-                sprintf('File must have one of these extensions: %s', implode(', ', $allowedExtensions))
-            );
+            throw new InvalidFilePathException(sprintf('File must have one of these extensions: %s', implode(', ', $allowedExtensions)));
         }
 
         return new self($trimmedValue);

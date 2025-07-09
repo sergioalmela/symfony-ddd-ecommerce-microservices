@@ -12,7 +12,7 @@ use App\Shared\Domain\Bus\Query\QueryHandler;
 final readonly class GetOrderDetailsQueryHandler implements QueryHandler
 {
     public function __construct(
-        private OrderRepository $orderRepository
+        private OrderRepository $orderRepository,
     ) {
     }
 

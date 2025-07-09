@@ -9,8 +9,9 @@ use App\Order\Domain\Exception\InvalidQuantityException;
 final readonly class Quantity
 {
     private function __construct(
-        private int $value
-    ) {}
+        private int $value,
+    ) {
+    }
 
     public static function of(int $value): self
     {

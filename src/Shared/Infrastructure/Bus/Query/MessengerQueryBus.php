@@ -7,7 +7,6 @@ use App\Shared\Domain\Bus\Query\QueryBus;
 use Symfony\Component\Messenger\Exception\HandlerFailedException;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\HandledStamp;
-use Throwable;
 
 final class MessengerQueryBus implements QueryBus
 {
@@ -33,7 +32,7 @@ final class MessengerQueryBus implements QueryBus
     {
         $originalException = $e;
         while ($originalException instanceof HandlerFailedException) {
-            /** @var Throwable $originalException */
+            /** @var \Throwable $originalException */
             $originalException = $originalException->getPrevious();
         }
 

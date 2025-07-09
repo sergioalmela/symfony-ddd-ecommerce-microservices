@@ -5,9 +5,8 @@ declare(strict_types=1);
 namespace App\Order\Domain\Exception;
 
 use App\Order\Domain\ValueObject\OrderStatusType;
-use InvalidArgumentException;
 
-final class OrderStatusInvalidException extends InvalidArgumentException
+final class OrderStatusInvalidException extends \InvalidArgumentException
 {
     public function __construct(string $value)
     {

@@ -18,14 +18,15 @@ enum OrderStatusType: string
 final readonly class OrderStatus
 {
     private function __construct(
-        private OrderStatusType $value
-    ) {}
+        private OrderStatusType $value,
+    ) {
+    }
 
     public static function of(string $value): self
     {
         $status = OrderStatusType::tryFrom($value);
 
-        if ($status === null) {
+        if (null === $status) {
             throw new OrderStatusInvalidException($value);
         }
 
@@ -44,7 +45,7 @@ final readonly class OrderStatus
 
     public function isShipped(): bool
     {
-        return $this->value === OrderStatusType::SHIPPED;
+        return OrderStatusType::SHIPPED === $this->value;
     }
 
     public function canTransitionTo(self $newStatus): bool
@@ -52,13 +53,13 @@ final readonly class OrderStatus
         return match ($this->value) {
             OrderStatusType::CREATED => in_array($newStatus->value, [
                 OrderStatusType::ACCEPTED,
-                OrderStatusType::REJECTED
+                OrderStatusType::REJECTED,
             ]),
             OrderStatusType::ACCEPTED => in_array($newStatus->value, [
-                OrderStatusType::SHIPPING_IN_PROGRESS
+                OrderStatusType::SHIPPING_IN_PROGRESS,
             ]),
             OrderStatusType::SHIPPING_IN_PROGRESS => in_array($newStatus->value, [
-                OrderStatusType::SHIPPED
+                OrderStatusType::SHIPPED,
             ]),
             OrderStatusType::REJECTED,
             OrderStatusType::SHIPPED => false,

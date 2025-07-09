@@ -7,7 +7,6 @@ namespace App\Order\Domain\Event;
 use App\Order\Domain\ValueObject\OrderId;
 use App\Shared\Domain\Event\BaseDomainEvent;
 use App\Shared\Domain\ValueObject\CustomerId;
-use DateTimeImmutable;
 
 final readonly class OrderShippedEvent extends BaseDomainEvent
 {
@@ -15,21 +14,21 @@ final readonly class OrderShippedEvent extends BaseDomainEvent
     public const EVENT_VERSION = 1;
 
     private function __construct(
-        string            $aggregateId,
-        DateTimeImmutable $occurredOn,
+        string $aggregateId,
+        \DateTimeImmutable $occurredOn,
         public CustomerId $customerId,
     ) {
         parent::__construct($aggregateId, $occurredOn);
     }
 
     public static function create(
-        OrderId            $aggregateId,
-        CustomerId         $customerId,
-        ?DateTimeImmutable $occurredOn = null
+        OrderId $aggregateId,
+        CustomerId $customerId,
+        ?\DateTimeImmutable $occurredOn = null,
     ): self {
         return new self(
             $aggregateId->value(),
-            $occurredOn ?? new DateTimeImmutable(),
+            $occurredOn ?? new \DateTimeImmutable(),
             $customerId
         );
     }

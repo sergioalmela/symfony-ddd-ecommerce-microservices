@@ -21,7 +21,7 @@ final class DoctrineOrderRepository extends DoctrineRepository implements OrderR
     {
         return $this->repository(Order::class)->findOneBy([
             'id' => $orderId,
-            'sellerId' => $sellerId
+            'sellerId' => $sellerId,
         ]);
     }
 
@@ -31,7 +31,7 @@ final class DoctrineOrderRepository extends DoctrineRepository implements OrderR
     public function findBySeller(SellerId $sellerId): array
     {
         return $this->repository(Order::class)->findBy([
-            'sellerId' => $sellerId
+            'sellerId' => $sellerId,
         ]);
     }
 

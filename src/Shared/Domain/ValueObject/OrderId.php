@@ -8,5 +8,4 @@ use App\Shared\Domain\Entity\Uuid;
 
 final readonly class OrderId extends Uuid
 {
-
 }

@@ -17,9 +17,8 @@ final readonly class UpdateOrderStatusCommandHandler implements CommandHandler
 {
     public function __construct(
         private OrderRepository $orderRepository,
-        private EventBus        $eventBus
-    )
-    {
+        private EventBus $eventBus,
+    ) {
     }
 
     public function __invoke(UpdateOrderStatusCommand $command): void

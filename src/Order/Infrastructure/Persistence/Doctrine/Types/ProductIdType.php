@@ -14,9 +14,9 @@ final class ProductIdType extends GuidType
     {
         if (null === $value) {
             return null;
-
         }
-        return (string)$value;
+
+        return (string) $value;
     }
 
     public function convertToPHPValue($value, AbstractPlatform $platform): ?ProductId

@@ -26,13 +26,13 @@ final class Order extends AggregateRoot
     private OrderStatus $status;
 
     public function __construct(
-        OrderId     $id,
-        ProductId   $productId,
-        Quantity    $quantity,
-        Price       $price,
-        CustomerId  $customerId,
-        SellerId    $sellerId,
-        OrderStatus $status
+        OrderId $id,
+        ProductId $productId,
+        Quantity $quantity,
+        Price $price,
+        CustomerId $customerId,
+        SellerId $sellerId,
+        OrderStatus $status,
     ) {
         $this->id = $id;
         $this->productId = $productId;
@@ -44,12 +44,12 @@ final class Order extends AggregateRoot
     }
 
     public static function create(
-        OrderId    $id,
-        ProductId  $productId,
-        Quantity   $quantity,
-        Price      $price,
+        OrderId $id,
+        ProductId $productId,
+        Quantity $quantity,
+        Price $price,
         CustomerId $customerId,
-        SellerId   $sellerId
+        SellerId $sellerId,
     ): self {
         $order = new self(
             $id,

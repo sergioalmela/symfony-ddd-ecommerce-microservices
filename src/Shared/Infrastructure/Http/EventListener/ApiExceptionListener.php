@@ -17,7 +17,7 @@ final readonly class ApiExceptionListener
 {
     public function __construct(
         private LoggerInterface $logger,
-        private bool $debug = false
+        private bool $debug = false,
     ) {
     }
 
@@ -26,7 +26,7 @@ final readonly class ApiExceptionListener
         $exception = $event->getThrowable();
 
         $this->logger->error(
-            'API Exception: ' . $exception->getMessage(),
+            'API Exception: '.$exception->getMessage(),
             [
                 'exception' => $exception,
                 'request' => $event->getRequest()->getUri(),

@@ -11,7 +11,7 @@ use App\Shared\Domain\ValueObject\SellerId;
 final readonly class GetOrdersQueryHandler implements QueryHandler
 {
     public function __construct(
-        private OrderRepository $orderRepository
+        private OrderRepository $orderRepository,
     ) {
     }
 
