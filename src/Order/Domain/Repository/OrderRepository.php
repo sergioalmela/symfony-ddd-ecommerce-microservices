@@ -10,6 +10,7 @@ use App\Shared\Domain\ValueObject\SellerId;
 
 interface OrderRepository {
     public function find(OrderId $orderId): ?Order;
+    public function findByIdAndSeller(OrderId $orderId, SellerId $sellerId): ?Order;
     public function findBySeller(SellerId $sellerId): array;
     public function save(Order $order): void;
 }

@@ -17,6 +17,14 @@ final class DoctrineOrderRepository extends DoctrineRepository implements OrderR
         return $this->repository(Order::class)->find($orderId);
     }
 
+    public function findByIdAndSeller(OrderId $orderId, SellerId $sellerId): ?Order
+    {
+        return $this->repository(Order::class)->findOneBy([
+            'id' => $orderId,
+            'sellerId' => $sellerId
+        ]);
+    }
+
     /**
      * @return Order[]
      */
