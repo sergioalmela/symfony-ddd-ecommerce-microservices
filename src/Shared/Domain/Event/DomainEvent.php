@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Shared\Domain\Event;
 
+use DateTimeImmutable;
+
 interface DomainEvent
 {
     public function eventType(): string;
@@ -12,7 +14,7 @@ interface DomainEvent
 
     public function aggregateId(): string;
 
-    public function occurredOn(): \DateTimeImmutable;
+    public function occurredOn(): DateTimeImmutable;
 
     public function payload(): array;
 

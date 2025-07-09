@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Order\Application\Query\GetOrderDetails;
 
+use App\Order\Domain\Entity\Order;
 use App\Order\Domain\Exception\OrderNotFoundException;
 use App\Order\Domain\Repository\OrderRepository;
 use App\Order\Domain\ValueObject\OrderId;
@@ -22,7 +23,7 @@ final readonly class GetOrderDetailsQueryHandler implements QueryHandler
 
         $order = $this->orderRepository->find($id);
 
-        if (null === $order) {
+        if (!$order instanceof Order) {
             throw new OrderNotFoundException($query->id);
         }
 

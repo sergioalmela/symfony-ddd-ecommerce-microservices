@@ -49,7 +49,7 @@ final class Invoice extends AggregateRoot
 
     public function markAsSent(): void
     {
-        if (null !== $this->sentAt) {
+        if ($this->sentAt instanceof SentAt) {
             return;
         }
 
@@ -58,7 +58,7 @@ final class Invoice extends AggregateRoot
 
     public function isSent(): bool
     {
-        return null !== $this->sentAt;
+        return $this->sentAt instanceof SentAt;
     }
 
     public function id(): InvoiceId

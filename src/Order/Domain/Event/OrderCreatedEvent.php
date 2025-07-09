@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Order\Domain\Event;
 
+use DateTimeImmutable;
 use App\Order\Domain\ValueObject\OrderId;
 use App\Order\Domain\ValueObject\Price;
 use App\Order\Domain\ValueObject\Quantity;
@@ -17,7 +18,7 @@ final readonly class OrderCreatedEvent extends BaseDomainEvent
 
     private function __construct(
         string $aggregateId,
-        \DateTimeImmutable $occurredOn,
+        DateTimeImmutable $occurredOn,
         public CustomerId $customerId,
         public Price $price,
         public Quantity $quantity,
@@ -30,11 +31,11 @@ final readonly class OrderCreatedEvent extends BaseDomainEvent
         CustomerId $customerId,
         Price $price,
         Quantity $quantity,
-        ?\DateTimeImmutable $occurredOn = null,
+        ?DateTimeImmutable $occurredOn = null,
     ): self {
         return new self(
             $aggregateId->value(),
-            $occurredOn ?? new \DateTimeImmutable(),
+            $occurredOn ?? new DateTimeImmutable(),
             $customerId,
             $price,
             $quantity

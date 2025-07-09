@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Shared\Infrastructure\Http\EventListener;
 
+use Throwable;
+use DateTimeImmutable;
+use DateTimeInterface;
 use App\Order\Domain\Exception\OrderAlreadyExistsException;
 use App\Order\Domain\Exception\OrderNotFoundException;
 use App\Shared\Domain\Exception\DomainException;
@@ -37,13 +40,13 @@ final readonly class ApiExceptionListener
         $event->setResponse($response);
     }
 
-    private function createApiErrorResponse(\Throwable $exception): JsonResponse
+    private function createApiErrorResponse(Throwable $exception): JsonResponse
     {
         $statusCode = $this->getStatusCode($exception);
         $errorData = [
             'statusCode' => $statusCode,
             'message' => $this->getErrorMessage($exception),
-            'timestamp' => new \DateTimeImmutable()->format(\DateTimeInterface::ATOM),
+            'timestamp' => new DateTimeImmutable()->format(DateTimeInterface::ATOM),
         ];
 
         if ($this->debug) {
@@ -58,7 +61,7 @@ final readonly class ApiExceptionListener
         return new JsonResponse($errorData, $statusCode);
     }
 
-    private function getStatusCode(\Throwable $exception): int
+    private function getStatusCode(Throwable $exception): int
     {
         if ($exception instanceof HttpExceptionInterface) {
             return $exception->getStatusCode();
@@ -75,7 +78,7 @@ final readonly class ApiExceptionListener
         return Response::HTTP_INTERNAL_SERVER_ERROR;
     }
 
-    private function getErrorMessage(\Throwable $exception): string
+    private function getErrorMessage(Throwable $exception): string
     {
         if ($this->debug) {
             return $exception->getMessage();

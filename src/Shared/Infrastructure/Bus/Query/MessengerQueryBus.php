@@ -2,6 +2,7 @@
 
 namespace App\Shared\Infrastructure\Bus\Query;
 
+use Throwable;
 use App\Shared\Domain\Bus\Query\Query;
 use App\Shared\Domain\Bus\Query\QueryBus;
 use Symfony\Component\Messenger\Exception\HandlerFailedException;
@@ -32,7 +33,7 @@ final class MessengerQueryBus implements QueryBus
     {
         $originalException = $e;
         while ($originalException instanceof HandlerFailedException) {
-            /** @var \Throwable $originalException */
+            /** @var Throwable $originalException */
             $originalException = $originalException->getPrevious();
         }
 

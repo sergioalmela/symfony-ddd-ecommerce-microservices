@@ -29,7 +29,7 @@ final readonly class UpdateOrderStatusCommandHandler implements CommandHandler
 
         $order = $this->orderRepository->findByIdAndSeller($orderId, $sellerId);
 
-        if (null === $order) {
+        if (!$order instanceof Order) {
             throw new OrderNotFoundException($command->id);
         }
 

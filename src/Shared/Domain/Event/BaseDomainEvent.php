@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace App\Shared\Domain\Event;
 
+use DateTimeImmutable;
+use DateTimeInterface;
+
 abstract readonly class BaseDomainEvent implements DomainEvent
 {
     public function __construct(
         protected string $aggregateId,
-        protected \DateTimeImmutable $occurredOn,
+        protected DateTimeImmutable $occurredOn,
     ) {
     }
 
@@ -23,7 +26,7 @@ abstract readonly class BaseDomainEvent implements DomainEvent
         return $this->aggregateId;
     }
 
-    public function occurredOn(): \DateTimeImmutable
+    public function occurredOn(): DateTimeImmutable
     {
         return $this->occurredOn;
     }
@@ -35,7 +38,7 @@ abstract readonly class BaseDomainEvent implements DomainEvent
             'eventVersion' => $this->eventVersion(),
             'aggregateId' => $this->aggregateId(),
             'payload' => $this->payload(),
-            'occurredOn' => $this->occurredOn()->format(\DateTimeInterface::ATOM),
+            'occurredOn' => $this->occurredOn()->format(DateTimeInterface::ATOM),
         ];
     }
 }
