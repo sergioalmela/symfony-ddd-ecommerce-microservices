@@ -4,14 +4,16 @@ declare(strict_types=1);
 
 namespace App\Invoice\Domain\Repository;
 
-use App\Order\Domain\Entity\Order;
+use App\Invoice\Domain\Entity\Invoice;
+use App\Invoice\Domain\ValueObject\InvoiceId;
 use App\Shared\Domain\ValueObject\OrderId;
 use App\Shared\Domain\ValueObject\SellerId;
 
 interface InvoiceRepository
 {
+    public function find(InvoiceId $invoiceId): ?Invoice;
 
-    public function findByOrderAndSeller(OrderId $orderId, SellerId $sellerId): ?Order;
+    public function findByOrderAndSeller(OrderId $orderId, SellerId $sellerId): ?Invoice;
 
-    public function save(Order $order): void;
+    public function save(Invoice $invoice): void;
 }

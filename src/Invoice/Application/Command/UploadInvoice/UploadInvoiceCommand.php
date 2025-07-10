@@ -11,7 +11,8 @@ final readonly class UploadInvoiceCommand implements Command
     public function __construct(
         public string $orderId,
         public string $sellerId,
-        public string $file
+        public string $fileContent,
+        public string $fileExtension,
     ) {
     }
 }

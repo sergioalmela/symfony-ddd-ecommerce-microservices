@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
+                          https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+
+    <entity name="App\Invoice\Domain\Entity\Invoice" table="invoice">
+
+        <id name="invoiceId" type="invoice_id" column="id" />
+
+        <field name="orderId" type="order_id" column="order_id" />
+        <field name="sellerId" type="seller_id" column="seller_id" />
+        <field name="filePath" type="file_path" column="file_path" />
+        <field name="sentAt" type="sent_at" column="sent_at" nullable="true" />
+
+        <indexes>
+            <index name="idx_invoice_order_seller" columns="order_id,seller_id"/>
+            <index name="idx_invoice_seller_id" columns="seller_id"/>
+        </indexes>
+
+        <unique-constraints>
+            <unique-constraint name="uniq_invoice_order_seller" columns="order_id,seller_id"/>
+        </unique-constraints>
+    </entity>
+
+</doctrine-mapping>

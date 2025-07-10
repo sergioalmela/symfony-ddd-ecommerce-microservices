@@ -4,13 +4,15 @@ declare(strict_types=1);
 
 namespace App\Invoice\Application\Command\UploadInvoice;
 
+use App\Invoice\Domain\Entity\Invoice;
 use App\Invoice\Domain\Exception\InvoiceAlreadyExistsException;
 use App\Invoice\Domain\Repository\InvoiceRepository;
+use App\Invoice\Domain\ValueObject\FilePath;
+use App\Invoice\Domain\ValueObject\InvoiceId;
 use App\Shared\Domain\Bus\Command\CommandHandler;
 use App\Shared\Domain\Bus\Event\EventBus;
-use App\Shared\Domain\ValueObject\CustomerId;
+use App\Shared\Domain\Service\StorageService;
 use App\Shared\Domain\ValueObject\OrderId;
-use App\Shared\Domain\ValueObject\ProductId;
 use App\Shared\Domain\ValueObject\SellerId;
 
 final readonly class UploadInvoiceCommandHandler implements CommandHandler
@@ -18,6 +20,7 @@ final readonly class UploadInvoiceCommandHandler implements CommandHandler
     public function __construct(
         private InvoiceRepository $invoiceRepository,
         private EventBus $eventBus,
+        private StorageService $storageService,
     ) {
     }
 
@@ -30,23 +33,27 @@ final readonly class UploadInvoiceCommandHandler implements CommandHandler
             throw new InvoiceAlreadyExistsException($uploadInvoiceCommand->orderId);
         }
 
-        $order = Order::create(
-            $orderId,
-            ProductId::of($createOrderCommand->productId),
-            Quantity::of($createOrderCommand->quantity),
-            Price::of($createOrderCommand->price),
-            CustomerId::of($createOrderCommand->customerId),
-            SellerId::of($createOrderCommand->sellerId)
+        $fileName = sprintf('Invoice-%s.%s', $uploadInvoiceCommand->orderId, $uploadInvoiceCommand->fileExtension);
+        $fileUrl = $this->storageService->uploadFile(
+            $uploadInvoiceCommand->fileContent,
+            $fileName
         );
 
-        $this->orderRepository->save($order);
+        $invoice = Invoice::create(
+            InvoiceId::generate(),
+            $orderId,
+            $sellerId,
+            FilePath::of($fileUrl)
+        );
 
-        $this->publishDomainEvents($order);
+        $this->invoiceRepository->save($invoice);
+
+        $this->publishDomainEvents($invoice);
     }
 
-    private function publishDomainEvents(Order $order): void
+    private function publishDomainEvents(Invoice $invoice): void
     {
-        $events = $order->releaseEvents();
+        $events = $invoice->releaseEvents();
 
         foreach ($events as $event) {
             $this->eventBus->publish($event);
