@@ -19,8 +19,6 @@ abstract readonly class BaseDomainEvent implements DomainEvent
 
     abstract public function eventVersion(): int;
 
-    abstract public function payload(): array;
-
     public function aggregateId(): string
     {
         return $this->aggregateId;

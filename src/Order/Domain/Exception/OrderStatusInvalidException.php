@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Order\Domain\Exception;
 
-use InvalidArgumentException;
 use App\Order\Domain\ValueObject\OrderStatusType;
+use InvalidArgumentException;
 
 final class OrderStatusInvalidException extends InvalidArgumentException
 {

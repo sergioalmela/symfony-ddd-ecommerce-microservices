@@ -16,7 +16,13 @@ interface DomainEvent
 
     public function occurredOn(): DateTimeImmutable;
 
+    /**
+     * @return array<string, mixed>
+     */
     public function payload(): array;
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toArray(): array;
 }

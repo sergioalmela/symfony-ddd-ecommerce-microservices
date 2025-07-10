@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Order\Infrastructure\Persistence\Doctrine\Types;
 
-use Override;
-use App\Order\Domain\ValueObject\OrderId;
+use App\Shared\Domain\ValueObject\OrderId;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\GuidType;
+use Override;
 
 final class OrderIdType extends GuidType
 {

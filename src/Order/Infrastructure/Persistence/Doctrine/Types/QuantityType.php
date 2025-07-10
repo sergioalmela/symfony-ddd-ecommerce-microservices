@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Order\Infrastructure\Persistence\Doctrine\Types;
 
-use Override;
 use App\Order\Domain\ValueObject\Quantity;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\IntegerType;
+use Override;
 
 final class QuantityType extends IntegerType
 {

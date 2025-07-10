@@ -29,6 +29,9 @@ abstract class BaseController
         $this->commandBus->dispatch($command);
     }
 
+    /**
+     * @param array<string, string> $headers
+     */
     protected function jsonResponse(mixed $data, int $status = Response::HTTP_OK, array $headers = []): JsonResponse
     {
         return new JsonResponse($data, $status, $headers);

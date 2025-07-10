@@ -7,10 +7,10 @@ namespace App\Order\Application\Command\UpdateOrderStatus;
 use App\Order\Domain\Entity\Order;
 use App\Order\Domain\Exception\OrderNotFoundException;
 use App\Order\Domain\Repository\OrderRepository;
-use App\Order\Domain\ValueObject\OrderId;
 use App\Order\Domain\ValueObject\OrderStatus;
 use App\Shared\Domain\Bus\Command\CommandHandler;
 use App\Shared\Domain\Bus\Event\EventBus;
+use App\Shared\Domain\ValueObject\OrderId;
 use App\Shared\Domain\ValueObject\SellerId;
 
 final readonly class UpdateOrderStatusCommandHandler implements CommandHandler

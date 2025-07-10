@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Shared\Domain\Entity;
 
-use Stringable;
 use App\Shared\Domain\Exception\InvalidUuidError;
+use Stringable;
 
 abstract readonly class Uuid implements Stringable
 {

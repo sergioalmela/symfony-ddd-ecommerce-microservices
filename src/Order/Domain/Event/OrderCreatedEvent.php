@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Order\Domain\Event;
 
-use DateTimeImmutable;
-use App\Order\Domain\ValueObject\OrderId;
 use App\Order\Domain\ValueObject\Price;
 use App\Order\Domain\ValueObject\Quantity;
 use App\Shared\Domain\Event\BaseDomainEvent;
 use App\Shared\Domain\ValueObject\CustomerId;
+use App\Shared\Domain\ValueObject\OrderId;
+use DateTimeImmutable;
 
 final readonly class OrderCreatedEvent extends BaseDomainEvent
 {

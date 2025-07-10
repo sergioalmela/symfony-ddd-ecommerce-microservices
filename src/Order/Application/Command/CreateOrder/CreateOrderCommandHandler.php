@@ -7,12 +7,12 @@ namespace App\Order\Application\Command\CreateOrder;
 use App\Order\Domain\Entity\Order;
 use App\Order\Domain\Exception\OrderAlreadyExistsException;
 use App\Order\Domain\Repository\OrderRepository;
-use App\Order\Domain\ValueObject\OrderId;
 use App\Order\Domain\ValueObject\Price;
 use App\Order\Domain\ValueObject\Quantity;
 use App\Shared\Domain\Bus\Command\CommandHandler;
 use App\Shared\Domain\Bus\Event\EventBus;
 use App\Shared\Domain\ValueObject\CustomerId;
+use App\Shared\Domain\ValueObject\OrderId;
 use App\Shared\Domain\ValueObject\ProductId;
 use App\Shared\Domain\ValueObject\SellerId;
 
@@ -33,12 +33,12 @@ final readonly class CreateOrderCommandHandler implements CommandHandler
         }
 
         $order = Order::create(
-            id: $orderId,
-            productId: ProductId::of($createOrderCommand->productId),
-            quantity: Quantity::of($createOrderCommand->quantity),
-            price: Price::of($createOrderCommand->price),
-            customerId: CustomerId::of($createOrderCommand->customerId),
-            sellerId: SellerId::of($createOrderCommand->sellerId)
+            $orderId,
+            ProductId::of($createOrderCommand->productId),
+            Quantity::of($createOrderCommand->quantity),
+            Price::of($createOrderCommand->price),
+            CustomerId::of($createOrderCommand->customerId),
+            SellerId::of($createOrderCommand->sellerId)
         );
 
         $this->orderRepository->save($order);

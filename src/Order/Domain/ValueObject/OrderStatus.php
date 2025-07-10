@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Order\Domain\ValueObject;
 
-use Stringable;
 use App\Order\Domain\Exception\OrderStatusInvalidException;
+use Stringable;
 
 enum OrderStatusType: string
 {
@@ -56,8 +56,8 @@ final readonly class OrderStatus implements Stringable
                 OrderStatusType::ACCEPTED,
                 OrderStatusType::REJECTED,
             ], true),
-            OrderStatusType::ACCEPTED => $newStatus->orderStatusType === OrderStatusType::SHIPPING_IN_PROGRESS,
-            OrderStatusType::SHIPPING_IN_PROGRESS => $newStatus->orderStatusType === OrderStatusType::SHIPPED,
+            OrderStatusType::ACCEPTED => OrderStatusType::SHIPPING_IN_PROGRESS === $newStatus->orderStatusType,
+            OrderStatusType::SHIPPING_IN_PROGRESS => OrderStatusType::SHIPPED === $newStatus->orderStatusType,
             OrderStatusType::REJECTED,
             OrderStatusType::SHIPPED => false,
         };

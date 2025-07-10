@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Order\Domain\Repository;
 
 use App\Order\Domain\Entity\Order;
-use App\Order\Domain\ValueObject\OrderId;
+use App\Shared\Domain\ValueObject\OrderId;
 use App\Shared\Domain\ValueObject\SellerId;
 
 interface OrderRepository

@@ -7,8 +7,8 @@ namespace App\Order\Application\Query\GetOrderDetails;
 use App\Order\Domain\Entity\Order;
 use App\Order\Domain\Exception\OrderNotFoundException;
 use App\Order\Domain\Repository\OrderRepository;
-use App\Order\Domain\ValueObject\OrderId;
 use App\Shared\Domain\Bus\Query\QueryHandler;
+use App\Shared\Domain\ValueObject\OrderId;
 
 final readonly class GetOrderDetailsQueryHandler implements QueryHandler
 {

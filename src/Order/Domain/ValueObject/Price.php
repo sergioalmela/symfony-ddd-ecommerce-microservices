@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Order\Domain\ValueObject;
 
-use Stringable;
 use App\Order\Domain\Exception\PriceInvalidException;
+use Stringable;
 
 final readonly class Price implements Stringable
 {

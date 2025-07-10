@@ -2,12 +2,12 @@
 
 namespace App\Shared\Infrastructure\Bus\Query;
 
-use Throwable;
 use App\Shared\Domain\Bus\Query\Query;
 use App\Shared\Domain\Bus\Query\QueryBus;
 use Symfony\Component\Messenger\Exception\HandlerFailedException;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\HandledStamp;
+use Throwable;
 
 final readonly class MessengerQueryBus implements QueryBus
 {
