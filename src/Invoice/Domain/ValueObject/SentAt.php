@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Invoice\Domain\ValueObject;
 
-use Stringable;
+use App\Invoice\Domain\Exception\InvalidSentAtException;
 use DateTimeImmutable;
 use Exception;
-use App\Invoice\Domain\Exception\InvalidSentAtException;
+use Stringable;
 
 final readonly class SentAt implements Stringable
 {

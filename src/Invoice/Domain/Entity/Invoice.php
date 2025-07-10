@@ -13,8 +13,13 @@ use App\Shared\Domain\ValueObject\SellerId;
 
 final class Invoice extends AggregateRoot
 {
-    public function __construct(private readonly InvoiceId $invoiceId, private readonly OrderId $orderId, private readonly SellerId $sellerId, private readonly FilePath $filePath, private ?SentAt $sentAt = null)
-    {
+    public function __construct(
+        private readonly InvoiceId $invoiceId,
+        private readonly OrderId $orderId,
+        private readonly SellerId $sellerId,
+        private readonly FilePath $filePath,
+        private ?SentAt $sentAt = null,
+    ) {
     }
 
     public static function create(
@@ -27,7 +32,7 @@ final class Invoice extends AggregateRoot
             $invoiceId,
             $orderId,
             $sellerId,
-            $filePath
+            $filePath,
         );
     }
 
