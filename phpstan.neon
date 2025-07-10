@@ -11,6 +11,8 @@ parameters:
         - identifier: missingType.generics
 
     level: 6
+
+    reportUnmatchedIgnoredErrors: true
     paths:
         - bin
         - config

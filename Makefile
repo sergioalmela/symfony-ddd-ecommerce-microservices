@@ -11,7 +11,7 @@ SYMFONY  = $(PHP) bin/console
 
 # Misc
 .DEFAULT_GOAL = help
-.PHONY        : help build up start down logs sh composer vendor sf cc test cs-fix cs-check phpstan rector qa
+.PHONY        : help build up start down logs sh composer vendor sf cc test cs-fix cs-check phpstan rector qa qa-fix validate check-imports
 
 ## —— 🎵 🐳 The Symfony Docker Makefile 🐳 🎵 ——————————————————————————————————
 help: ## Outputs this help screen
@@ -91,3 +91,12 @@ qa-fix: ## Fix all code quality issues
 	@echo "🔄 Applying automated refactoring..."
 	@make rector-fix
 	@echo "✅ All fixes applied!"
+
+validate: ## Quick validation for missing imports and basic issues
+	@echo "🔍 Validating imports and class existence..."
+	@$(PHP) vendor/bin/phpstan analyse --error-format=table --no-progress --quiet
+	@echo "✅ Validation complete!"
+
+check-imports: ## Specifically check for missing imports and class issues
+	@echo "📦 Checking for missing imports and class issues..."
+	@$(PHP) vendor/bin/phpstan analyse --error-format=table --no-progress | grep -E "(class|interface|trait).*(not found|does not exist)" || echo "✅ No missing import issues found"
