@@ -12,6 +12,15 @@ $finder = (new PhpCsFixer\Finder())
 return (new PhpCsFixer\Config())
     ->setRules([
         '@Symfony' => true,
+        'global_namespace_import' => [
+            'import_classes' => true,
+            'import_constants' => false,
+            'import_functions' => false,
+        ],
+        'ordered_imports' => [
+            'imports_order' => ['class', 'function', 'const'],
+            'sort_algorithm' => 'alpha',
+        ],
         '@Symfony:risky' => true,
         'linebreak_after_opening_tag' => true,
         'mb_str_functions' => true,
