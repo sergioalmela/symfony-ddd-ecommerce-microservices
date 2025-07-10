@@ -40,9 +40,16 @@ services:
     App\Invoice\Application\Command\UploadInvoice\UploadInvoiceCommandHandler:
         tags:
             - { name: messenger.message_handler, bus: command.bus }
+            
+    App\Invoice\Application\Command\SendInvoice\SendInvoiceCommandHandler:
+        tags:
+            - { name: messenger.message_handler, bus: command.bus }
 
     # === EVENT HANDLERS ===
-    App\Invoice\Application\EventHandler\OrderShippedEventHandler:
+    App\Invoice\Infrastructure\Listener\CreateOrderProjectionEventHandler:
+        tags:
+            - { name: messenger.message_handler, bus: event.bus }
+    App\Invoice\Infrastructure\Listener\SendInvoiceToCustomerEventHandler:
         tags:
             - { name: messenger.message_handler, bus: event.bus }
 
@@ -65,6 +72,11 @@ services:
         
     App\Invoice\Domain\Repository\InvoiceRepository:
         class: App\Invoice\Infrastructure\Persistence\Doctrine\Repository\DoctrineInvoiceRepository
+        arguments:
+            $entityManager: '@doctrine.orm.invoice_entity_manager'
+            
+    App\Invoice\Domain\Repository\OrderProjectionRepository:
+        class: App\Invoice\Infrastructure\Persistence\Doctrine\Repository\DoctrineOrderProjectionRepository
         arguments:
             $entityManager: '@doctrine.orm.invoice_entity_manager'
 
