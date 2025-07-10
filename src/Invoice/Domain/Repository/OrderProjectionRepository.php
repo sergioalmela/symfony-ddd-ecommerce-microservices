@@ -9,9 +9,7 @@ use App\Shared\Domain\ValueObject\OrderId;
 
 interface OrderProjectionRepository
 {
+    public function find(OrderId $orderId): ?OrderProjection;
+
     public function save(OrderProjection $orderProjection): void;
-
-    public function findByOrderId(OrderId $orderId): ?OrderProjection;
-
-    public function update(OrderProjection $orderProjection): void;
 }

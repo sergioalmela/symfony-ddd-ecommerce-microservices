@@ -7,10 +7,12 @@ namespace App\Invoice\Application\Command\UploadInvoice;
 use App\Invoice\Domain\Entity\Invoice;
 use App\Invoice\Domain\Exception\InvoiceAlreadyExistsException;
 use App\Invoice\Domain\Repository\InvoiceRepository;
+use App\Invoice\Domain\Repository\OrderProjectionRepository;
 use App\Invoice\Domain\ValueObject\FilePath;
 use App\Invoice\Domain\ValueObject\InvoiceId;
 use App\Shared\Domain\Bus\Command\CommandHandler;
 use App\Shared\Domain\Bus\Event\EventBus;
+use App\Shared\Domain\Exception\OrderNotFoundException;
 use App\Shared\Domain\Service\StorageService;
 use App\Shared\Domain\ValueObject\OrderId;
 use App\Shared\Domain\ValueObject\SellerId;
@@ -19,6 +21,7 @@ final readonly class UploadInvoiceCommandHandler implements CommandHandler
 {
     public function __construct(
         private InvoiceRepository $invoiceRepository,
+        private OrderProjectionRepository $orderProjectionRepository,
         private EventBus $eventBus,
         private StorageService $storageService,
     ) {
@@ -31,6 +34,10 @@ final readonly class UploadInvoiceCommandHandler implements CommandHandler
 
         if ($this->invoiceRepository->findByOrderAndSeller($orderId, $sellerId) !== null) {
             throw new InvoiceAlreadyExistsException($uploadInvoiceCommand->orderId);
+        }
+
+        if ($this->orderProjectionRepository->find($orderId) === null) {
+            throw new OrderNotFoundException($uploadInvoiceCommand->orderId);
         }
 
         $fileName = sprintf('Invoice-%s.%s', $uploadInvoiceCommand->orderId, $uploadInvoiceCommand->fileExtension);

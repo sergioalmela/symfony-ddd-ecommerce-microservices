@@ -16,26 +16,16 @@ final class DoctrineOrderProjectionRepository implements OrderProjectionReposito
     ) {
     }
 
-    public function save(OrderProjection $orderProjection): void
-    {
-        $this->entityManager->persist($orderProjection);
-        $this->entityManager->flush();
-    }
-
-    public function findByOrderId(OrderId $orderId): ?OrderProjection
+    public function find(OrderId $orderId): ?OrderProjection
     {
         return $this->entityManager
             ->getRepository(OrderProjection::class)
             ->findOneBy(['orderId' => $orderId]);
     }
-
-    public function exists(OrderId $orderId): bool
+    
+    public function save(OrderProjection $orderProjection): void
     {
-        return $this->findByOrderId($orderId) !== null;
-    }
-
-    public function update(OrderProjection $orderProjection): void
-    {
+        $this->entityManager->persist($orderProjection);
         $this->entityManager->flush();
     }
 }

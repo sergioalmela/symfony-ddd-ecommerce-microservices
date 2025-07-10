@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Shared\Infrastructure\Http\EventListener;
 
 use App\Order\Domain\Exception\OrderAlreadyExistsException;
-use App\Order\Domain\Exception\OrderNotFoundException;
 use App\Shared\Domain\Exception\DomainException;
+use App\Shared\Domain\Exception\OrderNotFoundException;
 use DateTimeImmutable;
 use DateTimeInterface;
 use Psr\Log\LoggerInterface;

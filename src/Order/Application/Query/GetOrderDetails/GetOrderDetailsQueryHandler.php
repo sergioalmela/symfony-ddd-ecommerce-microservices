@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Order\Application\Query\GetOrderDetails;
 
 use App\Order\Domain\Entity\Order;
-use App\Order\Domain\Exception\OrderNotFoundException;
 use App\Order\Domain\Repository\OrderRepository;
 use App\Shared\Domain\Bus\Query\QueryHandler;
+use App\Shared\Domain\Exception\OrderNotFoundException;
 use App\Shared\Domain\ValueObject\OrderId;
 
 final readonly class GetOrderDetailsQueryHandler implements QueryHandler
