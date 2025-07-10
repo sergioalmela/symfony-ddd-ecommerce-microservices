@@ -9,6 +9,7 @@ use App\Order\Domain\ValueObject\Quantity;
 use App\Shared\Domain\Event\BaseDomainEvent;
 use App\Shared\Domain\ValueObject\CustomerId;
 use App\Shared\Domain\ValueObject\OrderId;
+use App\Shared\Domain\ValueObject\SellerId;
 use DateTimeImmutable;
 
 final readonly class OrderCreatedEvent extends BaseDomainEvent
@@ -20,6 +21,7 @@ final readonly class OrderCreatedEvent extends BaseDomainEvent
         string $aggregateId,
         DateTimeImmutable $occurredOn,
         public CustomerId $customerId,
+        public SellerId $sellerId,
         public Price $price,
         public Quantity $quantity,
     ) {
@@ -29,6 +31,7 @@ final readonly class OrderCreatedEvent extends BaseDomainEvent
     public static function create(
         OrderId $orderId,
         CustomerId $customerId,
+        SellerId $sellerId,
         Price $price,
         Quantity $quantity,
         ?DateTimeImmutable $occurredOn = null,
@@ -37,6 +40,7 @@ final readonly class OrderCreatedEvent extends BaseDomainEvent
             $orderId->value(),
             $occurredOn ?? new DateTimeImmutable(),
             $customerId,
+            $sellerId,
             $price,
             $quantity
         );
@@ -55,7 +59,9 @@ final readonly class OrderCreatedEvent extends BaseDomainEvent
     public function payload(): array
     {
         return [
+            'orderId' => $this->aggregateId(),
             'customerId' => $this->customerId->value(),
+            'sellerId' => $this->sellerId->value(),
             'price' => $this->price->value(),
             'quantity' => $this->quantity->value(),
         ];

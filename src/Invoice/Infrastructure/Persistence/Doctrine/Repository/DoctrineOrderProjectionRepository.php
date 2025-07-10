@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Invoice\Infrastructure\Persistence\Doctrine\Repository;
 
-use App\Invoice\Domain\Projection\OrderProjection;
+use App\Invoice\Domain\Entity\Projection\OrderProjection;
 use App\Invoice\Domain\Repository\OrderProjectionRepository;
 use App\Shared\Domain\ValueObject\OrderId;
 use Doctrine\ORM\EntityManagerInterface;

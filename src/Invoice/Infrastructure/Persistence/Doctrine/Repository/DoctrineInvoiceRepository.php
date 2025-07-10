@@ -18,6 +18,11 @@ final class DoctrineInvoiceRepository extends DoctrineRepository implements Invo
         return $this->repository(Invoice::class)->find($invoiceId);
     }
 
+    public function findByOrder(OrderId $orderId): ?Invoice
+    {
+        return $this->repository(Invoice::class)->findOneBy(['orderId' => $orderId]);
+    }
+
     public function findByOrderAndSeller(OrderId $orderId, SellerId $sellerId): ?Invoice
     {
         return $this->repository(Invoice::class)->findOneBy([

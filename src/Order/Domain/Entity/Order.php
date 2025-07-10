@@ -17,7 +17,14 @@ use App\Shared\Domain\ValueObject\SellerId;
 
 final class Order extends AggregateRoot
 {
-    public function __construct(private readonly OrderId $orderId, private readonly ProductId $productId, private readonly Quantity $quantity, private readonly Price $price, private readonly CustomerId $customerId, private readonly SellerId $sellerId, private OrderStatus $orderStatus)
+    public function __construct(
+        private readonly OrderId $orderId,
+        private readonly ProductId $productId,
+        private readonly Quantity $quantity,
+        private readonly Price $price,
+        private readonly CustomerId $customerId,
+        private readonly SellerId $sellerId,
+        private OrderStatus $orderStatus)
     {
     }
 
@@ -39,7 +46,7 @@ final class Order extends AggregateRoot
             OrderStatus::created()
         );
 
-        $order->recordEvent(OrderCreatedEvent::create($orderId, $customerId, $price, $quantity));
+        $order->recordEvent(OrderCreatedEvent::create($orderId, $customerId, $sellerId, $price, $quantity));
 
         return $order;
     }

@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace App\Invoice\Domain\Entity;
 
+use App\Invoice\Domain\Event\InvoiceSentEvent;
 use App\Invoice\Domain\ValueObject\FilePath;
 use App\Invoice\Domain\ValueObject\InvoiceId;
 use App\Invoice\Domain\ValueObject\SentAt;
 use App\Shared\Domain\Entity\AggregateRoot;
 use App\Shared\Domain\ValueObject\OrderId;
 use App\Shared\Domain\ValueObject\SellerId;
+use DateTimeImmutable;
 
 final class Invoice extends AggregateRoot
 {
@@ -36,13 +38,11 @@ final class Invoice extends AggregateRoot
         );
     }
 
-    public function markAsSent(): void
+    public function send(DateTimeImmutable $date): void
     {
-        if ($this->sentAt instanceof SentAt) {
-            return;
-        }
+        $this->sentAt = SentAt::of($date);
 
-        $this->sentAt = SentAt::now();
+        $this->recordEvent(InvoiceSentEvent::create($this->invoiceId));
     }
 
     public function isSent(): bool

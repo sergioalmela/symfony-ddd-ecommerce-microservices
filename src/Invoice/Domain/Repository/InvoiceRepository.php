@@ -12,6 +12,7 @@ use App\Shared\Domain\ValueObject\SellerId;
 interface InvoiceRepository
 {
     public function find(InvoiceId $invoiceId): ?Invoice;
+    public function findByOrder(OrderId $orderId): ?Invoice;
 
     public function findByOrderAndSeller(OrderId $orderId, SellerId $sellerId): ?Invoice;
 

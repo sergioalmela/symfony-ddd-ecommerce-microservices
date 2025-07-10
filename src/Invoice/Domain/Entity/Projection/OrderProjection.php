@@ -2,32 +2,26 @@
 
 declare(strict_types=1);
 
-namespace App\Invoice\Domain\Projection;
+namespace App\Invoice\Domain\Entity\Projection;
 
-use App\Shared\Domain\ValueObject\CustomerId;
 use App\Shared\Domain\ValueObject\OrderId;
+use App\Shared\Domain\ValueObject\SellerId;
 
 final class OrderProjection
 {
     public function __construct(
         private readonly OrderId $orderId,
-        private readonly CustomerId $customerId,
-        private readonly string $status,
-        private readonly float $totalAmount,
+        private readonly SellerId $sellerId,
     ) {
     }
 
-    public static function fromPrimitives(
+    public static function create(
         string $orderId,
-        string $customerId,
-        string $status,
-        float $totalAmount,
+        string $sellerId,
     ): self {
         return new self(
             OrderId::of($orderId),
-            CustomerId::of($customerId),
-            $status,
-            $totalAmount,
+            SellerId::of($sellerId)
         );
     }
 
@@ -36,24 +30,14 @@ final class OrderProjection
         return $this->orderId;
     }
 
-    public function customerId(): CustomerId
+    public function sellerId(): SellerId
     {
-        return $this->customerId;
+        return $this->sellerId;
     }
 
     public function status(): string
     {
         return $this->status;
-    }
-
-    public function totalAmount(): float
-    {
-        return $this->totalAmount;
-    }
-
-    public function isShipped(): bool
-    {
-        return $this->status === 'shipped';
     }
 
     public function toPrimitives(): array
