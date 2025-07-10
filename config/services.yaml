@@ -73,6 +73,11 @@ services:
         class: App\Shared\Infrastructure\Bus\Event\MessengerEventBus
         arguments:
             $messageBus: '@event.bus'
+            
+    App\Shared\Domain\Bus\Query\QueryBus:
+        class: App\Shared\Infrastructure\Bus\Query\MessengerQueryBus
+        arguments:
+            $messageBus: '@query.bus'
 
     App\Shared\Infrastructure\Http\EventListener\ApiExceptionListener:
         arguments:
