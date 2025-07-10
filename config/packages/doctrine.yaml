@@ -21,6 +21,9 @@ doctrine:
             order_status: App\Order\Infrastructure\Persistence\Doctrine\Types\OrderStatusType
             price: App\Order\Infrastructure\Persistence\Doctrine\Types\PriceType
             quantity: App\Order\Infrastructure\Persistence\Doctrine\Types\QuantityType
+            invoice_id: App\Invoice\Infrastructure\Persistence\Doctrine\Types\InvoiceIdType
+            file_path: App\Invoice\Infrastructure\Persistence\Doctrine\Types\FilePathType
+            sent_at: App\Invoice\Infrastructure\Persistence\Doctrine\Types\SentAtType
 
     orm:
         default_entity_manager: order

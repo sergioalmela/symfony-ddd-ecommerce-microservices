@@ -8,4 +8,5 @@ nelmio_api_doc:
     areas:
         path_patterns:
             - ^/orders
+            - ^/invoices
             - ^/api

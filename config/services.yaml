@@ -36,6 +36,10 @@ services:
     App\Order\Application\Command\UpdateOrderStatus\UpdateOrderStatusCommandHandler:
         tags:
             - { name: messenger.message_handler, bus: command.bus }
+                
+    App\Invoice\Application\Command\UploadInvoice\UploadInvoiceCommandHandler:
+        tags:
+            - { name: messenger.message_handler, bus: command.bus }
 
     # === EVENT HANDLERS ===
     App\Invoice\Application\EventHandler\OrderShippedEventHandler:
@@ -47,10 +51,22 @@ services:
         resource: '../src/Order/Infrastructure/Http/Controller/'
         tags: ['controller.service_arguments']
         public: true
+        
+    App\Invoice\Infrastructure\Http\Controller\:
+        resource: '../src/Invoice/Infrastructure/Http/Controller/'
+        tags: ['controller.service_arguments']
+        public: true
 
     # === REPOSITORY BINDINGS ===
     App\Order\Domain\Repository\OrderRepository:
         class: App\Order\Infrastructure\Persistence\Doctrine\Repository\DoctrineOrderRepository
+        arguments:
+            $entityManager: '@doctrine.orm.order_entity_manager'
+        
+    App\Invoice\Domain\Repository\InvoiceRepository:
+        class: App\Invoice\Infrastructure\Persistence\Doctrine\Repository\DoctrineInvoiceRepository
+        arguments:
+            $entityManager: '@doctrine.orm.invoice_entity_manager'
 
     # === BUS BINDINGS ===
     App\Shared\Domain\Bus\Event\EventBus:

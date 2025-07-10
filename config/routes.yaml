@@ -1,3 +1,7 @@
-controllers:
+order_controllers:
     resource: ../src/Order/Infrastructure/Http/Controller/
+    type: attribute
+
+invoice_controllers:
+    resource: ../src/Invoice/Infrastructure/Http/Controller/
     type: attribute
