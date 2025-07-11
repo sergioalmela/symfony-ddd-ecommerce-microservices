@@ -5,3 +5,7 @@ order_controllers:
 invoice_controllers:
     resource: ../src/Invoice/Infrastructure/Http/Controller/
     type: attribute
+
+shared_controllers:
+    resource: ../src/Shared/Infrastructure/Http/Controller/
+    type: attribute
