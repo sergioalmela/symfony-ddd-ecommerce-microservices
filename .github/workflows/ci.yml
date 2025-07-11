@@ -60,18 +60,16 @@ jobs:
       - name: Test database connection
         run: docker compose -f compose.yaml -f compose.ci.yaml exec -T database psql -U app -d postgres -c "SELECT 1;"
 
-      - name: Create test database
-        run: docker compose -f compose.yaml -f compose.ci.yaml exec -T php bin/console -e test doctrine:database:create --if-not-exists
-
-      - name: List available migrations
-        run: docker compose -f compose.yaml -f compose.ci.yaml exec -T php bin/console -e test doctrine:migrations:list
-        
-      - name: Show migration status
-        run: docker compose -f compose.yaml -f compose.ci.yaml exec -T php bin/console -e test doctrine:migrations:status
-        
-      - name: Run migrations
+      - name: Create test databases
         run: |
-          docker compose -f compose.yaml -f compose.ci.yaml exec -T php bin/console -e test doctrine:migrations:migrate --no-interaction
+          docker compose -f compose.yaml -f compose.ci.yaml exec -T php bin/console -e test doctrine:database:create --if-not-exists --connection=order
+          docker compose -f compose.yaml -f compose.ci.yaml exec -T php bin/console -e test doctrine:database:create --if-not-exists --connection=invoice
+
+      - name: Run Order migrations
+        run: docker compose -f compose.yaml -f compose.ci.yaml exec -T php bin/console -e test doctrine:migrations:migrate --no-interaction --em=order
+        
+      - name: Run Invoice migrations  
+        run: docker compose -f compose.yaml -f compose.ci.yaml exec -T php bin/console -e test doctrine:migrations:migrate --no-interaction --em=invoice
 
       - name: Check PHPUnit config and tests
         run: |
@@ -87,11 +85,17 @@ jobs:
 
       - name: Check database schema diff
         run: |
-          echo "Checking schema differences..."
-          docker compose -f compose.yaml -f compose.ci.yaml exec -T php bin/console -e test doctrine:schema:update --dump-sql || true
+          echo "Checking Order schema differences..."
+          docker compose -f compose.yaml -f compose.ci.yaml exec -T php bin/console -e test doctrine:schema:update --dump-sql --em=order || true
+          echo "Checking Invoice schema differences..."
+          docker compose -f compose.yaml -f compose.ci.yaml exec -T php bin/console -e test doctrine:schema:update --dump-sql --em=invoice || true
           
       - name: Doctrine Schema Validator
-        run: docker compose -f compose.yaml -f compose.ci.yaml exec -T php bin/console -e test doctrine:schema:validate
+        run: |
+          echo "Validating Order schema..."
+          docker compose -f compose.yaml -f compose.ci.yaml exec -T php bin/console -e test doctrine:schema:validate --em=order
+          echo "Validating Invoice schema..."
+          docker compose -f compose.yaml -f compose.ci.yaml exec -T php bin/console -e test doctrine:schema:validate --em=invoice
 
   lint:
     name: Docker Lint
