@@ -37,7 +37,7 @@ jobs:
             *.cache-to=type=gha,scope=${{github.ref}},mode=max
 
       - name: Start services
-        run: docker compose -f compose.yaml -f compose.ci.yaml up -d --no-build
+        run: docker compose -f compose.yaml -f compose.ci.yaml up -d --no-build --wait
 
       - name: 🔍 Show Docker ps
         run: docker ps -a
@@ -50,6 +50,15 @@ jobs:
 
       - name: 🔍 Symfony Kernel status
         run: docker compose -f compose.yaml -f compose.ci.yaml exec -T php bin/console about
+
+      - name: Wait for database to be ready
+        run: |
+          echo "Waiting for database to be ready..."
+          timeout 120 bash -c 'until docker compose -f compose.yaml -f compose.ci.yaml exec -T database pg_isready -U app; do echo "Database not ready, waiting..."; sleep 5; done'
+          echo "Database is ready!"
+          
+      - name: Test database connection
+        run: docker compose -f compose.yaml -f compose.ci.yaml exec -T database psql -U app -d postgres -c "SELECT 1;"
 
       - name: Create test database
         run: docker compose -f compose.yaml -f compose.ci.yaml exec -T php bin/console -e test doctrine:database:create
