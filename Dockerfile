@@ -73,6 +73,20 @@ RUN set -eux; \
 
 COPY --link frankenphp/conf.d/20-app.dev.ini $PHP_INI_DIR/app.conf.d/
 
+# Copy application source code for dev environment
+COPY --link composer.* symfony.* ./
+RUN set -eux; \
+	composer install --prefer-dist --no-autoloader --no-scripts --no-progress
+
+# Copy all source files
+COPY --link . ./
+RUN rm -Rf frankenphp/
+
+RUN set -eux; \
+	mkdir -p var/cache var/log; \
+	composer dump-autoload --classmap-authoritative; \
+	chmod +x bin/console; sync;
+
 CMD [ "frankenphp", "run", "--config", "/etc/frankenphp/Caddyfile", "--watch" ]
 
 # Prod FrankenPHP image
