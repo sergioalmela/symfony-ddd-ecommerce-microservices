@@ -24,4 +24,14 @@ final readonly class OrderProjection
             SellerId::of($sellerId)
         );
     }
+
+    public function orderId(): OrderId
+    {
+        return $this->orderId;
+    }
+
+    public function sellerId(): SellerId
+    {
+        return $this->sellerId;
+    }
 }
