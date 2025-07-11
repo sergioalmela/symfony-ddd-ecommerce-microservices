@@ -40,6 +40,15 @@ jobs:
         name: Start services
         run: docker compose -f compose.yaml -f compose.ci.yaml up --wait --no-build
       -
+        name: 🔍 Show Docker ps
+        run: docker ps -a
+
+      - name: 🔍 Inspect php container health
+        run: docker inspect symfony-ddd-ecommerce-microservices-php-1
+
+      - name: 🔍 Show PHP container logs
+        run: docker logs symfony-ddd-ecommerce-microservices-php-1 || true
+      -
         name: Check HTTP reachability
         run: curl -v --fail-with-body http://localhost/health
       -
