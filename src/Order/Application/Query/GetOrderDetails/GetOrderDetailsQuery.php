@@ -10,6 +10,7 @@ final readonly class GetOrderDetailsQuery implements Query
 {
     public function __construct(
         public string $id,
+        public string $sellerId,
     ) {
     }
 }
