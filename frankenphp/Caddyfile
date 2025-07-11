@@ -16,6 +16,18 @@
 
 {$CADDY_EXTRA_CONFIG}
 
+# HTTP-only health check endpoint
+:80 {
+	handle /health {
+		respond 200 {
+			body `{"status":"ok","timestamp":{time.now.unix}}`
+		}
+	}
+	
+	# Redirect everything else to HTTPS
+	redir https://{host}{uri}
+}
+
 {$SERVER_NAME:localhost} {
 	log {
 		{$CADDY_SERVER_LOG_OPTIONS}
