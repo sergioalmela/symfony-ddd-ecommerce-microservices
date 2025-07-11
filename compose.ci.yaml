@@ -1,0 +1,17 @@
+# CI environment override
+services:
+  php:
+    build:
+      context: .
+      target: frankenphp_dev
+    environment:
+      APP_ENV: test
+      XDEBUG_MODE: "off"
+    # No volume mounts - use code from Docker image
+    volumes:
+      - caddy_data:/data
+      - caddy_config:/config
+
+volumes:
+  caddy_data:
+  caddy_config:
