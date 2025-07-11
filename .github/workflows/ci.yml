@@ -70,6 +70,15 @@ jobs:
         run: |
           docker compose -f compose.yaml -f compose.ci.yaml exec -T php bin/console -e test doctrine:migrations:migrate --no-interaction
 
+      - name: Check PHPUnit config and tests
+        run: |
+          echo "Checking if PHPUnit config exists..."
+          docker compose -f compose.yaml -f compose.ci.yaml exec -T php ls -la /app/phpunit.xml.dist || echo "phpunit.xml.dist not found"
+          echo "Checking if tests directory exists..."
+          docker compose -f compose.yaml -f compose.ci.yaml exec -T php ls -la /app/tests/ || echo "tests directory not found"
+          echo "Listing all files in /app:"
+          docker compose -f compose.yaml -f compose.ci.yaml exec -T php find /app -maxdepth 2 -type f -name "*.xml*" -o -name "*.dist*" | head -20
+
       - name: Run PHPUnit
         run: docker compose -f compose.yaml -f compose.ci.yaml exec -T php bin/phpunit
 
