@@ -80,6 +80,8 @@ RUN set -eux; \
 
 # Copy all source files
 COPY --link . ./
+# Use .env.dist as .env if .env doesn't exist
+RUN if [ ! -f .env ]; then cp .env.dist .env; fi
 RUN rm -Rf frankenphp/
 
 RUN set -eux; \
