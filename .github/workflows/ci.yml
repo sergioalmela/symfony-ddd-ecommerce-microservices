@@ -16,14 +16,13 @@ jobs:
     name: Tests
     runs-on: ubuntu-latest
     steps:
-      -
-        name: Checkout
+      - name: Checkout
         uses: actions/checkout@v4
-      -
-        name: Set up Docker Buildx
+
+      - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-      -
-        name: Build Docker images
+
+      - name: Build Docker images
         uses: docker/bake-action@v6
         with:
           pull: true
@@ -36,11 +35,11 @@ jobs:
             *.cache-from=type=gha,scope=${{github.ref}}
             *.cache-from=type=gha,scope=refs/heads/main
             *.cache-to=type=gha,scope=${{github.ref}},mode=max
-      -
-        name: Start services
+
+      - name: Start services
         run: docker compose -f compose.yaml -f compose.ci.yaml up -d --no-build
-      -
-        name: 🔍 Show Docker ps
+
+      - name: 🔍 Show Docker ps
         run: docker ps -a
 
       - name: 🔍 Inspect php container health
@@ -49,40 +48,29 @@ jobs:
       - name: 🔍 Show PHP container logs
         run: docker logs symfony-ddd-ecommerce-microservices-php-1 || true
 
-      - name: Debug port
-        run: docker compose -f compose.yaml -f compose.ci.yaml port php 80
+      - name: 🔍 Symfony Kernel status
+        run: docker compose -f compose.yaml -f compose.ci.yaml exec -T php bin/console about
 
-      -
-        name: Check HTTP reachability
-        run: curl -v --fail-with-body http://localhost:80/health
-      -
-        name: Check HTTPS reachability
-        if: false # Remove this line when the homepage will be configured, or change the path to check
-        run: curl -vk --fail-with-body https://localhost
-      -
-        name: Check Mercure reachability
-        run: curl -vkI --fail-with-body https://localhost/.well-known/mercure?topic=test
-      -
-        name: Create test database
+      - name: Create test database
         run: docker compose -f compose.yaml -f compose.ci.yaml exec -T php bin/console -e test doctrine:database:create
-      -
-        name: Run migrations
+
+      - name: Run migrations
         run: |
           docker compose -f compose.yaml -f compose.ci.yaml exec -T php bin/console -e test doctrine:migrations:execute --up 'DoctrineMigrations\\Order\\Version20250708110539'
           docker compose -f compose.yaml -f compose.ci.yaml exec -T php bin/console -e test doctrine:migrations:migrate --no-interaction
-      -
-        name: Run PHPUnit
+
+      - name: Run PHPUnit
         run: docker compose -f compose.yaml -f compose.ci.yaml exec -T php bin/phpunit
-      -
-        name: Doctrine Schema Validator
+
+      - name: Doctrine Schema Validator
         run: docker compose -f compose.yaml -f compose.ci.yaml exec -T php bin/console -e test doctrine:schema:validate
+
   lint:
     name: Docker Lint
     runs-on: ubuntu-latest
     steps:
-      -
-        name: Checkout
+      - name: Checkout
         uses: actions/checkout@v4
-      -
-        name: Lint Dockerfile
+
+      - name: Lint Dockerfile
         uses: hadolint/hadolint-action@v3.1.0
