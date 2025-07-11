@@ -48,6 +48,10 @@ jobs:
 
       - name: 🔍 Show PHP container logs
         run: docker logs symfony-ddd-ecommerce-microservices-php-1 || true
+
+      - name: Debug port
+        run: docker compose -f compose.yaml -f compose.ci.yaml port php 80
+
       -
         name: Check HTTP reachability
         run: curl -v --fail-with-body --location http://localhost/health
