@@ -63,9 +63,11 @@ jobs:
       - name: Create test database
         run: docker compose -f compose.yaml -f compose.ci.yaml exec -T php bin/console -e test doctrine:database:create --if-not-exists
 
+      - name: List available migrations
+        run: docker compose -f compose.yaml -f compose.ci.yaml exec -T php bin/console -e test doctrine:migrations:list
+        
       - name: Run migrations
         run: |
-          docker compose -f compose.yaml -f compose.ci.yaml exec -T php bin/console -e test doctrine:migrations:execute --up 'DoctrineMigrations\\Order\\Version20250708110539'
           docker compose -f compose.yaml -f compose.ci.yaml exec -T php bin/console -e test doctrine:migrations:migrate --no-interaction
 
       - name: Run PHPUnit
