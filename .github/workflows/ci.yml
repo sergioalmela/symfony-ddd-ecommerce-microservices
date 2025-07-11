@@ -61,7 +61,7 @@ jobs:
         run: docker compose -f compose.yaml -f compose.ci.yaml exec -T database psql -U app -d postgres -c "SELECT 1;"
 
       - name: Create test database
-        run: docker compose -f compose.yaml -f compose.ci.yaml exec -T php bin/console -e test doctrine:database:create
+        run: docker compose -f compose.yaml -f compose.ci.yaml exec -T php bin/console -e test doctrine:database:create --if-not-exists
 
       - name: Run migrations
         run: |
