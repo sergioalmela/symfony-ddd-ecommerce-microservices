@@ -66,10 +66,10 @@ jobs:
           docker compose -f compose.yaml -f compose.ci.yaml exec -T php bin/console -e test doctrine:database:create --if-not-exists --connection=invoice
 
       - name: Run Order migrations
-        run: docker compose -f compose.yaml -f compose.ci.yaml exec -T php bin/console -e test doctrine:migrations:migrate --no-interaction --em=order
+        run: docker compose -f compose.yaml -f compose.ci.yaml exec -T php bin/console -e test doctrine:migrations:migrate --no-interaction --configuration=config/migrations_order.yaml
         
       - name: Run Invoice migrations  
-        run: docker compose -f compose.yaml -f compose.ci.yaml exec -T php bin/console -e test doctrine:migrations:migrate --no-interaction --em=invoice
+        run: docker compose -f compose.yaml -f compose.ci.yaml exec -T php bin/console -e test doctrine:migrations:migrate --no-interaction --configuration=config/migrations_invoice.yaml
 
       - name: Check PHPUnit config and tests
         run: |
