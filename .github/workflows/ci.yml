@@ -49,13 +49,18 @@ jobs:
         run: docker compose -f compose.yaml -f compose.ci.yaml exec -T database psql -U app -d postgres -c "SELECT 1;"
 
       - name: Install dependencies
-        run: docker compose -f compose.yaml -f compose.ci.yaml exec -T php composer install --no-dev --optimize-autoloader
-
-      - name: Create test databases
         run: |
-          docker compose -f compose.yaml -f compose.ci.yaml exec -T php bin/console -e test doctrine:database:create --if-not-exists --connection=order
-          docker compose -f compose.yaml -f compose.ci.yaml exec -T php bin/console -e test doctrine:database:create --if-not-exists --connection=invoice
-
+          echo "Removing composer.lock and vendor to force fresh install..."
+          docker compose -f compose.yaml -f compose.ci.yaml exec -T php rm -rf composer.lock vendor/
+          echo "Installing dependencies from composer.json..."
+          docker compose -f compose.yaml -f compose.ci.yaml exec -T php composer install --prefer-dist --no-progress
+          echo "Checking if vendor/doctrine exists..."
+          docker compose -f compose.yaml -f compose.ci.yaml exec -T php ls -la vendor/ | grep doctrine || echo "Doctrine not found, installing explicitly"
+          echo "Installing Doctrine packages explicitly..."
+          docker compose -f compose.yaml -f compose.ci.yaml exec -T php composer require doctrine/orm doctrine/doctrine-bundle doctrine/doctrine-migrations-bundle --no-progress || echo "Failed to install Doctrine"
+          echo "Verifying Doctrine commands..."
+          docker compose -f compose.yaml -f compose.ci.yaml exec -T php bin/console list doctrine
+        
       - name: Run Order migrations
         run: docker compose -f compose.yaml -f compose.ci.yaml exec -T php bin/console -e test doctrine:migrations:migrate --no-interaction --configuration=config/migrations_order.yaml
 
