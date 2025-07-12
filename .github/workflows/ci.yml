@@ -47,15 +47,7 @@ jobs:
 
       - name: Test database connection
         run: docker compose -f compose.yaml -f compose.ci.yaml exec -T database psql -U app -d postgres -c "SELECT 1;"
-
-      - name: Install dependencies
-        run: docker compose -f compose.yaml -f compose.ci.yaml exec -T php composer install --no-dev --optimize-autoloader
-
-      - name: Create test databases
-        run: |
-          docker compose -f compose.yaml -f compose.ci.yaml exec -T php bin/console -e test doctrine:database:create --if-not-exists --connection=order
-          docker compose -f compose.yaml -f compose.ci.yaml exec -T php bin/console -e test doctrine:database:create --if-not-exists --connection=invoice
-
+        
       - name: Run Order migrations
         run: docker compose -f compose.yaml -f compose.ci.yaml exec -T php bin/console -e test doctrine:migrations:migrate --no-interaction --configuration=config/migrations_order.yaml
 
