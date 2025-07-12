@@ -11,7 +11,7 @@ SYMFONY  = $(PHP) bin/console
 
 # Misc
 .DEFAULT_GOAL = help
-.PHONY        : help build up start down logs sh composer vendor sf cc test cs-fix cs-check phpstan rector qa qa-fix validate check-imports
+.PHONY        : help build up start down logs sh composer vendor sf cc test cs-fix cs-check phpstan rector qa qa-fix validate check-imports order-migrate order-migrate-status order-migrate-generate order-migrate-diff invoice-migrate invoice-migrate-status invoice-migrate-generate invoice-migrate-diff
 
 ## —— 🎵 🐳 The Symfony Docker Makefile 🐳 🎵 ——————————————————————————————————
 help: ## Outputs this help screen
@@ -59,6 +59,31 @@ sf: ## List all Symfony commands or pass the parameter "c=" to run a given comma
 
 cc: c=c:c ## Clear the cache
 cc: sf
+
+## —— Migrations 🔄 ————————————————————————————————————————————————————————————
+order-migrate: ## Run Order microservice migrations
+	@$(SYMFONY) doctrine:migrations:migrate --configuration=config/migrations_order.yaml --no-interaction
+
+order-migrate-status: ## Check Order microservice migration status
+	@$(SYMFONY) doctrine:migrations:status --configuration=config/migrations_order.yaml
+
+order-migrate-generate: ## Generate new Order microservice migration
+	@$(SYMFONY) doctrine:migrations:generate --configuration=config/migrations_order.yaml
+
+order-migrate-diff: ## Generate Order migration based on entity changes
+	@$(SYMFONY) doctrine:migrations:diff --configuration=config/migrations_order.yaml
+
+invoice-migrate: ## Run Invoice microservice migrations
+	@$(SYMFONY) doctrine:migrations:migrate --configuration=config/migrations_invoice.yaml --no-interaction
+
+invoice-migrate-status: ## Check Invoice microservice migration status
+	@$(SYMFONY) doctrine:migrations:status --configuration=config/migrations_invoice.yaml
+
+invoice-migrate-generate: ## Generate new Invoice microservice migration
+	@$(SYMFONY) doctrine:migrations:generate --configuration=config/migrations_invoice.yaml
+
+invoice-migrate-diff: ## Generate Invoice migration based on entity changes
+	@$(SYMFONY) doctrine:migrations:diff --configuration=config/migrations_invoice.yaml
 
 ## —— Code Quality 🔍 ——————————————————————————————————————————————————————————
 cs-fix: ## Fix code style with PHP-CS-Fixer

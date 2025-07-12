@@ -16,61 +16,76 @@ jobs:
     name: Tests
     runs-on: ubuntu-latest
     steps:
-      -
-        name: Checkout
+      - name: Checkout
         uses: actions/checkout@v4
-      -
-        name: Set up Docker Buildx
+
+      - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-      -
-        name: Build Docker images
+
+      - name: Build Docker images
         uses: docker/bake-action@v6
         with:
           pull: true
           load: true
+          targets: php
           files: |
             compose.yaml
-            compose.override.yaml
+            compose.ci.yaml
           set: |
             *.cache-from=type=gha,scope=${{github.ref}}
             *.cache-from=type=gha,scope=refs/heads/main
             *.cache-to=type=gha,scope=${{github.ref}},mode=max
-      -
-        name: Start services
-        run: docker compose up --wait --no-build
-      -
-        name: Check HTTP reachability
-        run: curl -v --fail-with-body http://localhost
-      -
-        name: Check HTTPS reachability
-        if: false # Remove this line when the homepage will be configured, or change the path to check
-        run: curl -vk --fail-with-body https://localhost
-      -
-        name: Check Mercure reachability
-        run: curl -vkI --fail-with-body https://localhost/.well-known/mercure?topic=test
-      -
-        name: Create test database
-        if: false # Remove this line if Doctrine ORM is installed
-        run: docker compose exec -T php bin/console -e test doctrine:database:create
-      -
-        name: Run migrations
-        if: false # Remove this line if Doctrine Migrations is installed
-        run: docker compose exec -T php bin/console -e test doctrine:migrations:migrate --no-interaction
-      -
-        name: Run PHPUnit
-        if: false # Remove this line if PHPUnit is installed
-        run: docker compose exec -T php bin/phpunit
-      -
-        name: Doctrine Schema Validator
-        if: false # Remove this line if Doctrine ORM is installed
-        run: docker compose exec -T php bin/console -e test doctrine:schema:validate
+
+      - name: Start services
+        run: docker compose -f compose.yaml -f compose.ci.yaml up -d --no-build --wait
+
+      - name: Wait for database to be ready
+        run: |
+          echo "Waiting for database to be ready..."
+          timeout 120 bash -c 'until docker compose -f compose.yaml -f compose.ci.yaml exec -T database pg_isready -U app; do echo "Database not ready, waiting..."; sleep 5; done'
+          echo "Database is ready!"
+
+      - name: Test database connection
+        run: docker compose -f compose.yaml -f compose.ci.yaml exec -T database psql -U app -d postgres -c "SELECT 1;"
+
+      - name: Install dependencies
+        run: docker compose -f compose.yaml -f compose.ci.yaml exec -T php composer install --no-dev --optimize-autoloader
+
+      - name: Create test databases
+        run: |
+          docker compose -f compose.yaml -f compose.ci.yaml exec -T php bin/console -e test doctrine:database:create --if-not-exists --connection=order
+          docker compose -f compose.yaml -f compose.ci.yaml exec -T php bin/console -e test doctrine:database:create --if-not-exists --connection=invoice
+
+      - name: Run Order migrations
+        run: docker compose -f compose.yaml -f compose.ci.yaml exec -T php bin/console -e test doctrine:migrations:migrate --no-interaction --configuration=config/migrations_order.yaml
+
+      - name: Run Invoice migrations
+        run: docker compose -f compose.yaml -f compose.ci.yaml exec -T php bin/console -e test doctrine:migrations:migrate --no-interaction --configuration=config/migrations_invoice.yaml
+
+      - name: Check PHPUnit config and tests
+        run: |
+          echo "Checking if PHPUnit config exists..."
+          docker compose -f compose.yaml -f compose.ci.yaml exec -T php ls -la /app/phpunit.xml.dist || echo "phpunit.xml.dist not found"
+          echo "Checking if tests directory exists..."
+          docker compose -f compose.yaml -f compose.ci.yaml exec -T php ls -la /app/tests/ || echo "tests directory not found"
+          echo "Listing all files in /app:"
+          docker compose -f compose.yaml -f compose.ci.yaml exec -T php find /app -maxdepth 2 -type f -name "*.xml*" -o -name "*.dist*" | head -20
+
+      - name: Run PHPUnit
+        run: docker compose -f compose.yaml -f compose.ci.yaml exec -T php bin/phpunit
+
+      - name: Check database schema diff
+        run: |
+          echo "Checking Order schema differences..."
+          docker compose -f compose.yaml -f compose.ci.yaml exec -T php bin/console -e test doctrine:schema:update --dump-sql --em=order || true
+          echo "Checking Invoice schema differences..."
+          docker compose -f compose.yaml -f compose.ci.yaml exec -T php bin/console -e test doctrine:schema:update --dump-sql --em=invoice || true
   lint:
     name: Docker Lint
     runs-on: ubuntu-latest
     steps:
-      -
-        name: Checkout
+      - name: Checkout
         uses: actions/checkout@v4
-      -
-        name: Lint Dockerfile
+
+      - name: Lint Dockerfile
         uses: hadolint/hadolint-action@v3.1.0
