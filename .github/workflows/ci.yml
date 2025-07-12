@@ -47,6 +47,13 @@ jobs:
 
       - name: Test database connection
         run: docker compose -f compose.yaml -f compose.ci.yaml exec -T database psql -U app -d postgres -c "SELECT 1;"
+
+      - name: Install dependencies
+        run: |
+          echo "Installing dependencies..."
+          docker compose -f compose.yaml -f compose.ci.yaml exec -T php composer install --prefer-dist --no-progress
+          echo "Verifying Doctrine commands..."
+          docker compose -f compose.yaml -f compose.ci.yaml exec -T php bin/console list doctrine || echo "Doctrine commands not found"
         
       - name: Run Order migrations
         run: docker compose -f compose.yaml -f compose.ci.yaml exec -T php bin/console -e test doctrine:migrations:migrate --no-interaction --configuration=config/migrations_order.yaml
