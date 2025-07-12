@@ -2,4 +2,3 @@ doctrine_migrations:
     migrations_paths:
         'DoctrineMigrations\Order': '%kernel.project_dir%/migrations/Order'
         'DoctrineMigrations\Invoice': '%kernel.project_dir%/migrations/Invoice'
-    enable_profiler: false
