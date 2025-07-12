@@ -51,7 +51,11 @@ jobs:
       - name: Install dependencies
         run: |
           echo "Installing dependencies..."
-          docker compose -f compose.yaml -f compose.ci.yaml exec -T php composer install --prefer-dist --no-progress
+          docker compose -f compose.yaml -f compose.ci.yaml exec -T php composer install --prefer-dist --no-progress --optimize-autoloader
+          echo "Clearing cache..."
+          docker compose -f compose.yaml -f compose.ci.yaml exec -T php bin/console cache:clear --env=test
+          echo "Checking if vendor/doctrine exists..."
+          docker compose -f compose.yaml -f compose.ci.yaml exec -T php ls -la vendor/ | grep doctrine || echo "Doctrine not in vendor"
           echo "Verifying Doctrine commands..."
           docker compose -f compose.yaml -f compose.ci.yaml exec -T php bin/console list doctrine || echo "Doctrine commands not found"
         
