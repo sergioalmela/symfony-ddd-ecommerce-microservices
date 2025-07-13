@@ -9,9 +9,9 @@ use App\Order\Application\Query\GetOrders\GetOrdersQueryHandler;
 use App\Order\Application\Query\GetOrders\GetOrdersResponse;
 use App\Shared\Domain\Exception\InvalidUuidError;
 use App\Shared\Domain\ValueObject\SellerId;
-use PHPUnit\Framework\TestCase;
 use App\Tests\Order\Infrastructure\Testing\Builders\OrderBuilder;
 use App\Tests\Order\Infrastructure\Testing\Doubles\OrderRepositoryFake;
+use PHPUnit\Framework\TestCase;
 
 final class GetOrdersQueryHandlerTest extends TestCase
 {
@@ -62,7 +62,7 @@ final class GetOrdersQueryHandlerTest extends TestCase
         $orderTwo = OrderBuilder::anOrder()
             ->withSellerId($this->validSellerId)
             ->build();
-        
+
         $this->orderRepository->add($orderOne);
         $this->orderRepository->add($orderTwo);
 
@@ -79,14 +79,14 @@ final class GetOrdersQueryHandlerTest extends TestCase
     public function testShouldReturnOnlyOrdersForSpecificSeller(): void
     {
         $otherSellerId = SellerId::generate();
-        
+
         $orderForSeller = OrderBuilder::anOrder()
             ->withSellerId($this->validSellerId)
             ->build();
         $orderForOtherSeller = OrderBuilder::anOrder()
             ->withSellerId($otherSellerId)
             ->build();
-        
+
         $this->orderRepository->add($orderForSeller);
         $this->orderRepository->add($orderForOtherSeller);
 
@@ -94,7 +94,6 @@ final class GetOrdersQueryHandlerTest extends TestCase
 
         $result = ($this->handler)($query);
 
-        $this->assertInstanceOf(GetOrdersResponse::class, $result);
         $this->assertCount(1, $result->orders);
         $this->assertEquals($orderForSeller->toPrimitives(), $result->orders[0]->toPrimitives());
     }

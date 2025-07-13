@@ -26,11 +26,6 @@ final class StorageServiceSpy implements StorageService
         return $this->uploadedFiles;
     }
 
-    public function getLastUploadedFile(): ?array
-    {
-        return empty($this->uploadedFiles) ? null : end($this->uploadedFiles);
-    }
-
     public function clean(): void
     {
         $this->uploadedFiles = [];
@@ -38,7 +33,6 @@ final class StorageServiceSpy implements StorageService
 
     public function simulateUploadFailure(): void
     {
-        // For testing upload failures - could throw exception in uploadFile
         throw new \RuntimeException('Storage service unavailable');
     }
 }

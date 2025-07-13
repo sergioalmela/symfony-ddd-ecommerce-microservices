@@ -17,10 +17,8 @@ final class SellerIdTest extends TestCase
      */
     public function testShouldCreateSellerIdInstance(): void
     {
-        // When
         $sellerId = SellerId::of(self::VALID_UUID);
 
-        // Then
         $this->assertInstanceOf(SellerId::class, $sellerId);
         $this->assertEquals(self::VALID_UUID, $sellerId->value());
     }
@@ -31,10 +29,8 @@ final class SellerIdTest extends TestCase
      */
     public function testShouldGenerateSellerIdInstance(): void
     {
-        // When
         $sellerId = SellerId::generate();
 
-        // Then
         $this->assertInstanceOf(SellerId::class, $sellerId);
         $this->assertNotEmpty($sellerId->value());
     }

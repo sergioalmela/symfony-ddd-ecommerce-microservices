@@ -20,7 +20,6 @@ final class OrderStatusType extends StringType
     #[Override]
     public function convertToPHPValue($value, AbstractPlatform $platform): ?OrderStatus
     {
-        // If the value from the DB is a string, use your static factory method to reconstruct the object.
         return \is_string($value) ? OrderStatus::fromPrimitives($value) : null;
     }
 

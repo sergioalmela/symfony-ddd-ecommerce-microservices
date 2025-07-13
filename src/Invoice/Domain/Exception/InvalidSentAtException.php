@@ -12,9 +12,4 @@ final class InvalidSentAtException extends DomainException
     {
         parent::__construct($message);
     }
-
-    public function errorCode(): string
-    {
-        return 'INVALID_SENT_AT';
-    }
 }
