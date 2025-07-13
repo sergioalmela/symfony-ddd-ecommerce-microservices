@@ -75,6 +75,6 @@ final readonly class OrderStatus implements Stringable
 
     public function __toString(): string
     {
-        return (string) $this->orderStatusType->value;
+        return $this->orderStatusType->value;
     }
 }
