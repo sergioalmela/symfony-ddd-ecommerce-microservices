@@ -87,7 +87,8 @@ A **production-ready e-commerce microservices architecture** built with **Symfon
    ```
 
 4. **Access the application**
-   - **API**: https://localhost
+   - **API Info**: https://localhost
+   - **Health Check**: https://localhost/health
    - **API Documentation**: https://localhost/api/doc
    - **RabbitMQ Management**: http://localhost:15673 (admin/!ChangeMe!)
 
@@ -247,6 +248,12 @@ POST   /invoices/{invoiceId}/send # Send invoice to customer
 ### Example API Usage
 
 ```bash
+# Get API information
+curl -X GET https://localhost/
+
+# Check API health
+curl -X GET https://localhost/health
+
 # Create an order
 curl -X POST https://localhost/orders \
   -H "Content-Type: application/json" \

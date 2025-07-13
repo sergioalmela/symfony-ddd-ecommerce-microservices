@@ -1,3 +1,7 @@
+shared_controllers:
+    resource: ../src/Shared/Infrastructure/Http/Controller/
+    type: attribute
+
 order_controllers:
     resource: ../src/Order/Infrastructure/Http/Controller/
     type: attribute
