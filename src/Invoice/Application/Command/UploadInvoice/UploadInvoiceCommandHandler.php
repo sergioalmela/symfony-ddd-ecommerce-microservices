@@ -8,6 +8,7 @@ use App\Invoice\Domain\Entity\Invoice;
 use App\Invoice\Domain\Exception\InvoiceAlreadyExistsException;
 use App\Invoice\Domain\Repository\InvoiceRepository;
 use App\Invoice\Domain\Repository\OrderProjectionRepository;
+use App\Invoice\Domain\Service\InvoiceFileValidator;
 use App\Invoice\Domain\ValueObject\FilePath;
 use App\Invoice\Domain\ValueObject\InvoiceId;
 use App\Shared\Domain\Bus\Command\CommandHandler;
@@ -24,6 +25,7 @@ final readonly class UploadInvoiceCommandHandler implements CommandHandler
         private OrderProjectionRepository $orderProjectionRepository,
         private EventBus $eventBus,
         private StorageService $storageService,
+        private InvoiceFileValidator $invoiceFileValidator,
     ) {
     }
 
@@ -40,7 +42,10 @@ final readonly class UploadInvoiceCommandHandler implements CommandHandler
             throw new OrderNotFoundException($uploadInvoiceCommand->orderId);
         }
 
-        $fileName = sprintf('Invoice-%s.%s', $uploadInvoiceCommand->orderId, $uploadInvoiceCommand->fileExtension);
+        $this->ensureValidInvoiceFile($uploadInvoiceCommand->fileContent);
+        $this->invoiceFileValidator->validate($uploadInvoiceCommand->mimeType);
+        
+        $fileName = sprintf('invoice-%s-order-%s.pdf', InvoiceId::generate()->value(), $uploadInvoiceCommand->orderId);
         $fileUrl = $this->storageService->uploadFile(
             $uploadInvoiceCommand->fileContent,
             $fileName
@@ -56,6 +61,13 @@ final readonly class UploadInvoiceCommandHandler implements CommandHandler
         $this->invoiceRepository->save($invoice);
 
         $this->publishDomainEvents($invoice);
+    }
+
+    private function ensureValidInvoiceFile(string $fileContent): void
+    {
+        if (empty($fileContent)) {
+            throw new \InvalidArgumentException('Invoice file content cannot be empty');
+        }
     }
 
     private function publishDomainEvents(Invoice $invoice): void

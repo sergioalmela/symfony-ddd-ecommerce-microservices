@@ -7,6 +7,7 @@ namespace App\Invoice\Infrastructure\Http\Controller;
 use App\Invoice\Application\Command\UploadInvoice\UploadInvoiceCommand;
 use App\Shared\Infrastructure\Http\Controller\BaseController;
 use OpenApi\Attributes as OA;
+use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -47,7 +48,7 @@ final class UploadInvoiceController extends BaseController
                         property: 'file',
                         type: 'string',
                         format: 'binary',
-                        description: 'Invoice file (PDF, HTML, XML, or TXT)'
+                        description: 'Invoice file (PDF only)'
                     ),
                 ]
             )
@@ -85,13 +86,14 @@ final class UploadInvoiceController extends BaseController
     )]
     public function uploadInvoice(string $orderId, Request $request): JsonResponse
     {
-        $requestData = $this->extractRequestData($request);
+        $sellerId = $request->request->get('sellerId');
+        $file = $this->validateFile($request->files->get('file'));
 
         $uploadInvoiceCommand = new UploadInvoiceCommand(
             orderId: $orderId,
-            sellerId: $requestData['sellerId'],
-            fileContent: $requestData['fileContent'],
-            fileExtension: $requestData['fileExtension']
+            sellerId: $sellerId,
+            fileContent: base64_encode($file->getContent()),
+            mimeType: $file->getMimeType()
         );
 
         $this->dispatch($uploadInvoiceCommand);
@@ -102,50 +104,16 @@ final class UploadInvoiceController extends BaseController
         );
     }
 
-    private function extractRequestData(Request $request): array
+    private function validateFile(?UploadedFile $file): UploadedFile
     {
-        $sellerId = $request->request->get('sellerId');
-        /** @var UploadedFile|null $file */
-        $file = $request->files->get('file');
-
-        if (!$sellerId) {
-            throw new \InvalidArgumentException('Seller ID is required');
+        if (!$file?->isValid()) {
+            throw new BadRequestException('Valid file is required');
         }
 
-        if (!$file || !$file->isValid()) {
-            throw new \InvalidArgumentException('Valid file is required');
+        if ($file->getMimeType() !== 'application/pdf') {
+            throw new BadRequestException('Invalid file type. Only PDF files are allowed');
         }
 
-        $fileExtension = $this->getFileExtension($file);
-
-        return [
-            'sellerId' => $sellerId,
-            'fileContent' => $file->getContent(),
-            'fileExtension' => $fileExtension,
-        ];
-    }
-
-    private function getFileExtension(UploadedFile $file): string
-    {
-        // Try to get extension from original filename first
-        $originalName = $file->getClientOriginalName();
-        if ($originalName) {
-            $extension = pathinfo($originalName, PATHINFO_EXTENSION);
-            if ($extension) {
-                return strtolower($extension);
-            }
-        }
-
-        // Fallback to MIME type mapping
-        $mimeToExtension = [
-            'application/pdf' => 'pdf',
-            'text/html' => 'html',
-            'application/xml' => 'xml',
-            'text/xml' => 'xml',
-            'text/plain' => 'txt',
-        ];
-
-        $mimeType = $file->getMimeType();
-        return $mimeToExtension[$mimeType] ?? 'pdf';
+        return $file;
     }
 }
