@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Invoice\Domain\Entity;
 
 use App\Invoice\Domain\Event\InvoiceSentEvent;
+use App\Invoice\Domain\Event\InvoiceUploadedEvent;
 use App\Invoice\Domain\ValueObject\FilePath;
 use App\Invoice\Domain\ValueObject\InvoiceId;
 use App\Invoice\Domain\ValueObject\SentAt;
@@ -30,12 +31,21 @@ final class Invoice extends AggregateRoot
         SellerId $sellerId,
         FilePath $filePath,
     ): self {
-        return new self(
+        $invoice = new self(
             $invoiceId,
             $orderId,
             $sellerId,
             $filePath,
         );
+
+        $invoice->recordEvent(InvoiceUploadedEvent::create(
+            $invoiceId,
+            $orderId,
+            $sellerId,
+            $filePath->value()
+        ));
+
+        return $invoice;
     }
 
     public function send(DateTimeImmutable $date): void

@@ -20,12 +20,10 @@ final readonly class SentAt implements Stringable
     {
         $now = new DateTimeImmutable();
 
-        // Don't allow future dates
         if ($value > $now) {
             throw new InvalidSentAtException('SentAt date cannot be in the future');
         }
 
-        // Don't allow dates too far in the past (1 year)
         $oneYearAgo = $now->modify('-1 year');
         if ($value < $oneYearAgo) {
             throw new InvalidSentAtException('SentAt date cannot be more than 1 year ago');

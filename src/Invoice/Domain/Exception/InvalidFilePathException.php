@@ -12,9 +12,4 @@ final class InvalidFilePathException extends DomainException
     {
         parent::__construct($message);
     }
-
-    public function errorCode(): string
-    {
-        return 'INVALID_FILE_PATH';
-    }
 }
