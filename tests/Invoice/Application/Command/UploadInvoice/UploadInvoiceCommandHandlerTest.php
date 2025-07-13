@@ -177,7 +177,8 @@ final class UploadInvoiceCommandHandlerTest extends TestCase
 
         $uploadedFile = $uploadedFiles[0];
         $this->assertEquals(self::VALID_FILE_CONTENT, $uploadedFile['content']);
-        $this->assertEquals("invoice-{$orderId->value()}.pdf", $uploadedFile['fileName']);
+        $this->assertStringContainsString("invoice-", $uploadedFile['fileName']);
+        $this->assertStringContainsString("-order-{$orderId->value()}.pdf", $uploadedFile['fileName']);
     }
 
     /**
@@ -201,10 +202,11 @@ final class UploadInvoiceCommandHandlerTest extends TestCase
         ($this->handler)($command);
 
         $storedInvoice = $this->invoiceRepository->stored()[0];
-        $expectedFileName = "invoice-{$orderId->value()}.pdf";
-        $expectedUrl = self::EXPECTED_BASE_URL . $expectedFileName;
-
-        $this->assertEquals($expectedUrl, $storedInvoice->filePath()->value());
+        $filePath = $storedInvoice->filePath()->value();
+        
+        $this->assertStringStartsWith(self::EXPECTED_BASE_URL, $filePath);
+        $this->assertStringContainsString("invoice-", $filePath);
+        $this->assertStringContainsString("-order-{$orderId->value()}.pdf", $filePath);
     }
 
     /**

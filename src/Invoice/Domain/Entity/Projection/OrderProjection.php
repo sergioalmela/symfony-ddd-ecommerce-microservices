@@ -25,11 +25,13 @@ final readonly class OrderProjection
         );
     }
 
-    public function toPrimitives(): array
+    public function orderId(): OrderId
     {
-        return [
-            'orderId' => $this->orderId->value(),
-            'sellerId' => $this->sellerId->value(),
-        ];
+        return $this->orderId;
+    }
+
+    public function sellerId(): SellerId
+    {
+        return $this->sellerId;
     }
 }

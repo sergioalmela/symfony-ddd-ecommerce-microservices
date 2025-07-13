@@ -103,6 +103,9 @@ final class SendInvoiceCommandHandlerTest extends TestCase
         $sentDate = new DateTimeImmutable(self::VALID_DATE_STRING);
 
         $invoice = $this->givenAnExistingInvoiceForOrder($orderId);
+
+        $this->eventBus->clean();
+        
         $command = new SendInvoiceCommand($orderId->value(), $sentDate);
 
         ($this->handler)($command);
@@ -180,6 +183,8 @@ final class SendInvoiceCommandHandlerTest extends TestCase
         $invoice = InvoiceBuilder::anInvoice()
             ->withOrderId($orderId)
             ->build();
+        
+        $invoice->clearRecordedEvents();
 
         $this->invoiceRepository->add($invoice);
 
@@ -195,6 +200,8 @@ final class SendInvoiceCommandHandlerTest extends TestCase
             ->withOrderId($orderId)
             ->withSellerId($sellerId)
             ->build();
+  
+        $invoice->clearRecordedEvents();
 
         $this->invoiceRepository->add($invoice);
 
