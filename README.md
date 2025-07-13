@@ -3,7 +3,6 @@
 [![PHP](https://img.shields.io/badge/PHP-8.4-777BB4.svg?style=flat&logo=php)](https://php.net)
 [![Symfony](https://img.shields.io/badge/Symfony-7.3-000000.svg?style=flat&logo=symfony)](https://symfony.com)
 [![PHPUnit](https://img.shields.io/badge/PHPUnit-11-366AC3.svg?style=flat&logo=php)](https://phpunit.de)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 [![DDD](https://img.shields.io/badge/Architecture-Domain%20Driven%20Design-blue.svg?style=flat)](https://en.wikipedia.org/wiki/Domain-driven_design)
 [![Hexagonal](https://img.shields.io/badge/Architecture-Hexagonal-green.svg?style=flat)](https://en.wikipedia.org/wiki/Hexagonal_architecture_(software))
@@ -218,6 +217,16 @@ APP_SECRET=your-secret-key
 - `config/migrations_invoice.yaml` - Invoice service migrations
 
 ## 📊 API Documentation
+
+The project includes interactive API documentation powered by OpenAPI/Swagger. Access the documentation at:
+
+🔗 **https://localhost/api/doc**
+
+This interface allows you to:
+- View all available endpoints
+- Test API endpoints directly from the browser
+- See request/response schemas
+- Understand authentication requirements
 
 ### Order Endpoints
 
