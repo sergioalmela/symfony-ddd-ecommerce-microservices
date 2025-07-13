@@ -26,17 +26,8 @@ final readonly class FilePath implements Stringable
             throw new InvalidFilePathException('File path cannot exceed 500 characters');
         }
 
-        // Basic security check - prevent path traversal
         if (str_contains($trimmedValue, '..')) {
             throw new InvalidFilePathException('File path cannot contain ".." for security reasons');
-        }
-
-        // Ensure it has a valid file extension for invoices
-        $allowedExtensions = ['pdf', 'html', 'xml', 'txt'];
-        $extension = mb_strtolower(pathinfo($trimmedValue, \PATHINFO_EXTENSION));
-
-        if (!\in_array($extension, $allowedExtensions, true)) {
-            throw new InvalidFilePathException(\sprintf('File must have one of these extensions: %s', implode(', ', $allowedExtensions)));
         }
 
         return new self($trimmedValue);
