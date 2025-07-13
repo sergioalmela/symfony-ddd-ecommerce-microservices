@@ -11,7 +11,7 @@ SYMFONY  = $(PHP) bin/console
 
 # Misc
 .DEFAULT_GOAL = help
-.PHONY        : help build up start down logs sh composer vendor sf cc test cs-fix cs-check phpstan rector qa qa-fix validate check-imports order-migrate order-migrate-status order-migrate-generate invoice-migrate invoice-migrate-status invoice-migrate-generate
+.PHONY        : help build up start down logs sh composer vendor sf cc test cs-fix cs-check phpstan rector qa qa-fix validate check-imports order-migrate order-migrate-status order-migrate-generate order-migrate-diff invoice-migrate invoice-migrate-status invoice-migrate-generate invoice-migrate-diff
 
 ## —— 🎵 🐳 The Symfony Docker Makefile 🐳 🎵 ——————————————————————————————————
 help: ## Outputs this help screen

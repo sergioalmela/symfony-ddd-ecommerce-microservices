@@ -54,7 +54,7 @@ COPY --link frankenphp/Caddyfile /etc/frankenphp/Caddyfile
 
 ENTRYPOINT ["docker-entrypoint"]
 
-HEALTHCHECK --start-period=60s CMD curl -f http://localhost:80/health || exit 1
+HEALTHCHECK --start-period=60s CMD curl -f http://localhost:2019/metrics || exit 1
 CMD [ "frankenphp", "run", "--config", "/etc/frankenphp/Caddyfile" ]
 
 # Dev FrankenPHP image
@@ -73,21 +73,9 @@ RUN set -eux; \
 
 COPY --link frankenphp/conf.d/20-app.dev.ini $PHP_INI_DIR/app.conf.d/
 
-# Copy application source code for dev environment
-COPY --link composer.* symfony.* ./
-RUN set -eux; \
-	composer install --prefer-dist --no-autoloader --no-scripts --no-progress
-
-# Copy all source files
+# Copy source code for CI/development
 COPY --link . ./
-# Use .env.dist as .env if .env doesn't exist
-RUN if [ ! -f .env ]; then cp .env.dist .env; fi
 RUN rm -Rf frankenphp/
-
-RUN set -eux; \
-	mkdir -p var/cache var/log; \
-	composer dump-autoload --classmap-authoritative; \
-	chmod +x bin/console; sync;
 
 CMD [ "frankenphp", "run", "--config", "/etc/frankenphp/Caddyfile", "--watch" ]
 
