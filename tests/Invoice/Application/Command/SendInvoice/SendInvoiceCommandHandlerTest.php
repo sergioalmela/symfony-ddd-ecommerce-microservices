@@ -44,22 +44,19 @@ final class SendInvoiceCommandHandlerTest extends TestCase
      */
     public function testShouldThrowInvoiceNotFoundExceptionWhenInvoiceDoesNotExist(): void
     {
-        // Given
         $nonExistentOrderId = OrderId::generate();
         $validDate = new DateTimeImmutable(self::VALID_DATE_STRING);
-        
+
         $command = new SendInvoiceCommand(
             $nonExistentOrderId->value(),
             $validDate
         );
 
-        // When & Then
         $this->expectException(InvoiceNotFoundException::class);
         $this->expectExceptionMessage($nonExistentOrderId->value());
 
         ($this->handler)($command);
 
-        // Verify no side effects
         $this->assertFalse($this->invoiceRepository->storeChanged());
         $this->assertCount(0, $this->eventBus->domainEvents());
     }
@@ -71,20 +68,17 @@ final class SendInvoiceCommandHandlerTest extends TestCase
      */
     public function testShouldSuccessfullyUpdateInvoiceSentDateWhenInvoiceExists(): void
     {
-        // Given
         $orderId = OrderId::generate();
         $sellerId = SellerId::generate();
         $sentDate = new DateTimeImmutable(self::VALID_DATE_STRING);
-        
+
         $originalInvoice = $this->givenAnExistingInvoiceForOrderAndSeller($orderId, $sellerId);
         $this->assertFalse($originalInvoice->isSent(), 'Invoice should not be sent initially');
-        
+
         $command = new SendInvoiceCommand($orderId->value(), $sentDate);
 
-        // When
         ($this->handler)($command);
 
-        // Then
         $this->assertTrue($this->invoiceRepository->storeChanged());
         $this->assertCount(1, $this->invoiceRepository->stored());
 
@@ -94,7 +88,7 @@ final class SendInvoiceCommandHandlerTest extends TestCase
         $this->assertTrue($updatedInvoice->isSent());
         $this->assertNotNull($updatedInvoice->sentAt());
         $this->assertEquals(
-            $sentDate->format('Y-m-d H:i:s'), 
+            $sentDate->format('Y-m-d H:i:s'),
             $updatedInvoice->sentAt()->format('Y-m-d H:i:s')
         );
     }
@@ -105,17 +99,14 @@ final class SendInvoiceCommandHandlerTest extends TestCase
      */
     public function testShouldDispatchInvoiceSentEventWithCorrectData(): void
     {
-        // Given
         $orderId = OrderId::generate();
         $sentDate = new DateTimeImmutable(self::VALID_DATE_STRING);
-        
+
         $invoice = $this->givenAnExistingInvoiceForOrder($orderId);
         $command = new SendInvoiceCommand($orderId->value(), $sentDate);
 
-        // When
         ($this->handler)($command);
 
-        // Then
         $events = $this->eventBus->domainEvents();
         $this->assertCount(1, $events);
 
@@ -131,23 +122,19 @@ final class SendInvoiceCommandHandlerTest extends TestCase
      */
     public function testShouldTransitionInvoiceFromUnsentToSentState(): void
     {
-        // Given
         $orderId = OrderId::generate();
         $sentDate = new DateTimeImmutable(self::VALID_DATE_STRING);
-        
+
         $invoice = $this->givenAnExistingInvoiceForOrder($orderId);
         $this->assertFalse($invoice->isSent(), 'Precondition: Invoice should not be sent');
-        
+
         $command = new SendInvoiceCommand($orderId->value(), $sentDate);
 
-        // When
         ($this->handler)($command);
 
-        // Then
         $updatedInvoice = $this->invoiceRepository->stored()[0];
         $this->assertTrue($updatedInvoice->isSent(), 'Invoice should be marked as sent');
-        
-        // Verify the state transition is complete
+
         $sentAt = $updatedInvoice->sentAt();
         $this->assertNotNull($sentAt);
         $this->assertEquals(
@@ -162,26 +149,21 @@ final class SendInvoiceCommandHandlerTest extends TestCase
      */
     public function testShouldHandleInvoiceAlreadyBeingSent(): void
     {
-        // Given
         $orderId = OrderId::generate();
         $firstSentDate = new DateTimeImmutable('2025-01-25T10:00:00Z');
         $secondSentDate = new DateTimeImmutable(self::VALID_DATE_STRING);
-        
+
         $invoice = $this->givenAnExistingInvoiceForOrder($orderId);
-        
-        // First send
+
         $firstCommand = new SendInvoiceCommand($orderId->value(), $firstSentDate);
         ($this->handler)($firstCommand);
-        
-        // Clear repository state for second attempt
+
         $this->invoiceRepository->clean();
         $this->invoiceRepository->add($this->invoiceRepository->stored()[0] ?? $invoice);
-        
-        // When - Second send attempt
+
         $secondCommand = new SendInvoiceCommand($orderId->value(), $secondSentDate);
         ($this->handler)($secondCommand);
 
-        // Then - Should update the sent date (business decision: allow re-sending)
         $finalInvoice = $this->invoiceRepository->stored()[0];
         $this->assertTrue($finalInvoice->isSent());
         $this->assertEquals(
@@ -200,7 +182,7 @@ final class SendInvoiceCommandHandlerTest extends TestCase
             ->build();
 
         $this->invoiceRepository->add($invoice);
-        
+
         return $invoice;
     }
 
@@ -215,7 +197,7 @@ final class SendInvoiceCommandHandlerTest extends TestCase
             ->build();
 
         $this->invoiceRepository->add($invoice);
-        
+
         return $invoice;
     }
 }
