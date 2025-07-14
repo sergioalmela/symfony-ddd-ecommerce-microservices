@@ -241,6 +241,14 @@ final class UploadInvoiceCommandHandlerTest extends TestCase
         $this->assertStringContainsString('.pdf', $event->filePath());
         $this->assertSame('invoice.uploaded', $event->eventType());
         $this->assertSame(1, $event->eventVersion());
+        
+        $expectedPayload = [
+            'invoiceId' => $event->aggregateId(),
+            'orderId' => $orderId->value(),
+            'sellerId' => $sellerId->value(),
+            'filePath' => $event->filePath(),
+        ];
+        $this->assertSame($expectedPayload, $event->payload());
     }
 
     /**
@@ -259,6 +267,34 @@ final class UploadInvoiceCommandHandlerTest extends TestCase
             $sellerId->value(),
             self::VALID_FILE_CONTENT,
             'application/msword'
+        );
+
+        $this->expectException(InvalidInvoiceFileTypeException::class);
+        $this->expectExceptionMessage('Invoice files must be PDF');
+
+        ($this->handler)($command);
+
+        $this->assertEmpty($this->storageService->getUploadedFiles());
+        $this->assertFalse($this->invoiceRepository->storeChanged());
+        $this->assertCount(0, $this->eventBus->domainEvents());
+    }
+
+    /**
+     * @group upload-invoice
+     * @group validation
+     */
+    public function testShouldThrowExceptionWhenEmptyMimeType(): void
+    {
+        $orderId = OrderId::generate();
+        $sellerId = SellerId::generate();
+
+        $this->givenAnExistingOrderProjection($orderId, $sellerId);
+
+        $command = new UploadInvoiceCommand(
+            $orderId->value(),
+            $sellerId->value(),
+            self::VALID_FILE_CONTENT,
+            ''
         );
 
         $this->expectException(InvalidInvoiceFileTypeException::class);

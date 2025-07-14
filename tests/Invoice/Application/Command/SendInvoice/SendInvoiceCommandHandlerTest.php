@@ -116,6 +116,11 @@ final class SendInvoiceCommandHandlerTest extends TestCase
         $this->assertInstanceOf(InvoiceSentEvent::class, $event);
         $this->assertSame($invoice->id()->value(), $event->aggregateId());
         $this->assertInstanceOf(DateTimeImmutable::class, $event->occurredOn());
+        $this->assertSame('invoice.sent', $event->eventType());
+        $this->assertSame(1, $event->eventVersion());
+        $this->assertSame([
+            'invoiceId' => $invoice->id()->value(),
+        ], $event->payload());
     }
 
     /**
