@@ -30,16 +30,6 @@ final readonly class FilePath implements Stringable
         return $this->value;
     }
 
-    public function extension(): string
-    {
-        return mb_strtolower(pathinfo($this->value, \PATHINFO_EXTENSION));
-    }
-
-    public function filename(): string
-    {
-        return pathinfo($this->value, \PATHINFO_BASENAME);
-    }
-
     public function equals(self $other): bool
     {
         return $this->value === $other->value;

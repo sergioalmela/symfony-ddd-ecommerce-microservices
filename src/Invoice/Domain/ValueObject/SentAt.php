@@ -6,7 +6,6 @@ namespace App\Invoice\Domain\ValueObject;
 
 use App\Invoice\Domain\Exception\InvalidSentAtException;
 use DateTimeImmutable;
-use Exception;
 use Stringable;
 
 final readonly class SentAt implements Stringable
@@ -32,22 +31,6 @@ final readonly class SentAt implements Stringable
         return new self($value);
     }
 
-    public static function now(): self
-    {
-        return new self(new DateTimeImmutable());
-    }
-
-    public static function fromString(string $dateString): self
-    {
-        try {
-            $date = new DateTimeImmutable($dateString);
-
-            return self::of($date);
-        } catch (Exception) {
-            throw new InvalidSentAtException("Invalid date format: {$dateString}");
-        }
-    }
-
     public static function fromPrimitives(DateTimeImmutable $value): self
     {
         return new self($value);
@@ -62,21 +45,7 @@ final readonly class SentAt implements Stringable
     {
         return $this->value->format($format);
     }
-
-    public function isToday(): bool
-    {
-        $today = new DateTimeImmutable('today');
-
-        return $this->value >= $today && $this->value < $today->modify('+1 day');
-    }
-
-    public function daysSinceNow(): int
-    {
-        $now = new DateTimeImmutable();
-
-        return $now->diff($this->value)->days;
-    }
-
+    
     public function equals(self $other): bool
     {
         return $this->value === $other->value;
