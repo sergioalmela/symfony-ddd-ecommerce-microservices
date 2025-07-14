@@ -38,10 +38,6 @@ final class SendInvoiceCommandHandlerTest extends TestCase
         $this->eventBus->clean();
     }
 
-    /**
-     * @group send-invoice
-     * @group exception-scenarios
-     */
     public function testShouldThrowInvoiceNotFoundExceptionWhenInvoiceDoesNotExist(): void
     {
         $nonExistentOrderId = OrderId::generate();
@@ -61,10 +57,6 @@ final class SendInvoiceCommandHandlerTest extends TestCase
         $this->assertCount(0, $this->eventBus->domainEvents());
     }
 
-    /**
-     * @group send-invoice
-     * @group happy-path
-     */
     public function testShouldSuccessfullyUpdateInvoiceSentDateWhenInvoiceExists(): void
     {
         $orderId = OrderId::generate();
@@ -92,10 +84,6 @@ final class SendInvoiceCommandHandlerTest extends TestCase
         );
     }
 
-    /**
-     * @group send-invoice
-     * @group events
-     */
     public function testShouldDispatchInvoiceSentEventWithCorrectData(): void
     {
         $orderId = OrderId::generate();
@@ -123,10 +111,6 @@ final class SendInvoiceCommandHandlerTest extends TestCase
         ], $event->payload());
     }
 
-    /**
-     * @group send-invoice
-     * @group state-changes
-     */
     public function testShouldTransitionInvoiceFromUnsentToSentState(): void
     {
         $orderId = OrderId::generate();
@@ -150,10 +134,6 @@ final class SendInvoiceCommandHandlerTest extends TestCase
         );
     }
 
-    /**
-     * @group send-invoice
-     * @group edge-cases
-     */
     public function testShouldHandleInvoiceAlreadyBeingSent(): void
     {
         $orderId = OrderId::generate();
@@ -179,9 +159,6 @@ final class SendInvoiceCommandHandlerTest extends TestCase
         );
     }
 
-    /**
-     * Test helper: Creates an invoice for the given order ID.
-     */
     private function givenAnExistingInvoiceForOrder(OrderId $orderId): Invoice
     {
         $invoice = InvoiceBuilder::anInvoice()
@@ -195,9 +172,6 @@ final class SendInvoiceCommandHandlerTest extends TestCase
         return $invoice;
     }
 
-    /**
-     * Test helper: Creates an invoice for the given order and seller IDs.
-     */
     private function givenAnExistingInvoiceForOrderAndSeller(OrderId $orderId, SellerId $sellerId): Invoice
     {
         $invoice = InvoiceBuilder::anInvoice()
