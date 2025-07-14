@@ -13,12 +13,12 @@ final readonly class Price implements Stringable
 
     private function __construct(float $value)
     {
-        $this->value = round($value * 100) / 100;
+        $this->value = round($value, 2);
     }
 
     public static function of(float $value): self
     {
-        if (!is_finite($value) || $value < 0) {
+        if (!is_finite($value) || $value < 0 || $value > 99999999.99) {
             throw new PriceInvalidException($value);
         }
 
