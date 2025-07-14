@@ -116,6 +116,9 @@ jobs:
       - name: Install dependencies
         run: docker compose -f compose.yaml -f compose.ci.yaml exec -T php composer install --prefer-dist --no-progress
 
+      - name: Warm up cache for PHPStan
+        run: docker compose -f compose.yaml -f compose.ci.yaml exec -T php bin/console cache:warmup --env=dev
+
       - name: Run PHPStan
         run: docker compose -f compose.yaml -f compose.ci.yaml exec -T php vendor/bin/phpstan analyse --memory-limit=1G --error-format=github
 
