@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Invoice\Domain\ValueObject;
 
-use App\Invoice\Domain\Exception\InvalidFilePathException;
 use Stringable;
 
 final readonly class FilePath implements Stringable
@@ -17,18 +16,6 @@ final readonly class FilePath implements Stringable
     public static function of(string $value): self
     {
         $trimmedValue = mb_trim($value);
-
-        if ('' === $trimmedValue || '0' === $trimmedValue) {
-            throw new InvalidFilePathException('File path cannot be empty');
-        }
-
-        if (mb_strlen($trimmedValue) > 500) {
-            throw new InvalidFilePathException('File path cannot exceed 500 characters');
-        }
-
-        if (str_contains($trimmedValue, '..')) {
-            throw new InvalidFilePathException('File path cannot contain ".." for security reasons');
-        }
 
         return new self($trimmedValue);
     }

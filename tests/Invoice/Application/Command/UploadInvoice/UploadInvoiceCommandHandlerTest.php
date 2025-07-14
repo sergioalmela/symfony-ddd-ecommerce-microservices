@@ -241,7 +241,7 @@ final class UploadInvoiceCommandHandlerTest extends TestCase
         $this->assertStringContainsString('.pdf', $event->filePath());
         $this->assertSame('invoice.uploaded', $event->eventType());
         $this->assertSame(1, $event->eventVersion());
-        
+
         $expectedPayload = [
             'invoiceId' => $event->aggregateId(),
             'orderId' => $orderId->value(),
