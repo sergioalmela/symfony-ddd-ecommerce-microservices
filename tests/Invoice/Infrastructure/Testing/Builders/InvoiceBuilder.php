@@ -33,24 +33,28 @@ final class InvoiceBuilder
     public function withId(InvoiceId $invoiceId): self
     {
         $this->invoiceId = $invoiceId;
+
         return $this;
     }
 
     public function withOrderId(OrderId $orderId): self
     {
         $this->orderId = $orderId;
+
         return $this;
     }
 
     public function withSellerId(SellerId $sellerId): self
     {
         $this->sellerId = $sellerId;
+
         return $this;
     }
 
     public function withFilePath(FilePath $filePath): self
     {
         $this->filePath = $filePath;
+
         return $this;
     }
 

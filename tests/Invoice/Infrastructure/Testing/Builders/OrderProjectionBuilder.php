@@ -27,12 +27,14 @@ final class OrderProjectionBuilder
     public function withOrderId(OrderId $orderId): self
     {
         $this->orderId = $orderId;
+
         return $this;
     }
 
     public function withSellerId(SellerId $sellerId): self
     {
         $this->sellerId = $sellerId;
+
         return $this;
     }
 

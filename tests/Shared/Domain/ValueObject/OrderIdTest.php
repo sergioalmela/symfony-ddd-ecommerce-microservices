@@ -20,7 +20,7 @@ final class OrderIdTest extends TestCase
         $orderId = OrderId::of(self::VALID_UUID);
 
         $this->assertInstanceOf(OrderId::class, $orderId);
-        $this->assertEquals(self::VALID_UUID, $orderId->value());
+        $this->assertSame(self::VALID_UUID, $orderId->value());
     }
 
     /**
@@ -44,7 +44,7 @@ final class OrderIdTest extends TestCase
         $orderId = OrderId::fromPrimitives(self::VALID_UUID);
 
         $this->assertInstanceOf(OrderId::class, $orderId);
-        $this->assertEquals(self::VALID_UUID, $orderId->value());
+        $this->assertSame(self::VALID_UUID, $orderId->value());
     }
 
     /**

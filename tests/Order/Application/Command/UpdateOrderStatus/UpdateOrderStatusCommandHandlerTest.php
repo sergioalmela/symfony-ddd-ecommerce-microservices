@@ -6,17 +6,16 @@ namespace App\Tests\Order\Application\Command\UpdateOrderStatus;
 
 use App\Order\Application\Command\UpdateOrderStatus\UpdateOrderStatusCommand;
 use App\Order\Application\Command\UpdateOrderStatus\UpdateOrderStatusCommandHandler;
-use App\Order\Domain\Event\OrderShippedEvent;
 use App\Order\Domain\Exception\OrderStatusInvalidException;
-use App\Order\Domain\ValueObject\OrderStatus;
+use App\Shared\Domain\Event\OrderShippedEvent;
 use App\Shared\Domain\Exception\InvalidUuidError;
 use App\Shared\Domain\Exception\OrderNotFoundException;
 use App\Shared\Domain\ValueObject\OrderId;
 use App\Shared\Domain\ValueObject\SellerId;
-use PHPUnit\Framework\TestCase;
 use App\Tests\Order\Infrastructure\Testing\Builders\OrderBuilder;
 use App\Tests\Order\Infrastructure\Testing\Doubles\EventBusSpy;
 use App\Tests\Order\Infrastructure\Testing\Doubles\OrderRepositoryFake;
+use PHPUnit\Framework\TestCase;
 
 final class UpdateOrderStatusCommandHandlerTest extends TestCase
 {
@@ -159,9 +158,9 @@ final class UpdateOrderStatusCommandHandlerTest extends TestCase
 
         $this->assertTrue($this->orderRepository->storeChanged());
         $this->assertCount(1, $this->orderRepository->stored());
-        
+
         $storedOrder = $this->orderRepository->stored()[0];
-        $this->assertEquals('CREATED', $storedOrder->toPrimitives()['status']);
+        $this->assertSame('CREATED', $storedOrder->toPrimitives()['status']);
         $this->assertCount(1, $this->eventBus->domainEvents());
     }
 
@@ -183,13 +182,13 @@ final class UpdateOrderStatusCommandHandlerTest extends TestCase
 
         $this->assertTrue($this->orderRepository->storeChanged());
         $this->assertCount(1, $this->orderRepository->stored());
-        
+
         $storedOrder = $this->orderRepository->stored()[0];
-        $this->assertEquals('SHIPPED', $storedOrder->toPrimitives()['status']);
-        
+        $this->assertSame('SHIPPED', $storedOrder->toPrimitives()['status']);
+
         $this->assertCount(2, $this->eventBus->domainEvents());
         $dispatchedEvent = $this->eventBus->domainEvents()[1];
         $this->assertInstanceOf(OrderShippedEvent::class, $dispatchedEvent);
-        $this->assertEquals($this->validOrderId->value(), $dispatchedEvent->aggregateId());
+        $this->assertSame($this->validOrderId->value(), $dispatchedEvent->aggregateId());
     }
 }

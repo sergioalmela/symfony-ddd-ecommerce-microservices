@@ -39,36 +39,42 @@ final class OrderBuilder
     public function withId(OrderId $orderId): self
     {
         $this->orderId = $orderId;
+
         return $this;
     }
 
     public function withProductId(ProductId $productId): self
     {
         $this->productId = $productId;
+
         return $this;
     }
 
     public function withQuantity(Quantity $quantity): self
     {
         $this->quantity = $quantity;
+
         return $this;
     }
 
     public function withPrice(Price $price): self
     {
         $this->price = $price;
+
         return $this;
     }
 
     public function withCustomerId(CustomerId $customerId): self
     {
         $this->customerId = $customerId;
+
         return $this;
     }
 
     public function withSellerId(SellerId $sellerId): self
     {
         $this->sellerId = $sellerId;
+
         return $this;
     }
 

@@ -72,8 +72,8 @@ final class GetOrdersQueryHandlerTest extends TestCase
 
         $this->assertInstanceOf(GetOrdersResponse::class, $result);
         $this->assertCount(2, $result->orders);
-        $this->assertEquals($orderOne->toPrimitives(), $result->orders[0]->toPrimitives());
-        $this->assertEquals($orderTwo->toPrimitives(), $result->orders[1]->toPrimitives());
+        $this->assertSame($orderOne->toPrimitives(), $result->orders[0]->toPrimitives());
+        $this->assertSame($orderTwo->toPrimitives(), $result->orders[1]->toPrimitives());
     }
 
     public function testShouldReturnOnlyOrdersForSpecificSeller(): void
@@ -95,6 +95,6 @@ final class GetOrdersQueryHandlerTest extends TestCase
         $result = ($this->handler)($query);
 
         $this->assertCount(1, $result->orders);
-        $this->assertEquals($orderForSeller->toPrimitives(), $result->orders[0]->toPrimitives());
+        $this->assertSame($orderForSeller->toPrimitives(), $result->orders[0]->toPrimitives());
     }
 }
