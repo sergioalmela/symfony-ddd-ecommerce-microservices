@@ -14,9 +14,9 @@ final class PriceType extends DecimalType
     public const string NAME = 'price';
 
     #[Override]
-    public function convertToDatabaseValue($value, AbstractPlatform $platform): ?float
+    public function convertToDatabaseValue($value, AbstractPlatform $platform): ?string
     {
-        return $value instanceof Price ? $value->value() : $value;
+        return $value instanceof Price ? number_format($value->value(), 2, '.', '') : $value;
     }
 
     #[Override]
@@ -29,5 +29,14 @@ final class PriceType extends DecimalType
     public function getName(): string
     {
         return self::NAME;
+    }
+
+    #[Override]
+    public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
+    {
+        $column['precision'] ??= 10;
+        $column['scale'] ??= 2;
+
+        return parent::getSQLDeclaration($column, $platform);
     }
 }

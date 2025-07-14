@@ -10,7 +10,7 @@
 
         <field name="productId" type="product_id" column="product_id" />
         <field name="quantity" type="quantity" column="quantity" />
-        <field name="price" type="price" column="price" />
+        <field name="price" type="price" column="price" precision="10" scale="2" />
         <field name="customerId" type="customer_id" column="customer_id" />
         <field name="sellerId" type="seller_id" column="seller_id" />
         <field name="orderStatus" type="order_status" column="status" />
