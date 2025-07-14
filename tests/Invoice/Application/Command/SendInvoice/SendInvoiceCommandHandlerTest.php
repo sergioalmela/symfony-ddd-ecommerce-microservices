@@ -8,8 +8,8 @@ use App\Invoice\Application\Command\SendInvoice\SendInvoiceCommand;
 use App\Invoice\Application\Command\SendInvoice\SendInvoiceCommandHandler;
 use App\Invoice\Domain\Entity\Invoice;
 use App\Invoice\Domain\Event\InvoiceSentEvent;
-use App\Invoice\Domain\Exception\InvoiceNotFoundException;
 use App\Invoice\Domain\Exception\InvalidSentAtException;
+use App\Invoice\Domain\Exception\InvoiceNotFoundException;
 use App\Shared\Domain\ValueObject\OrderId;
 use App\Shared\Domain\ValueObject\SellerId;
 use App\Tests\Invoice\Infrastructure\Testing\Builders\InvoiceBuilder;
@@ -147,7 +147,7 @@ final class SendInvoiceCommandHandlerTest extends TestCase
         ($this->handler)($firstCommand);
 
         $this->invoiceRepository->clean();
-        $this->invoiceRepository->add($this->invoiceRepository->stored()[0] ?? $invoice);
+        $this->invoiceRepository->add($invoice);
 
         $secondCommand = new SendInvoiceCommand($orderId->value(), $secondSentDate);
         ($this->handler)($secondCommand);
