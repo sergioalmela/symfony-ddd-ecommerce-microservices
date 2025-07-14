@@ -12,9 +12,4 @@ final class InvalidInvoiceFileTypeException extends DomainException
     {
         return new self(\sprintf('Invoice files must be PDF. Received: %s', $actualMimeType));
     }
-
-    public static function empty(): self
-    {
-        return new self('Invoice file type cannot be empty');
-    }
 }

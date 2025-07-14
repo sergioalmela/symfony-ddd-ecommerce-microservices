@@ -10,6 +10,7 @@ use App\Order\Domain\Exception\OrderStatusInvalidException;
 use App\Shared\Domain\Event\OrderShippedEvent;
 use App\Shared\Domain\Exception\InvalidUuidError;
 use App\Shared\Domain\Exception\OrderNotFoundException;
+use App\Shared\Domain\ValueObject\CustomerId;
 use App\Shared\Domain\ValueObject\OrderId;
 use App\Shared\Domain\ValueObject\SellerId;
 use App\Tests\Order\Infrastructure\Testing\Builders\OrderBuilder;
@@ -166,9 +167,11 @@ final class UpdateOrderStatusCommandHandlerTest extends TestCase
 
     public function testShouldUpdateOrderStatusAndPublishEventWhenSellerChangesStatus(): void
     {
+        $customerId = CustomerId::generate();
         $order = OrderBuilder::anOrder()
             ->withId($this->validOrderId)
             ->withSellerId($this->validSellerId)
+            ->withCustomerId($customerId)
             ->build();
         $this->orderRepository->add($order);
 
@@ -190,5 +193,11 @@ final class UpdateOrderStatusCommandHandlerTest extends TestCase
         $dispatchedEvent = $this->eventBus->domainEvents()[1];
         $this->assertInstanceOf(OrderShippedEvent::class, $dispatchedEvent);
         $this->assertSame($this->validOrderId->value(), $dispatchedEvent->aggregateId());
+        $this->assertSame('order.shipped', $dispatchedEvent->eventType());
+        $this->assertSame(1, $dispatchedEvent->eventVersion());
+        $this->assertSame([
+            'orderId' => $this->validOrderId->value(),
+            'customerId' => $customerId->value(),
+        ], $dispatchedEvent->payload());
     }
 }

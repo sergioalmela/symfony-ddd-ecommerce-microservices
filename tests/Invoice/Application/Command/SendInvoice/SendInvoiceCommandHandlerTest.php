@@ -8,6 +8,7 @@ use App\Invoice\Application\Command\SendInvoice\SendInvoiceCommand;
 use App\Invoice\Application\Command\SendInvoice\SendInvoiceCommandHandler;
 use App\Invoice\Domain\Entity\Invoice;
 use App\Invoice\Domain\Event\InvoiceSentEvent;
+use App\Invoice\Domain\Exception\InvalidSentAtException;
 use App\Invoice\Domain\Exception\InvoiceNotFoundException;
 use App\Shared\Domain\ValueObject\OrderId;
 use App\Shared\Domain\ValueObject\SellerId;
@@ -38,10 +39,6 @@ final class SendInvoiceCommandHandlerTest extends TestCase
         $this->eventBus->clean();
     }
 
-    /**
-     * @group send-invoice
-     * @group exception-scenarios
-     */
     public function testShouldThrowInvoiceNotFoundExceptionWhenInvoiceDoesNotExist(): void
     {
         $nonExistentOrderId = OrderId::generate();
@@ -61,10 +58,6 @@ final class SendInvoiceCommandHandlerTest extends TestCase
         $this->assertCount(0, $this->eventBus->domainEvents());
     }
 
-    /**
-     * @group send-invoice
-     * @group happy-path
-     */
     public function testShouldSuccessfullyUpdateInvoiceSentDateWhenInvoiceExists(): void
     {
         $orderId = OrderId::generate();
@@ -92,10 +85,6 @@ final class SendInvoiceCommandHandlerTest extends TestCase
         );
     }
 
-    /**
-     * @group send-invoice
-     * @group events
-     */
     public function testShouldDispatchInvoiceSentEventWithCorrectData(): void
     {
         $orderId = OrderId::generate();
@@ -116,12 +105,13 @@ final class SendInvoiceCommandHandlerTest extends TestCase
         $this->assertInstanceOf(InvoiceSentEvent::class, $event);
         $this->assertSame($invoice->id()->value(), $event->aggregateId());
         $this->assertInstanceOf(DateTimeImmutable::class, $event->occurredOn());
+        $this->assertSame('invoice.sent', $event->eventType());
+        $this->assertSame(1, $event->eventVersion());
+        $this->assertSame([
+            'invoiceId' => $invoice->id()->value(),
+        ], $event->payload());
     }
 
-    /**
-     * @group send-invoice
-     * @group state-changes
-     */
     public function testShouldTransitionInvoiceFromUnsentToSentState(): void
     {
         $orderId = OrderId::generate();
@@ -145,10 +135,6 @@ final class SendInvoiceCommandHandlerTest extends TestCase
         );
     }
 
-    /**
-     * @group send-invoice
-     * @group edge-cases
-     */
     public function testShouldHandleInvoiceAlreadyBeingSent(): void
     {
         $orderId = OrderId::generate();
@@ -161,7 +147,7 @@ final class SendInvoiceCommandHandlerTest extends TestCase
         ($this->handler)($firstCommand);
 
         $this->invoiceRepository->clean();
-        $this->invoiceRepository->add($this->invoiceRepository->stored()[0] ?? $invoice);
+        $this->invoiceRepository->add($invoice);
 
         $secondCommand = new SendInvoiceCommand($orderId->value(), $secondSentDate);
         ($this->handler)($secondCommand);
@@ -174,9 +160,42 @@ final class SendInvoiceCommandHandlerTest extends TestCase
         );
     }
 
-    /**
-     * Test helper: Creates an invoice for the given order ID.
-     */
+    public function testShouldThrowInvalidSentAtExceptionWhenDateIsInTheFuture(): void
+    {
+        $orderId = OrderId::generate();
+        $futureDate = new DateTimeImmutable('+1 day');
+
+        $this->givenAnExistingInvoiceForOrder($orderId);
+
+        $command = new SendInvoiceCommand($orderId->value(), $futureDate);
+
+        $this->expectException(InvalidSentAtException::class);
+        $this->expectExceptionMessage('SentAt date cannot be in the future');
+
+        ($this->handler)($command);
+
+        $this->assertFalse($this->invoiceRepository->storeChanged());
+        $this->assertCount(0, $this->eventBus->domainEvents());
+    }
+
+    public function testShouldThrowInvalidSentAtExceptionWhenDateIsMoreThanOneYearAgo(): void
+    {
+        $orderId = OrderId::generate();
+        $oneYearAgoMinus1Day = new DateTimeImmutable('-1 year -1 day');
+
+        $this->givenAnExistingInvoiceForOrder($orderId);
+
+        $command = new SendInvoiceCommand($orderId->value(), $oneYearAgoMinus1Day);
+
+        $this->expectException(InvalidSentAtException::class);
+        $this->expectExceptionMessage('SentAt date cannot be more than 1 year ago');
+
+        ($this->handler)($command);
+
+        $this->assertFalse($this->invoiceRepository->storeChanged());
+        $this->assertCount(0, $this->eventBus->domainEvents());
+    }
+
     private function givenAnExistingInvoiceForOrder(OrderId $orderId): Invoice
     {
         $invoice = InvoiceBuilder::anInvoice()
@@ -190,9 +209,6 @@ final class SendInvoiceCommandHandlerTest extends TestCase
         return $invoice;
     }
 
-    /**
-     * Test helper: Creates an invoice for the given order and seller IDs.
-     */
     private function givenAnExistingInvoiceForOrderAndSeller(OrderId $orderId, SellerId $sellerId): Invoice
     {
         $invoice = InvoiceBuilder::anInvoice()

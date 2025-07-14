@@ -60,10 +60,6 @@ final class UploadInvoiceCommandHandlerTest extends TestCase
         $this->storageService->clean();
     }
 
-    /**
-     * @group upload-invoice
-     * @group exception-scenarios
-     */
     public function testShouldThrowInvoiceAlreadyExistsExceptionWhenInvoiceExists(): void
     {
         $orderId = OrderId::generate();
@@ -92,10 +88,6 @@ final class UploadInvoiceCommandHandlerTest extends TestCase
         $this->assertCount(0, $this->eventBus->domainEvents());
     }
 
-    /**
-     * @group upload-invoice
-     * @group exception-scenarios
-     */
     public function testShouldThrowOrderNotFoundExceptionWhenOrderProjectionDoesNotExist(): void
     {
         $orderId = OrderId::generate();
@@ -118,10 +110,6 @@ final class UploadInvoiceCommandHandlerTest extends TestCase
         $this->assertCount(0, $this->eventBus->domainEvents());
     }
 
-    /**
-     * @group upload-invoice
-     * @group happy-path
-     */
     public function testShouldSuccessfullyUploadInvoiceWhenValidData(): void
     {
         $orderId = OrderId::generate();
@@ -152,10 +140,6 @@ final class UploadInvoiceCommandHandlerTest extends TestCase
         $this->assertNotNull($storedInvoice->filePath());
     }
 
-    /**
-     * @group upload-invoice
-     * @group file-storage
-     */
     public function testShouldUploadFileToStorageWithCorrectNameAndContent(): void
     {
         $orderId = OrderId::generate();
@@ -181,10 +165,6 @@ final class UploadInvoiceCommandHandlerTest extends TestCase
         $this->assertStringContainsString("-order-{$orderId->value()}.pdf", $uploadedFile['fileName']);
     }
 
-    /**
-     * @group upload-invoice
-     * @group file-storage
-     */
     public function testShouldStoreCorrectFileUrlInInvoice(): void
     {
         $orderId = OrderId::generate();
@@ -209,10 +189,6 @@ final class UploadInvoiceCommandHandlerTest extends TestCase
         $this->assertStringContainsString("-order-{$orderId->value()}.pdf", $filePath);
     }
 
-    /**
-     * @group upload-invoice
-     * @group events
-     */
     public function testShouldDispatchInvoiceUploadedEventAfterSuccessfulUpload(): void
     {
         $orderId = OrderId::generate();
@@ -241,12 +217,16 @@ final class UploadInvoiceCommandHandlerTest extends TestCase
         $this->assertStringContainsString('.pdf', $event->filePath());
         $this->assertSame('invoice.uploaded', $event->eventType());
         $this->assertSame(1, $event->eventVersion());
+
+        $expectedPayload = [
+            'invoiceId' => $event->aggregateId(),
+            'orderId' => $orderId->value(),
+            'sellerId' => $sellerId->value(),
+            'filePath' => $event->filePath(),
+        ];
+        $this->assertSame($expectedPayload, $event->payload());
     }
 
-    /**
-     * @group upload-invoice
-     * @group validation
-     */
     public function testShouldThrowExceptionWhenInvalidMimeType(): void
     {
         $orderId = OrderId::generate();
@@ -271,10 +251,30 @@ final class UploadInvoiceCommandHandlerTest extends TestCase
         $this->assertCount(0, $this->eventBus->domainEvents());
     }
 
-    /**
-     * @group upload-invoice
-     * @group invoice-properties
-     */
+    public function testShouldThrowExceptionWhenEmptyMimeType(): void
+    {
+        $orderId = OrderId::generate();
+        $sellerId = SellerId::generate();
+
+        $this->givenAnExistingOrderProjection($orderId, $sellerId);
+
+        $command = new UploadInvoiceCommand(
+            $orderId->value(),
+            $sellerId->value(),
+            self::VALID_FILE_CONTENT,
+            ''
+        );
+
+        $this->expectException(InvalidInvoiceFileTypeException::class);
+        $this->expectExceptionMessage('Invoice files must be PDF');
+
+        ($this->handler)($command);
+
+        $this->assertEmpty($this->storageService->getUploadedFiles());
+        $this->assertFalse($this->invoiceRepository->storeChanged());
+        $this->assertCount(0, $this->eventBus->domainEvents());
+    }
+
     public function testShouldCreateInvoiceWithGeneratedIdAndCorrectProperties(): void
     {
         $orderId = OrderId::generate();

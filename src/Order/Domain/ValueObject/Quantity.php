@@ -20,10 +20,6 @@ final readonly class Quantity implements Stringable
             throw new InvalidQuantityException('Quantity cannot be negative');
         }
 
-        if ($value > 999) {
-            throw new InvalidQuantityException('Quantity cannot exceed 999 items');
-        }
-
         return new self($value);
     }
 

@@ -11,10 +11,6 @@ final class OrderIdTest extends TestCase
 {
     private const string VALID_UUID = '550e8400-e29b-41d4-a716-446655440000';
 
-    /**
-     * @group value-objects
-     * @group id-specific
-     */
     public function testShouldCreateOrderIdInstance(): void
     {
         $orderId = OrderId::of(self::VALID_UUID);
@@ -23,10 +19,6 @@ final class OrderIdTest extends TestCase
         $this->assertSame(self::VALID_UUID, $orderId->value());
     }
 
-    /**
-     * @group value-objects
-     * @group id-specific
-     */
     public function testShouldGenerateOrderIdInstance(): void
     {
         $orderId = OrderId::generate();
@@ -35,10 +27,6 @@ final class OrderIdTest extends TestCase
         $this->assertNotEmpty($orderId->value());
     }
 
-    /**
-     * @group value-objects
-     * @group id-specific
-     */
     public function testShouldCreateFromPrimitives(): void
     {
         $orderId = OrderId::fromPrimitives(self::VALID_UUID);
@@ -47,10 +35,6 @@ final class OrderIdTest extends TestCase
         $this->assertSame(self::VALID_UUID, $orderId->value());
     }
 
-    /**
-     * @group value-objects
-     * @group type-safety
-     */
     public function testShouldBeDistinctFromOtherIdTypes(): void
     {
         $orderId = OrderId::of(self::VALID_UUID);
@@ -58,10 +42,6 @@ final class OrderIdTest extends TestCase
         $this->assertInstanceOf(OrderId::class, $orderId);
     }
 
-    /**
-     * @group value-objects
-     * @group equality
-     */
     public function testShouldCompareOrderIdsCorrectly(): void
     {
         $orderId1 = OrderId::of(self::VALID_UUID);

@@ -131,6 +131,15 @@ final class CreateOrderCommandHandlerTest extends TestCase
         $dispatchedEvent = $this->eventBus->domainEvents()[0];
         $this->assertInstanceOf(OrderCreatedEvent::class, $dispatchedEvent);
         $this->assertSame($this->validId->value(), $dispatchedEvent->aggregateId());
+        $this->assertSame('order.created', $dispatchedEvent->eventType());
+        $this->assertSame(1, $dispatchedEvent->eventVersion());
+        $this->assertSame([
+            'orderId' => $this->validId->value(),
+            'customerId' => $this->validCustomerId->value(),
+            'sellerId' => $this->validSellerId->value(),
+            'price' => $this->validPrice->value(),
+            'quantity' => $this->validQuantity->value(),
+        ], $dispatchedEvent->payload());
     }
 
     public function testShouldThrowInvalidUuidExceptionForInvalidId(): void
