@@ -176,8 +176,8 @@ final class UploadInvoiceCommandHandlerTest extends TestCase
         $this->assertCount(1, $uploadedFiles);
 
         $uploadedFile = $uploadedFiles[0];
-        $this->assertEquals(self::VALID_FILE_CONTENT, $uploadedFile['content']);
-        $this->assertStringContainsString("invoice-", $uploadedFile['fileName']);
+        $this->assertSame(self::VALID_FILE_CONTENT, $uploadedFile['content']);
+        $this->assertStringContainsString('invoice-', $uploadedFile['fileName']);
         $this->assertStringContainsString("-order-{$orderId->value()}.pdf", $uploadedFile['fileName']);
     }
 
@@ -203,9 +203,9 @@ final class UploadInvoiceCommandHandlerTest extends TestCase
 
         $storedInvoice = $this->invoiceRepository->stored()[0];
         $filePath = $storedInvoice->filePath()->value();
-        
+
         $this->assertStringStartsWith(self::EXPECTED_BASE_URL, $filePath);
-        $this->assertStringContainsString("invoice-", $filePath);
+        $this->assertStringContainsString('invoice-', $filePath);
         $this->assertStringContainsString("-order-{$orderId->value()}.pdf", $filePath);
     }
 
@@ -235,12 +235,12 @@ final class UploadInvoiceCommandHandlerTest extends TestCase
 
         $event = $events[0];
         $this->assertInstanceOf(InvoiceUploadedEvent::class, $event);
-        $this->assertEquals($orderId->value(), $event->orderId());
-        $this->assertEquals($sellerId->value(), $event->sellerId());
+        $this->assertSame($orderId->value(), $event->orderId());
+        $this->assertSame($sellerId->value(), $event->sellerId());
         $this->assertStringContainsString($orderId->value(), $event->filePath());
         $this->assertStringContainsString('.pdf', $event->filePath());
-        $this->assertEquals('invoice.uploaded', $event->eventType());
-        $this->assertEquals(1, $event->eventVersion());
+        $this->assertSame('invoice.uploaded', $event->eventType());
+        $this->assertSame(1, $event->eventVersion());
     }
 
     /**
@@ -306,7 +306,7 @@ final class UploadInvoiceCommandHandlerTest extends TestCase
     }
 
     /**
-     * Test helper: Creates an order projection for the given order and seller
+     * Test helper: Creates an order projection for the given order and seller.
      */
     private function givenAnExistingOrderProjection(OrderId $orderId, SellerId $sellerId): void
     {

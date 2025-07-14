@@ -6,21 +6,21 @@ namespace App\Tests\Order\Application\Command\CreateOrder;
 
 use App\Order\Application\Command\CreateOrder\CreateOrderCommand;
 use App\Order\Application\Command\CreateOrder\CreateOrderCommandHandler;
-use App\Order\Domain\Event\OrderCreatedEvent;
+use App\Order\Domain\Exception\InvalidQuantityException;
 use App\Order\Domain\Exception\OrderAlreadyExistsException;
+use App\Order\Domain\Exception\PriceInvalidException;
 use App\Order\Domain\ValueObject\Price;
 use App\Order\Domain\ValueObject\Quantity;
-use App\Order\Domain\Exception\InvalidQuantityException;
-use App\Order\Domain\Exception\PriceInvalidException;
+use App\Shared\Domain\Event\OrderCreatedEvent;
 use App\Shared\Domain\Exception\InvalidUuidError;
 use App\Shared\Domain\ValueObject\CustomerId;
 use App\Shared\Domain\ValueObject\OrderId;
 use App\Shared\Domain\ValueObject\ProductId;
 use App\Shared\Domain\ValueObject\SellerId;
-use PHPUnit\Framework\TestCase;
 use App\Tests\Order\Infrastructure\Testing\Builders\OrderBuilder;
 use App\Tests\Order\Infrastructure\Testing\Doubles\EventBusSpy;
 use App\Tests\Order\Infrastructure\Testing\Doubles\OrderRepositoryFake;
+use PHPUnit\Framework\TestCase;
 
 final class CreateOrderCommandHandlerTest extends TestCase
 {
@@ -110,7 +110,7 @@ final class CreateOrderCommandHandlerTest extends TestCase
             ->withSellerId($this->validSellerId)
             ->build();
 
-        $this->assertEquals($expectedOrder->toPrimitives(), $storedOrder->toPrimitives());
+        $this->assertSame($expectedOrder->toPrimitives(), $storedOrder->toPrimitives());
     }
 
     public function testShouldDispatchOrderCreatedEventWhenOrderIsCreated(): void
@@ -130,7 +130,7 @@ final class CreateOrderCommandHandlerTest extends TestCase
 
         $dispatchedEvent = $this->eventBus->domainEvents()[0];
         $this->assertInstanceOf(OrderCreatedEvent::class, $dispatchedEvent);
-        $this->assertEquals($this->validId->value(), $dispatchedEvent->aggregateId());
+        $this->assertSame($this->validId->value(), $dispatchedEvent->aggregateId());
     }
 
     public function testShouldThrowInvalidUuidExceptionForInvalidId(): void

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Shared\Infrastructure\Testing\Doubles;
 
 use App\Shared\Domain\Service\StorageService;
+use RuntimeException;
 
 final class StorageServiceSpy implements StorageService
 {
@@ -18,7 +19,7 @@ final class StorageServiceSpy implements StorageService
             'fileName' => $fileName,
         ];
 
-        return $this->baseUrl . $fileName;
+        return $this->baseUrl.$fileName;
     }
 
     public function getUploadedFiles(): array
@@ -33,6 +34,6 @@ final class StorageServiceSpy implements StorageService
 
     public function simulateUploadFailure(): void
     {
-        throw new \RuntimeException('Storage service unavailable');
+        throw new RuntimeException('Storage service unavailable');
     }
 }

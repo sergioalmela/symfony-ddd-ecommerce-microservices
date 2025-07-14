@@ -20,7 +20,7 @@ final class SellerIdTest extends TestCase
         $sellerId = SellerId::of(self::VALID_UUID);
 
         $this->assertInstanceOf(SellerId::class, $sellerId);
-        $this->assertEquals(self::VALID_UUID, $sellerId->value());
+        $this->assertSame(self::VALID_UUID, $sellerId->value());
     }
 
     /**

@@ -85,6 +85,9 @@ final class Invoice extends AggregateRoot
         return $this->sentAt;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toPrimitives(): array
     {
         return [

@@ -11,9 +11,9 @@ use App\Shared\Domain\Exception\InvalidUuidError;
 use App\Shared\Domain\Exception\OrderNotFoundException;
 use App\Shared\Domain\ValueObject\OrderId;
 use App\Shared\Domain\ValueObject\SellerId;
-use PHPUnit\Framework\TestCase;
 use App\Tests\Order\Infrastructure\Testing\Builders\OrderBuilder;
 use App\Tests\Order\Infrastructure\Testing\Doubles\OrderRepositoryFake;
+use PHPUnit\Framework\TestCase;
 
 final class GetOrderDetailsQueryHandlerTest extends TestCase
 {
@@ -111,6 +111,6 @@ final class GetOrderDetailsQueryHandlerTest extends TestCase
         $result = ($this->handler)($query);
 
         $this->assertInstanceOf(GetOrderDetailsResponse::class, $result);
-        $this->assertEquals($order->toPrimitives(), $result->order->toPrimitives());
+        $this->assertSame($order->toPrimitives(), $result->order->toPrimitives());
     }
 }

@@ -87,13 +87,13 @@ final class UploadInvoiceController extends BaseController
     public function uploadInvoice(string $orderId, Request $request): JsonResponse
     {
         $sellerId = $request->request->get('sellerId');
-        $file = $this->validateFile($request->files->get('file'));
+        $uploadedFile = $this->validateFile($request->files->get('file'));
 
         $uploadInvoiceCommand = new UploadInvoiceCommand(
             orderId: $orderId,
             sellerId: $sellerId,
-            fileContent: base64_encode($file->getContent()),
-            mimeType: $file->getMimeType()
+            fileContent: base64_encode($uploadedFile->getContent()),
+            mimeType: $uploadedFile->getMimeType()
         );
 
         $this->dispatch($uploadInvoiceCommand);
@@ -104,16 +104,16 @@ final class UploadInvoiceController extends BaseController
         );
     }
 
-    private function validateFile(?UploadedFile $file): UploadedFile
+    private function validateFile(?UploadedFile $uploadedFile): UploadedFile
     {
-        if (!$file?->isValid()) {
+        if (!$uploadedFile?->isValid()) {
             throw new BadRequestException('Valid file is required');
         }
 
-        if ($file->getMimeType() !== 'application/pdf') {
+        if ('application/pdf' !== $uploadedFile->getMimeType()) {
             throw new BadRequestException('Invalid file type. Only PDF files are allowed');
         }
 
-        return $file;
+        return $uploadedFile;
     }
 }

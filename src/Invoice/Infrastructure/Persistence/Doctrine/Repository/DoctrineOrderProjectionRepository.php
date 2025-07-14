@@ -9,10 +9,10 @@ use App\Invoice\Domain\Repository\OrderProjectionRepository;
 use App\Shared\Domain\ValueObject\OrderId;
 use Doctrine\ORM\EntityManagerInterface;
 
-final class DoctrineOrderProjectionRepository implements OrderProjectionRepository
+final readonly class DoctrineOrderProjectionRepository implements OrderProjectionRepository
 {
     public function __construct(
-        private readonly EntityManagerInterface $entityManager,
+        private EntityManagerInterface $entityManager,
     ) {
     }
 
@@ -22,7 +22,7 @@ final class DoctrineOrderProjectionRepository implements OrderProjectionReposito
             ->getRepository(OrderProjection::class)
             ->findOneBy(['orderId' => $orderId]);
     }
-    
+
     public function save(OrderProjection $orderProjection): void
     {
         $this->entityManager->persist($orderProjection);

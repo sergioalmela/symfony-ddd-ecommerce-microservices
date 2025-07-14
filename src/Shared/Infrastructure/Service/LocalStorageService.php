@@ -9,7 +9,7 @@ use App\Shared\Domain\Service\StorageService;
 final readonly class LocalStorageService implements StorageService
 {
     public function __construct(
-        private string $uploadDirectory = '/tmp/uploads'
+        private string $uploadDirectory = '/tmp/uploads',
     ) {
     }
 
@@ -19,9 +19,9 @@ final readonly class LocalStorageService implements StorageService
             mkdir($this->uploadDirectory, 0755, true);
         }
 
-        $filePath = $this->uploadDirectory . '/' . $fileName;
+        $filePath = $this->uploadDirectory.'/'.$fileName;
         file_put_contents($filePath, $fileContent);
 
-        return '/uploads/' . $fileName;
+        return '/uploads/'.$fileName;
     }
 }

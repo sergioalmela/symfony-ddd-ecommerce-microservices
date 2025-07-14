@@ -6,8 +6,8 @@ namespace App\Invoice\Infrastructure\Listener;
 
 use App\Invoice\Domain\Entity\Projection\OrderProjection;
 use App\Invoice\Domain\Repository\OrderProjectionRepository;
-use App\Order\Domain\Event\OrderCreatedEvent;
 use App\Shared\Domain\Bus\Event\EventHandler;
+use App\Shared\Domain\Event\OrderCreatedEvent;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 #[AsMessageHandler]

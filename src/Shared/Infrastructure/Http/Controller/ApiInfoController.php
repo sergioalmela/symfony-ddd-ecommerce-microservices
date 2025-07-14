@@ -21,9 +21,9 @@ final class ApiInfoController extends AbstractController
             'endpoints' => [
                 'orders' => '/orders',
                 'invoices' => '/invoices',
-                'health' => '/health'
+                'health' => '/health',
             ],
-            'timestamp' => (new DateTimeImmutable())->format(DateTimeImmutable::ATOM)
+            'timestamp' => new DateTimeImmutable()->format(DateTimeImmutable::ATOM),
         ]);
     }
 
@@ -32,11 +32,11 @@ final class ApiInfoController extends AbstractController
     {
         return new JsonResponse([
             'status' => 'healthy',
-            'timestamp' => (new DateTimeImmutable())->format(DateTimeImmutable::ATOM),
+            'timestamp' => new DateTimeImmutable()->format(DateTimeImmutable::ATOM),
             'services' => [
                 'database' => 'connected',
-                'messaging' => 'connected'
-            ]
+                'messaging' => 'connected',
+            ],
         ]);
     }
 }

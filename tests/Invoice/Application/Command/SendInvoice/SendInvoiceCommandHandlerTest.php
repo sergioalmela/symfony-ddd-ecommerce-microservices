@@ -61,7 +61,6 @@ final class SendInvoiceCommandHandlerTest extends TestCase
         $this->assertCount(0, $this->eventBus->domainEvents());
     }
 
-
     /**
      * @group send-invoice
      * @group happy-path
@@ -87,7 +86,7 @@ final class SendInvoiceCommandHandlerTest extends TestCase
         $this->assertTrue($updatedInvoice->orderId()->equals($orderId));
         $this->assertTrue($updatedInvoice->isSent());
         $this->assertNotNull($updatedInvoice->sentAt());
-        $this->assertEquals(
+        $this->assertSame(
             $sentDate->format('Y-m-d H:i:s'),
             $updatedInvoice->sentAt()->format('Y-m-d H:i:s')
         );
@@ -105,7 +104,7 @@ final class SendInvoiceCommandHandlerTest extends TestCase
         $invoice = $this->givenAnExistingInvoiceForOrder($orderId);
 
         $this->eventBus->clean();
-        
+
         $command = new SendInvoiceCommand($orderId->value(), $sentDate);
 
         ($this->handler)($command);
@@ -115,7 +114,7 @@ final class SendInvoiceCommandHandlerTest extends TestCase
 
         $event = $events[0];
         $this->assertInstanceOf(InvoiceSentEvent::class, $event);
-        $this->assertEquals($invoice->id()->value(), $event->aggregateId());
+        $this->assertSame($invoice->id()->value(), $event->aggregateId());
         $this->assertInstanceOf(DateTimeImmutable::class, $event->occurredOn());
     }
 
@@ -140,7 +139,7 @@ final class SendInvoiceCommandHandlerTest extends TestCase
 
         $sentAt = $updatedInvoice->sentAt();
         $this->assertNotNull($sentAt);
-        $this->assertEquals(
+        $this->assertSame(
             $sentDate->getTimestamp(),
             $sentAt->value()->getTimestamp()
         );
@@ -169,21 +168,21 @@ final class SendInvoiceCommandHandlerTest extends TestCase
 
         $finalInvoice = $this->invoiceRepository->stored()[0];
         $this->assertTrue($finalInvoice->isSent());
-        $this->assertEquals(
+        $this->assertSame(
             $secondSentDate->format('Y-m-d H:i:s'),
             $finalInvoice->sentAt()->format('Y-m-d H:i:s')
         );
     }
 
     /**
-     * Test helper: Creates an invoice for the given order ID
+     * Test helper: Creates an invoice for the given order ID.
      */
     private function givenAnExistingInvoiceForOrder(OrderId $orderId): Invoice
     {
         $invoice = InvoiceBuilder::anInvoice()
             ->withOrderId($orderId)
             ->build();
-        
+
         $invoice->clearRecordedEvents();
 
         $this->invoiceRepository->add($invoice);
@@ -192,7 +191,7 @@ final class SendInvoiceCommandHandlerTest extends TestCase
     }
 
     /**
-     * Test helper: Creates an invoice for the given order and seller IDs
+     * Test helper: Creates an invoice for the given order and seller IDs.
      */
     private function givenAnExistingInvoiceForOrderAndSeller(OrderId $orderId, SellerId $sellerId): Invoice
     {
@@ -200,7 +199,7 @@ final class SendInvoiceCommandHandlerTest extends TestCase
             ->withOrderId($orderId)
             ->withSellerId($sellerId)
             ->build();
-  
+
         $invoice->clearRecordedEvents();
 
         $this->invoiceRepository->add($invoice);
