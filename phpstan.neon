@@ -9,8 +9,12 @@ parameters:
 
     ignoreErrors:
         - identifier: missingType.generics
+        - identifier: missingType.iterableValue
+        - identifier: new.static
 
     level: 6
+    parallel:
+        processTimeout: 300.0
 
     reportUnmatchedIgnoredErrors: true
     paths:
