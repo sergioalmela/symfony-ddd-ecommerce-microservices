@@ -9,6 +9,7 @@ use App\Invoice\Application\Command\SendInvoice\SendInvoiceCommandHandler;
 use App\Invoice\Domain\Entity\Invoice;
 use App\Invoice\Domain\Event\InvoiceSentEvent;
 use App\Invoice\Domain\Exception\InvoiceNotFoundException;
+use App\Invoice\Domain\Exception\InvalidSentAtException;
 use App\Shared\Domain\ValueObject\OrderId;
 use App\Shared\Domain\ValueObject\SellerId;
 use App\Tests\Invoice\Infrastructure\Testing\Builders\InvoiceBuilder;
@@ -157,6 +158,42 @@ final class SendInvoiceCommandHandlerTest extends TestCase
             $secondSentDate->format('Y-m-d H:i:s'),
             $finalInvoice->sentAt()->format('Y-m-d H:i:s')
         );
+    }
+
+    public function testShouldThrowInvalidSentAtExceptionWhenDateIsInTheFuture(): void
+    {
+        $orderId = OrderId::generate();
+        $futureDate = new DateTimeImmutable('+1 day');
+
+        $this->givenAnExistingInvoiceForOrder($orderId);
+
+        $command = new SendInvoiceCommand($orderId->value(), $futureDate);
+
+        $this->expectException(InvalidSentAtException::class);
+        $this->expectExceptionMessage('SentAt date cannot be in the future');
+
+        ($this->handler)($command);
+
+        $this->assertFalse($this->invoiceRepository->storeChanged());
+        $this->assertCount(0, $this->eventBus->domainEvents());
+    }
+
+    public function testShouldThrowInvalidSentAtExceptionWhenDateIsMoreThanOneYearAgo(): void
+    {
+        $orderId = OrderId::generate();
+        $oneYearAgoMinus1Day = new DateTimeImmutable('-1 year -1 day');
+
+        $this->givenAnExistingInvoiceForOrder($orderId);
+
+        $command = new SendInvoiceCommand($orderId->value(), $oneYearAgoMinus1Day);
+
+        $this->expectException(InvalidSentAtException::class);
+        $this->expectExceptionMessage('SentAt date cannot be more than 1 year ago');
+
+        ($this->handler)($command);
+
+        $this->assertFalse($this->invoiceRepository->storeChanged());
+        $this->assertCount(0, $this->eventBus->domainEvents());
     }
 
     private function givenAnExistingInvoiceForOrder(OrderId $orderId): Invoice
