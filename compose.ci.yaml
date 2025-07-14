@@ -6,7 +6,7 @@ services:
       target: frankenphp_dev
     environment:
       APP_ENV: test
-      XDEBUG_MODE: "off"
+      XDEBUG_MODE: "coverage"
     # No volume mounts - use code from Docker image
     volumes:
       - caddy_data:/data

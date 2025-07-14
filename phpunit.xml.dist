@@ -31,6 +31,11 @@
         <include>
             <directory>src</directory>
         </include>
+        
+        <exclude>
+            <directory>src/*/Infrastructure</directory>
+            <file>src/Kernel.php</file>
+        </exclude>
 
         <deprecationTrigger>
             <method>Doctrine\Deprecations\Deprecation::trigger</method>
@@ -38,6 +43,14 @@
             <function>trigger_deprecation</function>
         </deprecationTrigger>
     </source>
+
+    <coverage>
+        <report>
+            <clover outputFile="coverage/clover.xml"/>
+            <html outputDirectory="coverage/html"/>
+            <text outputFile="coverage/coverage.txt"/>
+        </report>
+    </coverage>
 
     <extensions>
     </extensions>
