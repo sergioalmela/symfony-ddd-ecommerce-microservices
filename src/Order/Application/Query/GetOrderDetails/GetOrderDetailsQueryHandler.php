@@ -20,10 +20,10 @@ final readonly class GetOrderDetailsQueryHandler implements QueryHandler
 
     public function __invoke(GetOrderDetailsQuery $getOrderDetailsQuery): GetOrderDetailsResponse
     {
-        $id = OrderId::of($getOrderDetailsQuery->id);
+        $orderId = OrderId::of($getOrderDetailsQuery->id);
         $sellerId = SellerId::of($getOrderDetailsQuery->sellerId);
 
-        $order = $this->orderRepository->findByIdAndSeller($id, $sellerId);
+        $order = $this->orderRepository->findByIdAndSeller($orderId, $sellerId);
 
         if (!$order instanceof Order) {
             throw new OrderNotFoundException($getOrderDetailsQuery->id);

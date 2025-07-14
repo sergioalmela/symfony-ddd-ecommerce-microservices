@@ -8,6 +8,7 @@ use App\Order\Application\Query\GetOrderDetails\GetOrderDetailsQuery;
 use App\Shared\Infrastructure\Http\Controller\BaseController;
 use OpenApi\Attributes as OA;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
 final class GetOrderDetailsController extends BaseController
@@ -24,6 +25,13 @@ final class GetOrderDetailsController extends BaseController
                 in: 'path',
                 required: true,
                 schema: new OA\Schema(type: 'string', format: 'uuid', example: 'a7a4f438-e4b7-4123-9a39-435345e274f4')
+            ),
+            new OA\Parameter(
+                name: 'sellerId',
+                description: 'The seller ID to filter the order',
+                in: 'query',
+                required: true,
+                schema: new OA\Schema(type: 'string', format: 'uuid', example: '50ebe6dd-fc51-41d5-ad53-59386d3ee6dd')
             ),
         ],
         responses: [
@@ -49,9 +57,12 @@ final class GetOrderDetailsController extends BaseController
             ),
         ]
     )]
-    public function __invoke(string $id): JsonResponse
+    public function __invoke(string $id, Request $request): JsonResponse
     {
-        $getOrderDetailsQuery = new GetOrderDetailsQuery($id);
+        $getOrderDetailsQuery = new GetOrderDetailsQuery(
+            $id,
+            $request->query->get('sellerId')
+        );
 
         $order = $this->ask($getOrderDetailsQuery);
 

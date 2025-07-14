@@ -24,7 +24,7 @@ final readonly class SendInvoiceCommandHandler implements CommandHandler
         $orderId = OrderId::of($sendInvoiceCommand->orderId);
 
         $invoice = $this->invoiceRepository->findByOrder($orderId);
-        if ($invoice === null) {
+        if (!$invoice instanceof Invoice) {
             throw new InvoiceNotFoundException($sendInvoiceCommand->orderId);
         }
 

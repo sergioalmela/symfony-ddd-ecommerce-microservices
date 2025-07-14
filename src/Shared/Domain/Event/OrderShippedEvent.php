@@ -2,9 +2,8 @@
 
 declare(strict_types=1);
 
-namespace App\Order\Domain\Event;
+namespace App\Shared\Domain\Event;
 
-use App\Shared\Domain\Event\BaseDomainEvent;
 use App\Shared\Domain\ValueObject\CustomerId;
 use App\Shared\Domain\ValueObject\OrderId;
 use DateTimeImmutable;

@@ -9,7 +9,7 @@ use Stringable;
 
 final readonly class Price implements Stringable
 {
-    private readonly float $value;
+    private float $value;
 
     private function __construct(float $value)
     {
