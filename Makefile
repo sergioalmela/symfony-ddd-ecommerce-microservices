@@ -11,7 +11,7 @@ SYMFONY  = $(PHP) bin/console
 
 # Misc
 .DEFAULT_GOAL = help
-.PHONY        : help build up start down logs sh composer vendor sf cc test cs-fix cs-check phpstan rector qa qa-fix validate check-imports order-migrate order-migrate-status order-migrate-generate order-migrate-diff invoice-migrate invoice-migrate-status invoice-migrate-generate invoice-migrate-diff
+.PHONY        : help build up start down logs sh composer vendor sf cc test coverage coverage-text coverage-clover coverage-all cs-fix cs-check phpstan rector qa qa-fix validate check-imports order-migrate order-migrate-status order-migrate-generate order-migrate-diff invoice-migrate invoice-migrate-status invoice-migrate-generate invoice-migrate-diff
 
 ## —— 🎵 🐳 The Symfony Docker Makefile 🐳 🎵 ——————————————————————————————————
 help: ## Outputs this help screen
@@ -41,6 +41,18 @@ bash: ## Connect to the FrankenPHP container via bash so up and down arrows go t
 test: ## Start tests with phpunit, pass the parameter "c=" to add options to phpunit, example: make test c="--group e2e --stop-on-failure"
 	@$(eval c ?=)
 	@$(DOCKER_COMP) exec -e APP_ENV=test php bin/phpunit $(c)
+
+coverage: ## Run tests with code coverage (HTML report)
+	@$(DOCKER_COMP) exec -e APP_ENV=test -e XDEBUG_MODE=coverage php bin/phpunit --coverage-html coverage/html
+
+coverage-text: ## Run tests with code coverage (text output)
+	@$(DOCKER_COMP) exec -e APP_ENV=test -e XDEBUG_MODE=coverage php bin/phpunit --coverage-text
+
+coverage-clover: ## Run tests with code coverage (Clover XML report)
+	@$(DOCKER_COMP) exec -e APP_ENV=test -e XDEBUG_MODE=coverage php bin/phpunit --coverage-clover coverage/clover.xml
+
+coverage-all: ## Run tests with all coverage reports
+	@$(DOCKER_COMP) exec -e APP_ENV=test -e XDEBUG_MODE=coverage php bin/phpunit --coverage-html coverage/html --coverage-text --coverage-clover coverage/clover.xml
 
 
 ## —— Composer 🧙 ——————————————————————————————————————————————————————————————
