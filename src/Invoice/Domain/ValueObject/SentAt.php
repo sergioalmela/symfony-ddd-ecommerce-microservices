@@ -45,7 +45,7 @@ final readonly class SentAt implements Stringable
     {
         return $this->value->format($format);
     }
-    
+
     public function equals(self $other): bool
     {
         return $this->value === $other->value;
