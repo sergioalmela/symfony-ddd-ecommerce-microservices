@@ -85,6 +85,49 @@ jobs:
           docker compose -f compose.yaml -f compose.ci.yaml exec -T php bin/console -e test doctrine:schema:update --dump-sql --em=order || true
           echo "Checking Invoice schema differences..."
           docker compose -f compose.yaml -f compose.ci.yaml exec -T php bin/console -e test doctrine:schema:update --dump-sql --em=invoice || true
+
+  code-quality:
+    name: Code Quality
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker images
+        uses: docker/bake-action@v6
+        with:
+          pull: true
+          load: true
+          targets: php
+          files: |
+            compose.yaml
+            compose.ci.yaml
+          set: |
+            *.cache-from=type=gha,scope=${{github.ref}}
+            *.cache-from=type=gha,scope=refs/heads/main
+            *.cache-to=type=gha,scope=${{github.ref}},mode=max
+
+      - name: Start services
+        run: docker compose -f compose.yaml -f compose.ci.yaml up -d --no-build --wait
+
+      - name: Install dependencies
+        run: docker compose -f compose.yaml -f compose.ci.yaml exec -T php composer install --prefer-dist --no-progress
+
+      - name: Warm up cache for PHPStan
+        run: docker compose -f compose.yaml -f compose.ci.yaml exec -T php bin/console cache:warmup --env=dev
+
+      - name: Run PHPStan
+        run: docker compose -f compose.yaml -f compose.ci.yaml exec -T php vendor/bin/phpstan analyse --memory-limit=1G --error-format=github
+
+      - name: Run PHP CS Fixer (check only)
+        run: docker compose -f compose.yaml -f compose.ci.yaml exec -T php vendor/bin/php-cs-fixer fix --dry-run --diff --allow-risky yes
+
+      - name: Run Rector (check only)
+        run: docker compose -f compose.yaml -f compose.ci.yaml exec -T php vendor/bin/rector process --dry-run
+
   lint:
     name: Docker Lint
     runs-on: ubuntu-latest
