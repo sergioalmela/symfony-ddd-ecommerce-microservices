@@ -16,8 +16,8 @@ framework:
 
         routing:
             # Route your messages to the transports
-            'App\Order\Domain\Event\OrderShippedEvent': async
-            'App\Order\Domain\Event\OrderCreatedEvent': async
+            'App\Shared\Domain\Event\OrderShippedEvent': async
+            'App\Shared\Domain\Event\OrderCreatedEvent': async
 
 # when@test:
 #    framework:
