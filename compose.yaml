@@ -14,12 +14,14 @@ services:
       MERCURE_JWT_SECRET: ${CADDY_MERCURE_JWT_SECRET:-!ChangeThisMercureHubJWTSecretKey!}
       # Messenger RabbitMQ configuration
       MESSENGER_TRANSPORT_DSN: amqp://${RABBITMQ_USER:-app}:${RABBITMQ_PASSWORD:-!ChangeMe!}@rabbitmq:5672/%2f/messages
+      MESSENGER_FAILURE_TRANSPORT_DSN: amqp://${RABBITMQ_USER:-app}:${RABBITMQ_PASSWORD:-!ChangeMe!}@rabbitmq:5672/%2f/failed
       # The two next lines can be removed after initial installation
       SYMFONY_VERSION: ${SYMFONY_VERSION:-}
       STABILITY: ${STABILITY:-stable}
     volumes:
       - caddy_data:/data
       - caddy_config:/config
+      - invoice_uploads:/app/public/uploads
     ports:
       # HTTP
       - target: 80
@@ -82,6 +84,7 @@ services:
 volumes:
   caddy_data:
   caddy_config:
+  invoice_uploads:
 ###> symfony/mercure-bundle ###
 ###< symfony/mercure-bundle ###
 

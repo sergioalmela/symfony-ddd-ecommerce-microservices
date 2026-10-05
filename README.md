@@ -1,316 +1,157 @@
-# 🛒 Symfony E-commerce Microservices
+# Symfony DDD E-commerce
 
-[![PHP](https://img.shields.io/badge/PHP-8.4-777BB4.svg?style=flat&logo=php)](https://php.net)
-[![Symfony](https://img.shields.io/badge/Symfony-7.3-000000.svg?style=flat&logo=symfony)](https://symfony.com)
-[![PHPUnit](https://img.shields.io/badge/PHPUnit-11-366AC3.svg?style=flat&logo=php)](https://phpunit.de)
+A Symfony project for marketplace order management and PDF invoices, built with PHP 8.4, Symfony 7.3, Doctrine, PostgreSQL, RabbitMQ, and FrankenPHP.
 
-[![DDD](https://img.shields.io/badge/Architecture-Domain%20Driven%20Design-blue.svg?style=flat)](https://en.wikipedia.org/wiki/Domain-driven_design)
-[![Hexagonal](https://img.shields.io/badge/Architecture-Hexagonal-green.svg?style=flat)](https://en.wikipedia.org/wiki/Hexagonal_architecture_(software))
-[![CQRS](https://img.shields.io/badge/Pattern-CQRS-purple.svg?style=flat)](https://martinfowler.com/bliki/CQRS.html)
-[![Event Driven](https://img.shields.io/badge/Architecture-Event%20Driven-red.svg?style=flat)](https://en.wikipedia.org/wiki/Event-driven_architecture)
-[![Microservices](https://img.shields.io/badge/Architecture-Microservices-yellow.svg?style=flat)](https://microservices.io/)
+The project started as a PHP adaptation of a [marketplace coding challenge](docs/challenge.md). That brief explains the initial business scope and simplifications. The original assignment asks for Node.js, TypeScript, a NoSQL database, and two microservices. This implementation uses Symfony and PostgreSQL; Order and Invoice currently share one application and deployment, with separate databases and asynchronous events.
 
-A **production-ready e-commerce microservices architecture** built with **Symfony**, **FrankenPHP**, and **Docker**. This project demonstrates enterprise-grade software architecture patterns including **Domain-Driven Design (DDD)**, **CQRS**, **Event-Driven Architecture**, and **Hexagonal Architecture**.
+## Current workflow
 
-## ✨ Features
+An order references one product and contains its price, quantity, customer ID, seller ID, and status. Sellers can create, list, inspect, and update orders, and upload a PDF invoice for an order.
 
-- 🏗️ **Microservices Architecture** - Order and Invoice services with clear bounded contexts
-- 🧠 **Domain-Driven Design** - Clean separation of Domain, Application, and Infrastructure layers
-- ⚡ **CQRS Pattern** - Separate command and query buses using Symfony Messenger
-- 🔄 **Event-Driven Architecture** - Asynchronous inter-service communication via RabbitMQ
-- 🚀 **FrankenPHP Performance** - Blazing-fast PHP application server with worker mode
-- 🐳 **Docker Environment** - Complete containerized development and production setup
-- 🗄️ **Multi-Database Setup** - PostgreSQL with separate databases per microservice
-- 🧪 **Comprehensive Testing** - Tests with high coverage
-- 📚 **OpenAPI Documentation** - Auto-generated API documentation with Swagger UI
+An invoice is marked as sent when it exists and its order is `SHIPPED`, regardless of whether shipment or upload happens first. The challenge defines sending as storing a timestamp. Repeated messages preserve the first timestamp. Products and customers are represented by IDs, and authentication and user roles are optional extensions in the original brief.
 
-## 🏗️ Architecture Overview
+Orders follow `CREATED → ACCEPTED → SHIPPING_IN_PROGRESS → SHIPPED`. Rejection is allowed from `CREATED` or `ACCEPTED`. `SHIPPED` and `REJECTED` are terminal; repeating the current status has no effect. A future backoffice correction would need its own operation and business rules.
 
-```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Order Service │    │ Invoice Service │    │  Shared Domain  │
-│                 │    │                 │    │                 │
-│ • Order Creation│    │ • Invoice Gen   │    │ • Value Objects │
-│ • Status Updates│    │ • File Upload   │    │ • Events        │
-│ • Order Queries │    │ • Email Sending │    │ • Exceptions    │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
-         │                       │                       │
-         └───────────────────────┼───────────────────────┘
-                                 │
-                    ┌─────────────────┐
-                    │   Message Bus   │
-                    │   (RabbitMQ)    │
-                    └─────────────────┘
-```
+## Architecture
 
-### 🎯 Microservices
+The code is organized into Order and Invoice contexts, each with three layers:
 
-#### Order Service
-- **Domain**: Order lifecycle management
-- **Database**: `app_order` (PostgreSQL)
-- **Responsibilities**: Order creation, status updates, order queries
-- **Events**: `OrderCreatedEvent`, `OrderShippedEvent`
+- **Domain:** aggregates, value objects, repository interfaces, and business rules.
+- **Application:** commands, queries, and their handlers.
+- **Infrastructure:** HTTP controllers, Doctrine persistence, and message consumers.
 
-#### Invoice Service  
-- **Domain**: Invoice generation and management
-- **Database**: `app_invoice` (PostgreSQL)
-- **Responsibilities**: Invoice file uploads, invoice distribution
-- **Events**: `InvoiceUploadedEvent`, `InvoiceSentEvent`
+Shared code contains identifiers, event and bus contracts, and infrastructure adapters. Doctrine XML mappings keep persistence configuration outside the domain entities. Application handlers depend on interfaces implemented by Doctrine, Symfony Messenger, and file storage adapters.
 
-## 🚀 Quick Start
+Each context records outgoing events in its database alongside the aggregate change, in one transaction. Outbox workers publish those events through RabbitMQ with publisher confirmations. Invoice uses creation events to maintain its local order projection and checks the sending prerequisites on both shipment and upload. Consumers tolerate repeated delivery.
 
-### Prerequisites
-
-- [Docker](https://docs.docker.com/get-docker/) (v20.10+)
-- [Docker Compose](https://docs.docker.com/compose/install/) (v2.10+)
-
-### Installation
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/sergioalmela/symfony-ddd-ecommerce-microservices.git
-   cd symfony-ddd-ecommerce-microservices
-   ```
-
-2. **Build and start the environment**
-   ```bash
-   make build
-   make start
-   ```
-
-3. **Set up databases and run migrations**
-   ```bash
-   make sf c="doctrine:database:create --connection=order"
-   make sf c="doctrine:database:create --connection=invoice"
-   make sf c="doctrine:migrations:migrate --no-interaction --configuration=config/migrations_order.yaml"
-   make sf c="doctrine:migrations:migrate --no-interaction --configuration=config/migrations_invoice.yaml"
-   ```
-
-4. **Access the application**
-   - **API Info**: https://localhost
-   - **Health Check**: https://localhost/health
-   - **API Documentation**: https://localhost/api/doc
-   - **RabbitMQ Management**: http://localhost:15673 (admin/!ChangeMe!)
-
-## 📁 Project Structure
-
-```
+```text
 src/
-├── Order/                          # Order Microservice
-│   ├── Application/               # Use cases & handlers
-│   │   ├── Command/              # Write operations
-│   │   └── Query/                # Read operations
-│   ├── Domain/                   # Business logic
-│   │   ├── Entity/              # Aggregates
-│   │   ├── ValueObject/         # Value objects
-│   │   ├── Event/               # Domain events
-│   │   └── Repository/          # Domain interfaces
-│   └── Infrastructure/          # External adapters
-│       ├── Http/Controller/     # REST controllers
-│       ├── Persistence/         # Database implementation
-│       └── Listener/            # Event listeners
-├── Invoice/                       # Invoice Microservice
-│   └── [same structure as Order]
-└── Shared/                        # Shared Domain
-    └── Domain/
-        ├── ValueObject/          # Common value objects
-        ├── Event/               # Event infrastructure
-        └── Exception/           # Domain exceptions
+├── Order/
+│   ├── Domain/
+│   ├── Application/
+│   └── Infrastructure/
+├── Invoice/
+│   ├── Domain/
+│   ├── Application/
+│   └── Infrastructure/
+└── Shared/
+    ├── Domain/
+    └── Infrastructure/
 ```
 
-## 🛠️ Development
+## Local setup
 
-### Available Commands
+Docker Compose and Make are required. PHP and Composer run inside the application container.
 
 ```bash
-# Docker Environment
-make build              # Build Docker images
-make start              # Start all services
-make down               # Stop all services
-make logs               # View container logs
+git clone https://github.com/sergioalmela/symfony-ddd-ecommerce-microservices.git
+cd symfony-ddd-ecommerce-microservices
+test -f .env || cp .env.dist .env
 
-# Development
-make bash               # Access PHP container
-make cc                 # Clear Symfony cache
+make build
+docker compose up -d --wait
 
-# Database Operations
-make order-migrate      # Run Order migrations
-make invoice-migrate    # Run Invoice migrations
-make order-migrate-diff # Generate Order migration diff
-
-# Testing & Quality
-make test               # Run PHPUnit tests
-make cs-fix             # Fix code style (PHP-CS-Fixer)
-make phpstan            # Run static analysis
-make rector             # Run automated refactoring
-make qa                 # Run full quality assurance suite
-
-# Messaging
-make sf c="messenger:consume async"  # Start message consumer
+make sf c="doctrine:database:create --connection=order --if-not-exists"
+make sf c="doctrine:database:create --connection=invoice --if-not-exists"
+make order-migrate
+make invoice-migrate
 ```
 
-### Code Quality Standards
+The database initialization script creates `app_order` and `app_invoice` on a fresh PostgreSQL volume. The database creation commands also cover existing volumes where those databases are missing. The container installs Composer dependencies if `vendor/` is empty.
 
-This project maintains high code quality through:
-
-- **PHPStan Level 6**: Static analysis with strict type checking
-- **PHP-CS-Fixer**: Modern PHP code style (PSR-12 compatible)
-- **Rector**: Automated refactoring and PHP version upgrades
-- **PHPUnit**: Comprehensive test coverage
-- **Symfony Insight**: Code quality analysis
-
-## 🧪 Testing
-
-### Running Tests
+Start each of these workers in a separate terminal:
 
 ```bash
-# Run all tests
-make test
-
-# Run specific test groups
-make test c="--group=order"
-make test c="--group=invoice"
-make test c="--group=e2e"
-
-# Run with coverage
-make test c="--coverage-html coverage/"
+make sf c="app:outbox:publish order --watch"
+make sf c="app:outbox:publish invoice --watch"
+make sf c="messenger:consume async -vv"
 ```
 
-### Test Architecture
+Order creation and status changes remain available while RabbitMQ is down. Pending events stay in the outboxes. If an outbox worker exits after a broker error, restart it after RabbitMQ recovers. Omit `--watch` to publish the current backlog once. Run the migrations above before starting these workers.
 
-The project follows testing best practices with:
+Messages that exhaust their retries go to the `failed` RabbitMQ queue. Inspect that queue in the RabbitMQ management UI and retry interactively with `make sf c="messenger:failed:retry"`. The AMQP transport does not support `messenger:failed:show` or listing messages by ID.
 
-- **Unit Tests**: To test the use cases and domain logic
-- **Test Doubles**: Fakes, spies, and mocks for isolation
-- **Builder Pattern**: Fluent test data creation
+| Service | Address |
+| --- | --- |
+| API | https://localhost |
+| OpenAPI documentation | https://localhost/api/doc |
+| RabbitMQ management | http://localhost:15673 |
 
-```php
-// Example test builder usage
-$order = OrderBuilder::anOrder()
-    ->withId(OrderId::generate())
-    ->withPrice(Price::of(29.99))
-    ->withStatus(OrderStatus::PENDING)
-    ->build();
-```
+The default RabbitMQ management credentials are `app` / `!ChangeMe!`. See [.env.dist](.env.dist) for application defaults and [compose.yaml](compose.yaml) for container configuration.
 
-## 🔧 Configuration
+For an offline demo, build the images and install dependencies before disconnecting. Start the existing environment with `make up`; `make build` pulls images and requires network access.
 
-### Environment Variables
+## API
+
+| Method | Endpoint | Purpose |
+| --- | --- | --- |
+| POST | `/orders` | Create an order. |
+| GET | `/orders?sellerId={sellerId}` | List a seller's orders. |
+| GET | `/orders/{id}?sellerId={sellerId}` | Get an order's details. |
+| PATCH | `/orders/{id}/status` | Update status using `sellerId` and `status` in the JSON body. |
+| POST | `/invoices/{orderId}/upload` | Upload a PDF using multipart fields `sellerId` and `file`. |
+
+This implementation uses UUID v4 identifiers. Seller IDs supplied in requests are filters; the application does not authenticate users. Invoice uploads must match the seller recorded in the local order projection. `GET /orders` returns an array.
+
+Malformed JSON, missing fields, incorrect field types, and invalid values return `400`. Missing orders or another seller's order return `404`. Duplicate orders, duplicate invoices, and invalid status transitions return `409`.
+
+Create an order:
 
 ```bash
-# Database
-DATABASE_ORDER_URL=postgresql://app:!ChangeMe!@database:5432/app_order
-DATABASE_INVOICE_URL=postgresql://app:!ChangeMe!@database:5432/app_invoice
-
-# Messaging
-MESSENGER_TRANSPORT_DSN=amqp://app:!ChangeMe!@rabbitmq:5672/%2f/messages
-
-# Application
-APP_ENV=prod
-APP_SECRET=your-secret-key
-```
-
-### Key Configuration Files
-
-- `config/packages/messenger.yaml` - Message bus configuration
-- `config/packages/doctrine.yaml` - Multi-database setup
-- `config/migrations_order.yaml` - Order service migrations
-- `config/migrations_invoice.yaml` - Invoice service migrations
-
-## 📊 API Documentation
-
-The project includes interactive API documentation powered by OpenAPI/Swagger. Access the documentation at:
-
-🔗 **https://localhost/api/doc**
-
-This interface allows you to:
-- View all available endpoints
-- Test API endpoints directly from the browser
-- See request/response schemas
-- Understand authentication requirements
-
-### Order Endpoints
-
-```http
-POST   /orders                    # Create new order
-GET    /orders                    # List orders
-GET    /orders/{orderId}          # Get order details
-PATCH  /orders/{orderId}/status   # Update order status
-```
-
-### Invoice Endpoints
-
-```http
-POST   /invoices/{orderId}/upload # Upload invoice file
-POST   /invoices/{invoiceId}/send # Send invoice to customer
-```
-
-### Example API Usage
-
-```bash
-# Get API information
-curl -X GET https://localhost/
-
-# Check API health
-curl -X GET https://localhost/health
-
-# Create an order
-curl -X POST https://localhost/orders \
-  -H "Content-Type: application/json" \
+curl -k https://localhost/orders \
+  -H 'Content-Type: application/json' \
   -d '{
-    "customerId": "01234567-89ab-cdef-0123-456789abcdef",
-    "sellerId": "01234567-89ab-cdef-0123-456789abcdef",
-    "productId": "01234567-89ab-cdef-0123-456789abcdef",
+    "id": "80ebe6dd-fc51-41d5-ad53-59386d3ee6aa",
+    "productId": "70ebe6dd-fc51-41d5-ad53-59386d3ee6bb",
     "quantity": 2,
-    "price": 29.99
+    "price": 29.99,
+    "customerId": "60ebe6dd-fc51-41d5-ad53-59386d3ee6cc",
+    "sellerId": "50ebe6dd-fc51-41d5-ad53-59386d3ee6dd"
   }'
-
-# Upload invoice (PDF only)
-curl -X POST https://localhost/invoices/{orderId}/upload \
-  -F "sellerId=01234567-89ab-cdef-0123-456789abcdef" \
-  -F "file=@invoice.pdf"
 ```
 
-## 🏭 Production Deployment
-
-### Docker Production Build
+Upload an invoice after the creation event has been consumed:
 
 ```bash
-# Build production images
-docker compose -f compose.yaml -f compose.prod.yaml build
-
-# Deploy to production
-docker compose -f compose.yaml -f compose.prod.yaml up -d
+curl -k https://localhost/invoices/80ebe6dd-fc51-41d5-ad53-59386d3ee6aa/upload \
+  -F 'sellerId=50ebe6dd-fc51-41d5-ad53-59386d3ee6dd' \
+  -F 'file=@invoice.pdf'
 ```
 
-### Performance Optimizations
+Uploads accept PDF bytes up to 10 MiB. Files are stored under `public/uploads`, served at `/uploads/...`, and retained in the Compose `invoice_uploads` volume. Invoice sending is triggered by events; there is no public invoice-send endpoint.
 
-- **FrankenPHP Worker Mode**: Application warm-up for faster response times
-- **OPcache**: Bytecode caching enabled in production
-- **Database Indexing**: Optimized database queries
-- **Message Queue**: Asynchronous processing for heavy operations
+## Development
 
-### Coding Standards
+```bash
+make test           # Run PHPUnit tests.
+make coverage       # Generate HTML coverage with Xdebug.
+make cs-check       # Check code style.
+make cs-fix         # Apply code style fixes.
+make sf c="cache:warmup --env=dev"
+make phpstan        # Run static analysis.
+make rector         # Preview automated refactoring.
+make qa             # Run style checks, static analysis, and tests.
+make down           # Stop the environment.
+```
 
-- Follow PSR-12 coding standards
-- Write comprehensive tests
-- Use type hints and return types
-- Follow SOLID principles
-- Maintain high PHPStan level compliance
+Tests cover application handlers, lifecycle transitions, request validation, and storage. Database integration tests additionally cover HTTP responses, multipart uploads, repeated delivery, event arrival order, transaction rollback, and outbox recovery. Additional Make targets are listed by `make help`.
 
-## 📈 Architecture Decisions
+Database integration tests are opt-in. Point both `DATABASE_ORDER_URL` and `DATABASE_INVOICE_URL` at dedicated test databases, create them, and apply the corresponding migrations with `APP_ENV=test`. The current multi-connection configuration does not automatically add `_test` to these URLs. Then run:
 
-### Why This Architecture?
+```bash
+docker compose exec -e APP_ENV=test -e RUN_DATABASE_TESTS=1 -e XDEBUG_MODE=coverage php bin/phpunit
+```
 
-- **Microservices**: Enables independent scaling and deployment of business domains
-- **DDD**: Aligns software structure with business domains for better maintainability
-- **CQRS**: Separates read and write operations for optimal performance
-- **Event-Driven**: Enables loose coupling and eventual consistency between services
-- **Hexagonal**: Keeps business logic independent of infrastructure concerns
+Set the database URLs in that container's environment before running the setup commands and tests. The integration tests wrap their database changes in transactions and roll them back.
 
-## 🙏 Acknowledgments
+## Current limitations
 
-- Built on top of [dunglas/symfony-docker](https://github.com/dunglas/symfony-docker)
-- Inspired by Domain-Driven Design principles
-- Uses modern PHP and Symfony best practices
+Order and Invoice share a deployment, and events use PHP serialization. Independent deployments and an explicit integration message format remain future improvements. Authentication is not implemented. File writes and database transactions are separate operations, so a database failure after a file write can leave an unused file.
 
+The [architecture review](docs/architecture-review.md) preserves the original findings and records the completed fixes for items 1–6. CI reproducibility remains a separate follow-up.
+
+## Project background
+
+The [challenge summary](docs/challenge.md) preserves the initial requirements and explains the differences in this implementation. It provides context for the current scope and future changes.
+
+The Docker environment is based on [dunglas/symfony-docker](https://github.com/dunglas/symfony-docker). Its setup documentation is retained under [docs](docs/).

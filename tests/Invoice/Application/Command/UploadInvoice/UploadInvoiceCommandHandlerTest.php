@@ -31,7 +31,7 @@ final class UploadInvoiceCommandHandlerTest extends TestCase
     private InvoiceFileValidator $invoiceFileValidator;
     private UploadInvoiceCommandHandler $handler;
 
-    private const string VALID_FILE_CONTENT = 'PDF_FILE_CONTENT_HERE';
+    private const string VALID_FILE_CONTENT = "%PDF-1.4\n1 0 obj\n<< /Type /Catalog >>\nendobj\n%%EOF\n";
     private const string VALID_MIME_TYPE = 'application/pdf';
     private const string EXPECTED_BASE_URL = 'https://storage.example.com/';
 
@@ -303,6 +303,28 @@ final class UploadInvoiceCommandHandlerTest extends TestCase
         $this->assertStringContainsString('invoice-', $storedInvoice->filePath()->value());
         $this->assertStringContainsString($orderId->value(), $storedInvoice->filePath()->value());
         $this->assertStringContainsString('.pdf', $storedInvoice->filePath()->value());
+    }
+
+    public function testShouldRejectAnotherSellersInvoiceBeforeWritingFile(): void
+    {
+        $orderId = OrderId::generate();
+        $this->givenAnExistingOrderProjection($orderId, SellerId::generate());
+        try {
+            ($this->handler)(new UploadInvoiceCommand($orderId->value(), SellerId::generate()->value(), self::VALID_FILE_CONTENT, self::VALID_MIME_TYPE));
+            $this->fail('Expected seller-scoped order lookup to reject upload');
+        } catch (OrderNotFoundException) {
+            $this->assertEmpty($this->storageService->getUploadedFiles());
+            $this->assertFalse($this->invoiceRepository->storeChanged());
+        }
+    }
+
+    public function testShouldRejectContentThatIsNotPdf(): void
+    {
+        $orderId = OrderId::generate();
+        $sellerId = SellerId::generate();
+        $this->givenAnExistingOrderProjection($orderId, $sellerId);
+        $this->expectException(InvalidInvoiceFileTypeException::class);
+        ($this->handler)(new UploadInvoiceCommand($orderId->value(), $sellerId->value(), 'plain text', self::VALID_MIME_TYPE));
     }
 
     /**

@@ -6,12 +6,13 @@ namespace App\Invoice\Infrastructure\Http\Controller;
 
 use App\Invoice\Application\Command\UploadInvoice\UploadInvoiceCommand;
 use App\Shared\Infrastructure\Http\Controller\BaseController;
+use App\Shared\Infrastructure\Http\RequestData;
 use OpenApi\Attributes as OA;
-use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 
 final class UploadInvoiceController extends BaseController
@@ -86,14 +87,14 @@ final class UploadInvoiceController extends BaseController
     )]
     public function uploadInvoice(string $orderId, Request $request): JsonResponse
     {
-        $sellerId = $request->request->get('sellerId');
+        $sellerId = RequestData::form($request)->string('sellerId');
         $uploadedFile = $this->validateFile($request->files->get('file'));
 
         $uploadInvoiceCommand = new UploadInvoiceCommand(
             orderId: $orderId,
             sellerId: $sellerId,
-            fileContent: base64_encode($uploadedFile->getContent()),
-            mimeType: $uploadedFile->getMimeType()
+            fileContent: $uploadedFile->getContent(),
+            mimeType: 'application/pdf'
         );
 
         $this->dispatch($uploadInvoiceCommand);
@@ -104,14 +105,10 @@ final class UploadInvoiceController extends BaseController
         );
     }
 
-    private function validateFile(?UploadedFile $uploadedFile): UploadedFile
+    private function validateFile(mixed $uploadedFile): UploadedFile
     {
-        if (!$uploadedFile?->isValid()) {
-            throw new BadRequestException('Valid file is required');
-        }
-
-        if ('application/pdf' !== $uploadedFile->getMimeType()) {
-            throw new BadRequestException('Invalid file type. Only PDF files are allowed');
+        if (!$uploadedFile instanceof UploadedFile || !$uploadedFile->isValid()) {
+            throw new BadRequestHttpException('Valid file is required');
         }
 
         return $uploadedFile;

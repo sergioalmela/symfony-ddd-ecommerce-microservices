@@ -9,6 +9,7 @@ use App\Order\Domain\Repository\OrderRepository;
 use App\Shared\Domain\ValueObject\OrderId;
 use App\Shared\Domain\ValueObject\SellerId;
 use App\Shared\Infrastructure\Persistence\Doctrine\Repository\DoctrineRepository;
+use Doctrine\DBAL\LockMode;
 
 final class DoctrineOrderRepository extends DoctrineRepository implements OrderRepository
 {
@@ -20,9 +21,21 @@ final class DoctrineOrderRepository extends DoctrineRepository implements OrderR
     public function findByIdAndSeller(OrderId $orderId, SellerId $sellerId): ?Order
     {
         return $this->repository(Order::class)->findOneBy([
-            'id' => $orderId,
+            'orderId' => $orderId,
             'sellerId' => $sellerId,
         ]);
+    }
+
+    public function findByIdAndSellerForUpdate(OrderId $orderId, SellerId $sellerId): ?Order
+    {
+        return $this->repository(Order::class)->createQueryBuilder('orderEntity')
+            ->where('orderEntity.orderId = :orderId')
+            ->andWhere('orderEntity.sellerId = :sellerId')
+            ->setParameter('orderId', $orderId)
+            ->setParameter('sellerId', $sellerId)
+            ->getQuery()
+            ->setLockMode(LockMode::PESSIMISTIC_WRITE)
+            ->getOneOrNullResult();
     }
 
     /**

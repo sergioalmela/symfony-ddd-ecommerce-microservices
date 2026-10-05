@@ -26,4 +26,18 @@ final class SellerIdTest extends TestCase
         $this->assertInstanceOf(SellerId::class, $sellerId);
         $this->assertNotEmpty($sellerId->value());
     }
+
+    public function testShouldNormalizeUppercaseIdentifiers(): void
+    {
+        $sellerId = SellerId::of(mb_strtoupper(self::VALID_UUID));
+        $this->assertSame(self::VALID_UUID, $sellerId->value());
+        $this->assertTrue($sellerId->equals(SellerId::of(self::VALID_UUID)));
+    }
+
+    public function testShouldNormalizeIdentifiersLoadedFromPersistence(): void
+    {
+        $sellerId = SellerId::fromPrimitives(mb_strtoupper(self::VALID_UUID));
+        $this->assertSame(self::VALID_UUID, $sellerId->value());
+        $this->assertTrue($sellerId->equals(SellerId::of(self::VALID_UUID)));
+    }
 }

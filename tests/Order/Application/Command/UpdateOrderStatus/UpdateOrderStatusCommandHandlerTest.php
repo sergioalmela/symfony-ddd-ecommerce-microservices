@@ -7,6 +7,7 @@ namespace App\Tests\Order\Application\Command\UpdateOrderStatus;
 use App\Order\Application\Command\UpdateOrderStatus\UpdateOrderStatusCommand;
 use App\Order\Application\Command\UpdateOrderStatus\UpdateOrderStatusCommandHandler;
 use App\Order\Domain\Exception\OrderStatusInvalidException;
+use App\Order\Domain\ValueObject\OrderStatus;
 use App\Shared\Domain\Event\OrderShippedEvent;
 use App\Shared\Domain\Exception\InvalidUuidError;
 use App\Shared\Domain\Exception\OrderNotFoundException;
@@ -125,6 +126,7 @@ final class UpdateOrderStatusCommandHandlerTest extends TestCase
             ->withId($this->validOrderId)
             ->withSellerId($this->validSellerId)
             ->build();
+        $order->clearRecordedEvents();
         $this->orderRepository->add($order);
 
         $command = new UpdateOrderStatusCommand(
@@ -147,6 +149,7 @@ final class UpdateOrderStatusCommandHandlerTest extends TestCase
             ->withId($this->validOrderId)
             ->withSellerId($this->validSellerId)
             ->build();
+        $order->clearRecordedEvents();
         $this->orderRepository->add($order);
 
         $command = new UpdateOrderStatusCommand(
@@ -162,7 +165,7 @@ final class UpdateOrderStatusCommandHandlerTest extends TestCase
 
         $storedOrder = $this->orderRepository->stored()[0];
         $this->assertSame('CREATED', $storedOrder->toPrimitives()['status']);
-        $this->assertCount(1, $this->eventBus->domainEvents());
+        $this->assertCount(0, $this->eventBus->domainEvents());
     }
 
     public function testShouldUpdateOrderStatusAndPublishEventWhenSellerChangesStatus(): void
@@ -173,6 +176,9 @@ final class UpdateOrderStatusCommandHandlerTest extends TestCase
             ->withSellerId($this->validSellerId)
             ->withCustomerId($customerId)
             ->build();
+        $order->updateStatus(OrderStatus::of('ACCEPTED'));
+        $order->updateStatus(OrderStatus::of('SHIPPING_IN_PROGRESS'));
+        $order->clearRecordedEvents();
         $this->orderRepository->add($order);
 
         $command = new UpdateOrderStatusCommand(
@@ -189,8 +195,8 @@ final class UpdateOrderStatusCommandHandlerTest extends TestCase
         $storedOrder = $this->orderRepository->stored()[0];
         $this->assertSame('SHIPPED', $storedOrder->toPrimitives()['status']);
 
-        $this->assertCount(2, $this->eventBus->domainEvents());
-        $dispatchedEvent = $this->eventBus->domainEvents()[1];
+        $this->assertCount(1, $this->eventBus->domainEvents());
+        $dispatchedEvent = $this->eventBus->domainEvents()[0];
         $this->assertInstanceOf(OrderShippedEvent::class, $dispatchedEvent);
         $this->assertSame($this->validOrderId->value(), $dispatchedEvent->aggregateId());
         $this->assertSame('order.shipped', $dispatchedEvent->eventType());

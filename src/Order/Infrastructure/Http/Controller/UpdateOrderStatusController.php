@@ -6,6 +6,7 @@ namespace App\Order\Infrastructure\Http\Controller;
 
 use App\Order\Application\Command\UpdateOrderStatus\UpdateOrderStatusCommand;
 use App\Shared\Infrastructure\Http\Controller\BaseController;
+use App\Shared\Infrastructure\Http\RequestData;
 use OpenApi\Attributes as OA;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -32,6 +33,7 @@ final class UpdateOrderStatusController extends BaseController
         required: true,
         content: new OA\JsonContent(
             type: 'object',
+            required: ['status', 'sellerId'],
             properties: [
                 new OA\Property(property: 'status', type: 'string', example: 'SHIPPED'),
                 new OA\Property(property: 'sellerId', type: 'string', example: '50ebe6dd-fc51-41d5-ad53-59386d3ee6dd'),
@@ -50,14 +52,15 @@ final class UpdateOrderStatusController extends BaseController
     )]
     #[OA\Response(response: 400, description: 'Invalid request data.')]
     #[OA\Response(response: 404, description: 'Order not found for the specified seller.')]
+    #[OA\Response(response: 409, description: 'The requested status transition is not allowed.')]
     public function __invoke(string $id, Request $request): JsonResponse
     {
-        $data = json_decode($request->getContent(), true);
+        $requestData = RequestData::json($request);
 
         $updateOrderStatusCommand = new UpdateOrderStatusCommand(
             id: $id,
-            sellerId: $data['sellerId'],
-            status: $data['status'],
+            sellerId: $requestData->string('sellerId'),
+            status: $requestData->string('status'),
         );
 
         $this->dispatch($updateOrderStatusCommand);

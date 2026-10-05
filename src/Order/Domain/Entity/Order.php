@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Order\Domain\Entity;
 
+use App\Order\Domain\Exception\OrderStatusTransitionInvalidException;
 use App\Order\Domain\ValueObject\OrderStatus;
 use App\Order\Domain\ValueObject\Price;
 use App\Order\Domain\ValueObject\Quantity;
@@ -55,6 +56,10 @@ final class Order extends AggregateRoot
     {
         if ($this->hasSameStatus($orderStatus)) {
             return;
+        }
+
+        if (!$this->orderStatus->canTransitionTo($orderStatus)) {
+            throw new OrderStatusTransitionInvalidException($this->orderStatus->value(), $orderStatus->value());
         }
 
         $this->orderStatus = $orderStatus;

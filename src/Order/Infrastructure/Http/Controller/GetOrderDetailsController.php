@@ -6,6 +6,7 @@ namespace App\Order\Infrastructure\Http\Controller;
 
 use App\Order\Application\Query\GetOrderDetails\GetOrderDetailsQuery;
 use App\Shared\Infrastructure\Http\Controller\BaseController;
+use App\Shared\Infrastructure\Http\RequestData;
 use OpenApi\Attributes as OA;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -61,11 +62,11 @@ final class GetOrderDetailsController extends BaseController
     {
         $getOrderDetailsQuery = new GetOrderDetailsQuery(
             $id,
-            $request->query->get('sellerId')
+            RequestData::query($request)->string('sellerId')
         );
 
-        $order = $this->ask($getOrderDetailsQuery);
+        $response = $this->ask($getOrderDetailsQuery);
 
-        return $this->jsonResponse($order->toPrimitives());
+        return $this->jsonResponse($response->order->toPrimitives());
     }
 }

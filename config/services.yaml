@@ -52,6 +52,9 @@ services:
     App\Invoice\Infrastructure\Listener\SendInvoiceToCustomerEventHandler:
         tags:
             - { name: messenger.message_handler, bus: event.bus }
+    App\Invoice\Infrastructure\Listener\SendUploadedInvoiceEventHandler:
+        tags:
+            - { name: messenger.message_handler, bus: event.bus }
 
     # === CONTROLLERS (must be public) ===
     App\Order\Infrastructure\Http\Controller\:
@@ -82,9 +85,28 @@ services:
 
     # === BUS BINDINGS ===
     App\Shared\Domain\Bus\Event\EventBus:
-        class: App\Shared\Infrastructure\Bus\Event\MessengerEventBus
+        class: App\Shared\Infrastructure\Bus\Event\DoctrineOutboxEventBus
+        arguments:
+            $orderConnection: '@doctrine.dbal.order_connection'
+            $invoiceConnection: '@doctrine.dbal.invoice_connection'
+
+    App\Shared\Infrastructure\Bus\Event\MessengerEventBus:
         arguments:
             $messageBus: '@event.bus'
+
+    App\Shared\Infrastructure\Bus\Event\DoctrineOutboxEventBus:
+        arguments:
+            $orderConnection: '@doctrine.dbal.order_connection'
+            $invoiceConnection: '@doctrine.dbal.invoice_connection'
+
+    App\Shared\Domain\Service\StorageService:
+        class: App\Shared\Infrastructure\Service\LocalStorageService
+        arguments:
+            $uploadDirectory: '%kernel.project_dir%/public/uploads'
+
+    App\Shared\Infrastructure\Service\LocalStorageService:
+        arguments:
+            $uploadDirectory: '%kernel.project_dir%/public/uploads'
             
     App\Shared\Domain\Bus\Query\QueryBus:
         class: App\Shared\Infrastructure\Bus\Query\MessengerQueryBus

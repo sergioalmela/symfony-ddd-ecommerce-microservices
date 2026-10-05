@@ -72,6 +72,11 @@ final class OrderRepositoryFake implements OrderRepository
         return $result;
     }
 
+    public function findByIdAndSellerForUpdate(OrderId $orderId, SellerId $sellerId): ?Order
+    {
+        return $this->findByIdAndSeller($orderId, $sellerId);
+    }
+
     public function save(Order $order): void
     {
         $this->hasChanges = true;

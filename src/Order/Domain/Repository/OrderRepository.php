@@ -14,6 +14,8 @@ interface OrderRepository
 
     public function findByIdAndSeller(OrderId $orderId, SellerId $sellerId): ?Order;
 
+    public function findByIdAndSellerForUpdate(OrderId $orderId, SellerId $sellerId): ?Order;
+
     public function findBySeller(SellerId $sellerId): array;
 
     public function save(Order $order): void;
