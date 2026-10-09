@@ -1,6 +1,6 @@
 # Symfony DDD E-commerce
 
-A Symfony project for marketplace order management and PDF invoices, built with PHP 8.4, Symfony 7.3, Doctrine, PostgreSQL, RabbitMQ, and FrankenPHP.
+A Symfony project for marketplace order management and PDF invoices, built with PHP 8.5, Symfony 8.1, Doctrine, PostgreSQL, RabbitMQ, and FrankenPHP.
 
 Order and Invoice share one application and deployment, with separate databases and asynchronous events.
 
