@@ -13,7 +13,7 @@
         <field name="price" type="price" column="price" precision="10" scale="2" />
         <field name="customerId" type="customer_id" column="customer_id" />
         <field name="sellerId" type="seller_id" column="seller_id" />
-        <field name="orderStatus" type="order_status" column="status" />
+        <field name="orderStatus" type="order_status" column="status" length="255" />
         <field name="version" type="integer" version="true" />
 
         <indexes>

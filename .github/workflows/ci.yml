@@ -65,12 +65,10 @@ jobs:
       - name: Run PHPUnit
         run: docker compose -f compose.yaml -f compose.ci.yaml exec -T -e RUN_DATABASE_TESTS=1 php bin/phpunit
 
-      - name: Check database schema diff
+      - name: Validate database schema
         run: |
-          echo "Checking Order schema differences..."
-          docker compose -f compose.yaml -f compose.ci.yaml exec -T php bin/console -e test doctrine:schema:update --dump-sql --em=order || true
-          echo "Checking Invoice schema differences..."
-          docker compose -f compose.yaml -f compose.ci.yaml exec -T php bin/console -e test doctrine:schema:update --dump-sql --em=invoice || true
+          docker compose -f compose.yaml -f compose.ci.yaml exec -T php bin/console -e test doctrine:schema:validate --em=order
+          docker compose -f compose.yaml -f compose.ci.yaml exec -T php bin/console -e test doctrine:schema:validate --em=invoice
 
   code-quality:
     name: Code Quality

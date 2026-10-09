@@ -111,6 +111,14 @@ services:
         arguments:
             $messageBus: '@event.bus'
 
+    App\Shared\Infrastructure\Persistence\Doctrine\MigrationTablesSchemaFilter:
+        arguments:
+            $tableNames: ['doctrine_migration_versions_order', 'doctrine_migration_versions_invoice']
+        tags:
+            - { name: doctrine.dbal.schema_filter, connection: order }
+            - { name: doctrine.dbal.schema_filter, connection: invoice }
+            - { name: kernel.event_listener, event: console.command, method: onConsoleCommand }
+
     App\Shared\Domain\Service\StorageService:
         class: App\Shared\Infrastructure\Service\LocalStorageService
         arguments:
