@@ -94,7 +94,6 @@ final class UploadInvoiceController extends BaseController
             orderId: $orderId,
             sellerId: $sellerId,
             fileContent: $uploadedFile->getContent(),
-            mimeType: 'application/pdf'
         );
 
         $this->dispatch($uploadInvoiceCommand);

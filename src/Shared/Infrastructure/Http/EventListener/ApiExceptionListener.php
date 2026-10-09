@@ -7,6 +7,7 @@ namespace App\Shared\Infrastructure\Http\EventListener;
 use App\Invoice\Domain\Exception\InvoiceAlreadyExistsException;
 use App\Invoice\Domain\Exception\InvoiceNotFoundException;
 use App\Order\Domain\Exception\OrderAlreadyExistsException;
+use App\Order\Domain\Exception\OrderConcurrentModificationException;
 use App\Order\Domain\Exception\OrderStatusTransitionInvalidException;
 use App\Shared\Domain\Exception\DomainException;
 use App\Shared\Domain\Exception\OrderNotFoundException;
@@ -72,7 +73,7 @@ final readonly class ApiExceptionListener
 
         if ($throwable instanceof DomainException) {
             return match (true) {
-                $throwable instanceof OrderAlreadyExistsException, $throwable instanceof InvoiceAlreadyExistsException, $throwable instanceof OrderStatusTransitionInvalidException => Response::HTTP_CONFLICT,
+                $throwable instanceof OrderAlreadyExistsException, $throwable instanceof InvoiceAlreadyExistsException, $throwable instanceof OrderStatusTransitionInvalidException, $throwable instanceof OrderConcurrentModificationException => Response::HTTP_CONFLICT,
                 $throwable instanceof OrderNotFoundException, $throwable instanceof InvoiceNotFoundException => Response::HTTP_NOT_FOUND,
                 default => Response::HTTP_BAD_REQUEST,
             };

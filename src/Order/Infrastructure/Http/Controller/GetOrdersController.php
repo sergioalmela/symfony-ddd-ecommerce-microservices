@@ -54,7 +54,7 @@ final class GetOrdersController extends BaseController
 
         $response = $this->ask($getOrdersQuery);
 
-        $orders = array_map(fn ($order) => $order->toPrimitives(), $response->orders);
+        $orders = array_map(static fn ($order) => $order->toPrimitives(), $response->orders);
 
         return $this->jsonResponse($orders);
     }

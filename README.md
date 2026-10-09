@@ -2,13 +2,13 @@
 
 A Symfony project for marketplace order management and PDF invoices, built with PHP 8.4, Symfony 7.3, Doctrine, PostgreSQL, RabbitMQ, and FrankenPHP.
 
-The project started as a PHP adaptation of a [marketplace coding challenge](docs/challenge.md). That brief explains the initial business scope and simplifications. The original assignment asks for Node.js, TypeScript, a NoSQL database, and two microservices. This implementation uses Symfony and PostgreSQL; Order and Invoice currently share one application and deployment, with separate databases and asynchronous events.
+Order and Invoice share one application and deployment, with separate databases and asynchronous events.
 
 ## Current workflow
 
 An order references one product and contains its price, quantity, customer ID, seller ID, and status. Sellers can create, list, inspect, and update orders, and upload a PDF invoice for an order.
 
-An invoice is marked as sent when it exists and its order is `SHIPPED`, regardless of whether shipment or upload happens first. The challenge defines sending as storing a timestamp. Repeated messages preserve the first timestamp. Products and customers are represented by IDs, and authentication and user roles are optional extensions in the original brief.
+An invoice is marked as sent when it exists and its order is `SHIPPED`, regardless of whether shipment or upload happens first. Sending means storing a timestamp. Repeated messages preserve the first timestamp. Products and customers are represented by IDs.
 
 Orders follow `CREATED → ACCEPTED → SHIPPING_IN_PROGRESS → SHIPPED`. Rejection is allowed from `CREATED` or `ACCEPTED`. `SHIPPED` and `REJECTED` are terminal; repeating the current status has no effect. A future backoffice correction would need its own operation and business rules.
 
@@ -22,7 +22,7 @@ The code is organized into Order and Invoice contexts, each with three layers:
 
 Shared code contains identifiers, event and bus contracts, and infrastructure adapters. Doctrine XML mappings keep persistence configuration outside the domain entities. Application handlers depend on interfaces implemented by Doctrine, Symfony Messenger, and file storage adapters.
 
-Each context records outgoing events in its database alongside the aggregate change, in one transaction. Outbox workers publish those events through RabbitMQ with publisher confirmations. Invoice uses creation events to maintain its local order projection and checks the sending prerequisites on both shipment and upload. Consumers tolerate repeated delivery.
+Each context records outgoing events in its database alongside the aggregate change, in one transaction. Outbox workers publish those events through RabbitMQ with publisher confirmations. Invoice keeps a local order projection, fed by creation and shipment events, and checks the sending prerequisites on both shipment and upload. Consumers tolerate repeated delivery.
 
 ```text
 src/
@@ -93,7 +93,7 @@ For an offline demo, build the images and install dependencies before disconnect
 
 This implementation uses UUID v4 identifiers. Seller IDs supplied in requests are filters; the application does not authenticate users. Invoice uploads must match the seller recorded in the local order projection. `GET /orders` returns an array.
 
-Malformed JSON, missing fields, incorrect field types, and invalid values return `400`. Missing orders or another seller's order return `404`. Duplicate orders, duplicate invoices, and invalid status transitions return `409`.
+Malformed JSON, missing fields, incorrect field types, and invalid values return `400`. Missing orders or another seller's order return `404`. Duplicate orders, duplicate invoices, invalid status transitions, and concurrent status updates return `409`.
 
 Create an order:
 
@@ -148,10 +148,6 @@ Set the database URLs in that container's environment before running the setup c
 
 Order and Invoice share a deployment, and events use PHP serialization. Independent deployments and an explicit integration message format remain future improvements. Authentication is not implemented. File writes and database transactions are separate operations, so a database failure after a file write can leave an unused file.
 
-The [architecture review](docs/architecture-review.md) preserves the original findings and records the completed fixes for items 1–6. CI reproducibility remains a separate follow-up.
-
 ## Project background
-
-The [challenge summary](docs/challenge.md) preserves the initial requirements and explains the differences in this implementation. It provides context for the current scope and future changes.
 
 The Docker environment is based on [dunglas/symfony-docker](https://github.com/dunglas/symfony-docker). Its setup documentation is retained under [docs](docs/).

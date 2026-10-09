@@ -7,14 +7,12 @@ namespace App\Tests\Invoice\Infrastructure\Testing\Doubles;
 use App\Invoice\Domain\Entity\Projection\OrderProjection;
 use App\Invoice\Domain\Repository\OrderProjectionRepository;
 use App\Shared\Domain\ValueObject\OrderId;
-use DateTimeImmutable;
 
 final class OrderProjectionRepositorySpy implements OrderProjectionRepository
 {
     private array $orderProjections = [];
     private bool $hasChanges = false;
     private array $stored = [];
-    private array $shipments = [];
 
     public function add(OrderProjection $orderProjection): void
     {
@@ -36,10 +34,9 @@ final class OrderProjectionRepositorySpy implements OrderProjectionRepository
         $this->orderProjections = [];
         $this->hasChanges = false;
         $this->stored = [];
-        $this->shipments = [];
     }
 
-    public function find(OrderId $orderId): ?OrderProjection
+    public function findForUpdate(OrderId $orderId): ?OrderProjection
     {
         foreach ($this->orderProjections as $projection) {
             if ($projection->orderId()->equals($orderId)) {
@@ -48,20 +45,6 @@ final class OrderProjectionRepositorySpy implements OrderProjectionRepository
         }
 
         return null;
-    }
-
-    public function lock(OrderId $orderId): void
-    {
-    }
-
-    public function recordShipment(OrderId $orderId, DateTimeImmutable $shippedAt): void
-    {
-        $this->shipments[$orderId->value()] ??= $shippedAt;
-    }
-
-    public function isShipped(OrderId $orderId): bool
-    {
-        return isset($this->shipments[$orderId->value()]);
     }
 
     public function save(OrderProjection $orderProjection): void

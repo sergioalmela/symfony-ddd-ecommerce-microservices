@@ -18,6 +18,9 @@ use App\Shared\Domain\ValueObject\SellerId;
 
 final class Order extends AggregateRoot
 {
+    // Doctrine increments this on each update to reject concurrent status changes.
+    private int $version = 1;
+
     public function __construct(
         private readonly OrderId $orderId,
         private readonly ProductId $productId,
@@ -68,6 +71,7 @@ final class Order extends AggregateRoot
             $this->recordEvent(OrderShippedEvent::create(
                 $this->orderId,
                 $this->customerId,
+                $this->sellerId,
             ));
         }
     }

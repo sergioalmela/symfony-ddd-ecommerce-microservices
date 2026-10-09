@@ -5,13 +5,13 @@ doctrine:
             order:
                 url: '%env(resolve:DATABASE_ORDER_URL)%'
                 server_version: '16'
-                schema_filter: '~^(?!outbox_message$|order_shipment$).*$~'
+                schema_filter: '~^(?!outbox_message$).*$~'
                 profiling_collect_backtrace: '%kernel.debug%'
                 use_savepoints: true
             invoice:
                 url: '%env(resolve:DATABASE_INVOICE_URL)%'
                 server_version: '16'
-                schema_filter: '~^(?!outbox_message$|order_shipment$).*$~'
+                schema_filter: '~^(?!outbox_message$).*$~'
                 profiling_collect_backtrace: '%kernel.debug%'
                 use_savepoints: true
 

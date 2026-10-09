@@ -4,17 +4,12 @@ declare(strict_types=1);
 
 namespace App\Shared\Infrastructure\Bus;
 
-use App\Invoice\Application\Command\SendInvoice\SendInvoiceCommand;
-use App\Invoice\Application\Command\UploadInvoice\UploadInvoiceCommand;
-use App\Order\Application\Command\CreateOrder\CreateOrderCommand;
-use App\Order\Application\Command\UpdateOrderStatus\UpdateOrderStatusCommand;
-use App\Shared\Domain\Event\DomainEvent;
 use Doctrine\Persistence\ManagerRegistry;
+use LogicException;
 use Symfony\Bridge\Doctrine\Messenger\DoctrineTransactionMiddleware;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Middleware\MiddlewareInterface;
 use Symfony\Component\Messenger\Middleware\StackInterface;
-use Symfony\Component\Messenger\Stamp\ReceivedStamp;
 
 final readonly class TransactionalMessageMiddleware implements MiddlewareInterface
 {
@@ -24,17 +19,13 @@ final readonly class TransactionalMessageMiddleware implements MiddlewareInterfa
 
     public function handle(Envelope $envelope, StackInterface $stack): Envelope
     {
-        $message = $envelope->getMessage();
+        // Each context owns one database, so a command runs in the transaction of its context's entity manager.
+        $messageClass = $envelope->getMessage()::class;
         $manager = match (true) {
-            $message instanceof CreateOrderCommand, $message instanceof UpdateOrderStatusCommand => 'order',
-            $message instanceof UploadInvoiceCommand, $message instanceof SendInvoiceCommand => 'invoice',
-            $message instanceof DomainEvent && $envelope->last(ReceivedStamp::class) instanceof ReceivedStamp => 'invoice',
-            default => null,
+            str_starts_with($messageClass, 'App\\Order\\') => 'order',
+            str_starts_with($messageClass, 'App\\Invoice\\') => 'invoice',
+            default => throw new LogicException(\sprintf('No database context is configured for %s', $messageClass)),
         };
-
-        if (null === $manager) {
-            return $stack->next()->handle($envelope, $stack);
-        }
 
         return new DoctrineTransactionMiddleware($this->managerRegistry, $manager)->handle($envelope, $stack);
     }

@@ -200,10 +200,11 @@ final class UpdateOrderStatusCommandHandlerTest extends TestCase
         $this->assertInstanceOf(OrderShippedEvent::class, $dispatchedEvent);
         $this->assertSame($this->validOrderId->value(), $dispatchedEvent->aggregateId());
         $this->assertSame('order.shipped', $dispatchedEvent->eventType());
-        $this->assertSame(1, $dispatchedEvent->eventVersion());
+        $this->assertSame(2, $dispatchedEvent->eventVersion());
         $this->assertSame([
             'orderId' => $this->validOrderId->value(),
             'customerId' => $customerId->value(),
+            'sellerId' => $this->validSellerId->value(),
         ], $dispatchedEvent->payload());
     }
 }

@@ -8,31 +8,29 @@
     "require": {
         "php": ">=8.4.10",
         "ext-ctype": "*",
+        "ext-fileinfo": "*",
         "ext-iconv": "*",
-        "doctrine/dbal": "^3",
-        "doctrine/doctrine-bundle": "^2.15",
-        "doctrine/doctrine-migrations-bundle": "^3.4",
-        "doctrine/orm": "^3.5",
-        "nelmio/api-doc-bundle": "^5.4",
-        "phpstan/phpstan-doctrine": "*",
-        "phpstan/phpstan-symfony": "*",
+        "doctrine/dbal": "^3.10.6",
+        "doctrine/doctrine-bundle": "^2.19.1",
+        "doctrine/doctrine-migrations-bundle": "^3.7.1",
+        "doctrine/orm": "^3.7.4",
+        "nelmio/api-doc-bundle": "^5.13.1",
         "runtime/frankenphp-symfony": "^0.2.0",
-        "symfony/amqp-messenger": "7.3.*",
-        "symfony/asset": "7.3.*",
-        "symfony/console": "7.3.*",
-        "symfony/dotenv": "7.3.*",
-        "symfony/flex": "^2",
-        "symfony/framework-bundle": "7.3.*",
-        "symfony/messenger": "7.3.*",
-        "symfony/runtime": "7.3.*",
-        "symfony/twig-bundle": "7.3.*",
-        "symfony/yaml": "7.3.*",
-        "twig/extra-bundle": "^2.12|^3.0",
-        "twig/twig": "^2.12|^3.0"
+        "symfony/amqp-messenger": "7.4.*",
+        "symfony/asset": "7.4.*",
+        "symfony/console": "7.4.*",
+        "symfony/dotenv": "7.4.*",
+        "symfony/filesystem": "7.4.*",
+        "symfony/flex": "^2.11",
+        "symfony/framework-bundle": "7.4.*",
+        "symfony/messenger": "7.4.*",
+        "symfony/runtime": "7.4.*",
+        "symfony/twig-bundle": "7.4.*",
+        "symfony/yaml": "7.4.*",
+        "zircote/swagger-php": "^5.8.3"
     },
     "config": {
         "allow-plugins": {
-            "php-http/discovery": true,
             "symfony/flex": true,
             "symfony/runtime": true
         },
@@ -77,16 +75,16 @@
     "extra": {
         "symfony": {
             "allow-contrib": false,
-            "require": "7.3.*",
+            "require": "7.4.*",
             "docker": true
         }
     },
     "require-dev": {
-        "friendsofphp/php-cs-fixer": "^3.82",
-        "phpstan/phpstan": "^2.1",
-        "phpunit/phpunit": "^12.2",
-        "rector/rector": "^2.1",
-        "symfony/browser-kit": "7.3.*",
-        "symfony/css-selector": "7.3.*"
+        "friendsofphp/php-cs-fixer": "^3.95.27",
+        "phpstan/phpstan": "^2.3.1",
+        "phpstan/phpstan-doctrine": "^2.0.28",
+        "phpstan/phpstan-symfony": "^2.1",
+        "phpunit/phpunit": "^12.5.38",
+        "rector/rector": "^2.7"
     }
 }

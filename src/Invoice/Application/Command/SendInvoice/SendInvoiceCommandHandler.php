@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Invoice\Application\Command\SendInvoice;
 
 use App\Invoice\Domain\Entity\Invoice;
+use App\Invoice\Domain\Entity\Projection\OrderProjection;
 use App\Invoice\Domain\Repository\InvoiceRepository;
 use App\Invoice\Domain\Repository\OrderProjectionRepository;
 use App\Shared\Domain\Bus\Command\CommandHandler;
@@ -24,8 +25,8 @@ final readonly class SendInvoiceCommandHandler implements CommandHandler
     {
         $orderId = OrderId::of($sendInvoiceCommand->orderId);
 
-        $this->orderProjectionRepository->lock($orderId);
-        if (!$this->orderProjectionRepository->isShipped($orderId)) {
+        $orderProjection = $this->orderProjectionRepository->findForUpdate($orderId);
+        if (!$orderProjection instanceof OrderProjection || !$orderProjection->isShipped()) {
             return;
         }
 

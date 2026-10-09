@@ -10,7 +10,7 @@ use App\Shared\Domain\Bus\Command\CommandBus;
 use App\Shared\Domain\Bus\Event\EventHandler;
 use DateTimeImmutable;
 
-final readonly class SendUploadedInvoiceEventHandler implements EventHandler
+final readonly class SendInvoiceOnInvoiceUploaded implements EventHandler
 {
     public function __construct(private CommandBus $commandBus)
     {

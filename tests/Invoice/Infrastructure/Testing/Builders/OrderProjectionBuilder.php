@@ -7,11 +7,13 @@ namespace App\Tests\Invoice\Infrastructure\Testing\Builders;
 use App\Invoice\Domain\Entity\Projection\OrderProjection;
 use App\Shared\Domain\ValueObject\OrderId;
 use App\Shared\Domain\ValueObject\SellerId;
+use DateTimeImmutable;
 
 final class OrderProjectionBuilder
 {
     private OrderId $orderId;
     private SellerId $sellerId;
+    private ?DateTimeImmutable $shippedAt = null;
 
     private function __construct()
     {
@@ -38,11 +40,19 @@ final class OrderProjectionBuilder
         return $this;
     }
 
+    public function withShippedAt(DateTimeImmutable $shippedAt): self
+    {
+        $this->shippedAt = $shippedAt;
+
+        return $this;
+    }
+
     public function build(): OrderProjection
     {
-        return OrderProjection::create(
-            $this->orderId->value(),
-            $this->sellerId->value()
+        return new OrderProjection(
+            $this->orderId,
+            $this->sellerId,
+            $this->shippedAt
         );
     }
 }

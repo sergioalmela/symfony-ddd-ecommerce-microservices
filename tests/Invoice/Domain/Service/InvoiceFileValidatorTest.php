@@ -15,7 +15,7 @@ final class InvoiceFileValidatorTest extends TestCase
     public function testRejectsEmptyOrOversizedFile(string $content): void
     {
         $this->expectException(InvalidInvoiceFileContentException::class);
-        new InvoiceFileValidator()->validate('application/pdf', $content);
+        new InvoiceFileValidator()->validate($content);
     }
 
     public static function invalidSizes(): iterable

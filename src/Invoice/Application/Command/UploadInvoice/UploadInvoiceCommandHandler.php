@@ -35,18 +35,17 @@ final readonly class UploadInvoiceCommandHandler implements CommandHandler
         $orderId = OrderId::of($uploadInvoiceCommand->orderId);
         $sellerId = SellerId::of($uploadInvoiceCommand->sellerId);
 
-        $this->orderProjectionRepository->lock($orderId);
+        $order = $this->orderProjectionRepository->findForUpdate($orderId);
 
         if ($this->invoiceRepository->findByOrderAndSeller($orderId, $sellerId) instanceof Invoice) {
             throw new InvoiceAlreadyExistsException($uploadInvoiceCommand->orderId);
         }
 
-        $order = $this->orderProjectionRepository->find($orderId);
         if (!$order instanceof OrderProjection || !$order->sellerId()->equals($sellerId)) {
             throw new OrderNotFoundException($uploadInvoiceCommand->orderId);
         }
 
-        $this->invoiceFileValidator->validate($uploadInvoiceCommand->mimeType, $uploadInvoiceCommand->fileContent);
+        $this->invoiceFileValidator->validate($uploadInvoiceCommand->fileContent);
 
         $invoiceId = InvoiceId::generate();
         $fileName = \sprintf('invoice-%s-order-%s.pdf', $invoiceId->value(), $orderId->value());

@@ -22,6 +22,8 @@ return (new PhpCsFixer\Config())
             'sort_algorithm' => 'alpha',
         ],
         '@Symfony:risky' => true,
+        // Newer @Symfony:risky sets remove strict types; this project requires them in every file.
+        'declare_strict_types' => true,
         'linebreak_after_opening_tag' => true,
         'mb_str_functions' => true,
         'no_php4_constructor' => true,

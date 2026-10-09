@@ -27,7 +27,7 @@ final readonly class UpdateOrderStatusCommandHandler implements CommandHandler
         $sellerId = SellerId::of($updateOrderStatusCommand->sellerId);
         $orderStatus = OrderStatus::of($updateOrderStatusCommand->status);
 
-        $order = $this->orderRepository->findByIdAndSellerForUpdate($orderId, $sellerId);
+        $order = $this->orderRepository->findByIdAndSeller($orderId, $sellerId);
 
         if (!$order instanceof Order) {
             throw new OrderNotFoundException($updateOrderStatusCommand->id);

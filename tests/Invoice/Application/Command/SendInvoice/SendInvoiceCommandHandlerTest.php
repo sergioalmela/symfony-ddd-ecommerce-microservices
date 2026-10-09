@@ -12,6 +12,7 @@ use App\Invoice\Domain\Exception\InvalidSentAtException;
 use App\Shared\Domain\ValueObject\OrderId;
 use App\Shared\Domain\ValueObject\SellerId;
 use App\Tests\Invoice\Infrastructure\Testing\Builders\InvoiceBuilder;
+use App\Tests\Invoice\Infrastructure\Testing\Builders\OrderProjectionBuilder;
 use App\Tests\Invoice\Infrastructure\Testing\Doubles\InvoiceRepositorySpy;
 use App\Tests\Invoice\Infrastructure\Testing\Doubles\OrderProjectionRepositorySpy;
 use App\Tests\Order\Infrastructure\Testing\Doubles\EventBusSpy;
@@ -39,6 +40,7 @@ final class SendInvoiceCommandHandlerTest extends TestCase
     {
         $this->invoiceRepository->clean();
         $this->eventBus->clean();
+        $this->projections->clean();
     }
 
     public function testShouldWaitWhenInvoiceDoesNotExist(): void
@@ -51,7 +53,7 @@ final class SendInvoiceCommandHandlerTest extends TestCase
             $validDate
         );
 
-        $this->projections->recordShipment($nonExistentOrderId, $validDate);
+        $this->givenAShippedOrder($nonExistentOrderId);
 
         ($this->handler)($command);
 
@@ -204,10 +206,32 @@ final class SendInvoiceCommandHandlerTest extends TestCase
         $invoice = InvoiceBuilder::anInvoice()->build();
         $invoice->clearRecordedEvents();
         $this->invoiceRepository->add($invoice);
+        $this->projections->add(OrderProjectionBuilder::anOrderProjection()->withOrderId($invoice->orderId())->build());
         ($this->handler)(new SendInvoiceCommand($invoice->orderId()->value(), new DateTimeImmutable()));
         $this->assertFalse($invoice->isSent());
         $this->assertFalse($this->invoiceRepository->storeChanged());
         $this->assertEmpty($this->eventBus->domainEvents());
+    }
+
+    public function testShouldWaitWhenOrderProjectionDoesNotExist(): void
+    {
+        $invoice = InvoiceBuilder::anInvoice()->build();
+        $invoice->clearRecordedEvents();
+        $this->invoiceRepository->add($invoice);
+
+        ($this->handler)(new SendInvoiceCommand($invoice->orderId()->value(), new DateTimeImmutable()));
+
+        $this->assertFalse($invoice->isSent());
+        $this->assertFalse($this->invoiceRepository->storeChanged());
+        $this->assertEmpty($this->eventBus->domainEvents());
+    }
+
+    private function givenAShippedOrder(OrderId $orderId): void
+    {
+        $this->projections->add(OrderProjectionBuilder::anOrderProjection()
+            ->withOrderId($orderId)
+            ->withShippedAt(new DateTimeImmutable())
+            ->build());
     }
 
     private function givenAnExistingInvoiceForOrder(OrderId $orderId): Invoice
@@ -219,7 +243,7 @@ final class SendInvoiceCommandHandlerTest extends TestCase
         $invoice->clearRecordedEvents();
 
         $this->invoiceRepository->add($invoice);
-        $this->projections->recordShipment($orderId, new DateTimeImmutable());
+        $this->givenAShippedOrder($orderId);
 
         return $invoice;
     }
@@ -234,7 +258,7 @@ final class SendInvoiceCommandHandlerTest extends TestCase
         $invoice->clearRecordedEvents();
 
         $this->invoiceRepository->add($invoice);
-        $this->projections->recordShipment($orderId, new DateTimeImmutable());
+        $this->givenAShippedOrder($orderId);
 
         return $invoice;
     }

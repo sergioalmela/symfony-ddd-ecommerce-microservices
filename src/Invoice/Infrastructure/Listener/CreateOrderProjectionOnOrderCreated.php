@@ -9,7 +9,7 @@ use App\Invoice\Domain\Repository\OrderProjectionRepository;
 use App\Shared\Domain\Bus\Event\EventHandler;
 use App\Shared\Domain\Event\OrderCreatedEvent;
 
-final readonly class CreateOrderProjectionEventHandler implements EventHandler
+final readonly class CreateOrderProjectionOnOrderCreated implements EventHandler
 {
     public function __construct(
         private OrderProjectionRepository $orderProjectionRepository,

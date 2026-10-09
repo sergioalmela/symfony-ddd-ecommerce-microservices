@@ -6,7 +6,8 @@ namespace App\Tests\Shared\Infrastructure;
 
 use App\Invoice\Domain\Repository\InvoiceRepository;
 use App\Order\Application\Command\CreateOrder\CreateOrderCommand;
-use App\Order\Domain\Repository\OrderRepository;
+use App\Order\Application\Command\UpdateOrderStatus\UpdateOrderStatusCommand;
+use App\Order\Domain\Exception\OrderConcurrentModificationException;
 use App\Shared\Domain\Bus\Command\CommandBus;
 use App\Shared\Domain\Bus\Event\EventBus;
 use App\Shared\Domain\Event\OrderShippedEvent;
@@ -89,23 +90,33 @@ final class WorkflowIntegrationTest extends KernelTestCase
         }
     }
 
-    public function testStatusUpdateLoadsCurrentStateAndLocksTheOrder(): void
+    public function testStatusUpdateRejectsAnOrderChangedByAnotherRequest(): void
     {
         $this->createOrder();
-        $this->orderConnection->executeStatement('UPDATE "order" SET status = ? WHERE id = ?', ['SHIPPING_IN_PROGRESS', $this->orderId->value()]);
-        self::getContainer()->get(ManagerRegistry::class)->getManager('order')->clear();
-        $order = self::getContainer()->get(OrderRepository::class)->findByIdAndSellerForUpdate($this->orderId, $this->sellerId);
-        $this->assertSame('SHIPPING_IN_PROGRESS', $order->toPrimitives()['status']);
-        $this->assertSame(1, (int) $this->orderConnection->fetchOne("SELECT COUNT(*) FROM pg_locks WHERE pid = pg_backend_pid() AND relation = '\"order\"'::regclass AND mode = 'RowShareLock'"));
+        $commandBus = self::getContainer()->get(CommandBus::class);
+        $commandBus->dispatch(new UpdateOrderStatusCommand($this->orderId->value(), $this->sellerId->value(), 'ACCEPTED'));
+        $this->assertSame(2, (int) $this->orderConnection->fetchOne('SELECT version FROM "order" WHERE id = ?', [$this->orderId->value()]));
+
+        // Simulates another request committing a change after this one loaded the order.
+        $this->orderConnection->executeStatement('UPDATE "order" SET version = version + 1 WHERE id = ?', [$this->orderId->value()]);
+        try {
+            $commandBus->dispatch(new UpdateOrderStatusCommand($this->orderId->value(), $this->sellerId->value(), 'SHIPPING_IN_PROGRESS'));
+            $this->fail('Expected a concurrent modification conflict');
+        } catch (OrderConcurrentModificationException) {
+            $this->assertSame('ACCEPTED', $this->orderConnection->fetchOne('SELECT status FROM "order" WHERE id = ?', [$this->orderId->value()]));
+        }
     }
 
     #[DataProvider('arrivalOrders')]
     public function testEitherArrivalOrderAndRepeatedDelivery(bool $shipmentFirst): void
     {
         $this->createOrder();
-        $shipment = OrderShippedEvent::create($this->orderId, $this->customerId);
+        $shipment = OrderShippedEvent::create($this->orderId, $this->customerId, $this->sellerId);
         if ($shipmentFirst) {
             $this->receive(new Envelope($shipment));
+            $projection = $this->invoiceConnection->fetchAssociative('SELECT seller_id, shipped_at FROM order_projection WHERE order_id = ?', [$this->orderId->value()]);
+            $this->assertSame($this->sellerId->value(), $projection['seller_id']);
+            $this->assertNotNull($projection['shipped_at']);
         }
         $this->relay($this->orderConnection);
         $created = $this->transport()->getSent()[0];
@@ -161,7 +172,7 @@ final class WorkflowIntegrationTest extends KernelTestCase
     {
         $this->createOrder();
         $eventId = $this->orderConnection->fetchOne('SELECT event_id FROM outbox_message');
-        $bus = $this->createMock(MessageBusInterface::class);
+        $bus = $this->createStub(MessageBusInterface::class);
         $bus->method('dispatch')->willThrowException(new RuntimeException('Broker unavailable'));
         $publisher = new OutboxPublisher(new MessengerEventBus($bus));
         try {
@@ -177,9 +188,9 @@ final class WorkflowIntegrationTest extends KernelTestCase
 
     public function testAggregateWriteRollsBackWhenOutboxRecordingFails(): void
     {
-        $events = $this->createMock(EventBus::class);
+        $events = $this->createStub(EventBus::class);
         $events->method('publish')->willThrowException(new RuntimeException('Outbox unavailable'));
-        self::getContainer()->set(EventBus::class, $events);
+        self::getContainer()->set('app.order.outbox_event_bus', $events);
         try {
             $this->createOrder();
             $this->fail('Expected recording failure');

@@ -8,7 +8,6 @@ parameters:
         objectManagerLoader: tests/object-manager.php
 
     ignoreErrors:
-        - identifier: missingType.generics
         - identifier: missingType.iterableValue
         - identifier: new.static
 

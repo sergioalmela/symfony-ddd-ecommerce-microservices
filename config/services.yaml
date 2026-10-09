@@ -30,29 +30,41 @@ services:
             - { name: messenger.message_handler, bus: query.bus }
                 
     App\Order\Application\Command\CreateOrder\CreateOrderCommandHandler:
+        arguments:
+            $eventBus: '@app.order.outbox_event_bus'
         tags:
             - { name: messenger.message_handler, bus: command.bus }
                 
     App\Order\Application\Command\UpdateOrderStatus\UpdateOrderStatusCommandHandler:
+        arguments:
+            $eventBus: '@app.order.outbox_event_bus'
         tags:
             - { name: messenger.message_handler, bus: command.bus }
                 
     App\Invoice\Application\Command\UploadInvoice\UploadInvoiceCommandHandler:
+        arguments:
+            $eventBus: '@app.invoice.outbox_event_bus'
         tags:
             - { name: messenger.message_handler, bus: command.bus }
             
     App\Invoice\Application\Command\SendInvoice\SendInvoiceCommandHandler:
+        arguments:
+            $eventBus: '@app.invoice.outbox_event_bus'
+        tags:
+            - { name: messenger.message_handler, bus: command.bus }
+
+    App\Invoice\Application\Command\RecordOrderShipment\RecordOrderShipmentCommandHandler:
         tags:
             - { name: messenger.message_handler, bus: command.bus }
 
     # === EVENT HANDLERS ===
-    App\Invoice\Infrastructure\Listener\CreateOrderProjectionEventHandler:
+    App\Invoice\Infrastructure\Listener\CreateOrderProjectionOnOrderCreated:
         tags:
             - { name: messenger.message_handler, bus: event.bus }
-    App\Invoice\Infrastructure\Listener\SendInvoiceToCustomerEventHandler:
+    App\Invoice\Infrastructure\Listener\SendInvoiceOnOrderShipped:
         tags:
             - { name: messenger.message_handler, bus: event.bus }
-    App\Invoice\Infrastructure\Listener\SendUploadedInvoiceEventHandler:
+    App\Invoice\Infrastructure\Listener\SendInvoiceOnInvoiceUploaded:
         tags:
             - { name: messenger.message_handler, bus: event.bus }
 
@@ -84,20 +96,20 @@ services:
             $entityManager: '@doctrine.orm.invoice_entity_manager'
 
     # === BUS BINDINGS ===
-    App\Shared\Domain\Bus\Event\EventBus:
+    # Each context records its events in the outbox of its own database.
+    app.order.outbox_event_bus:
         class: App\Shared\Infrastructure\Bus\Event\DoctrineOutboxEventBus
         arguments:
-            $orderConnection: '@doctrine.dbal.order_connection'
-            $invoiceConnection: '@doctrine.dbal.invoice_connection'
+            $connection: '@doctrine.dbal.order_connection'
+
+    app.invoice.outbox_event_bus:
+        class: App\Shared\Infrastructure\Bus\Event\DoctrineOutboxEventBus
+        arguments:
+            $connection: '@doctrine.dbal.invoice_connection'
 
     App\Shared\Infrastructure\Bus\Event\MessengerEventBus:
         arguments:
             $messageBus: '@event.bus'
-
-    App\Shared\Infrastructure\Bus\Event\DoctrineOutboxEventBus:
-        arguments:
-            $orderConnection: '@doctrine.dbal.order_connection'
-            $invoiceConnection: '@doctrine.dbal.invoice_connection'
 
     App\Shared\Domain\Service\StorageService:
         class: App\Shared\Infrastructure\Service\LocalStorageService
