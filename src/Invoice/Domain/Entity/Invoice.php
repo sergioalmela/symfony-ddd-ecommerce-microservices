@@ -50,6 +50,10 @@ final class Invoice extends AggregateRoot
 
     public function send(DateTimeImmutable $date): void
     {
+        if ($this->isSent()) {
+            return;
+        }
+
         $this->sentAt = SentAt::of($date);
 
         $this->recordEvent(InvoiceSentEvent::create($this->invoiceId));

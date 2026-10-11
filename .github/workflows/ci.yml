@@ -49,42 +49,26 @@ jobs:
         run: docker compose -f compose.yaml -f compose.ci.yaml exec -T database psql -U app -d postgres -c "SELECT 1;"
 
       - name: Install dependencies
+        run: docker compose -f compose.yaml -f compose.ci.yaml exec -T php composer install --prefer-dist --no-progress --no-interaction
+
+      - name: Create test databases
         run: |
-          echo "Removing composer.lock and vendor to force fresh install..."
-          docker compose -f compose.yaml -f compose.ci.yaml exec -T php rm -rf composer.lock vendor/
-          echo "Installing dependencies from composer.json..."
-          docker compose -f compose.yaml -f compose.ci.yaml exec -T php composer install --prefer-dist --no-progress
-          echo "Checking if vendor/doctrine exists..."
-          docker compose -f compose.yaml -f compose.ci.yaml exec -T php ls -la vendor/ | grep doctrine || echo "Doctrine not found, installing explicitly"
-          echo "Installing Doctrine packages explicitly..."
-          docker compose -f compose.yaml -f compose.ci.yaml exec -T php composer require doctrine/orm doctrine/doctrine-bundle doctrine/doctrine-migrations-bundle --no-progress || echo "Failed to install Doctrine"
-          echo "Verifying Doctrine commands..."
-          docker compose -f compose.yaml -f compose.ci.yaml exec -T php bin/console list doctrine
-        
+          docker compose -f compose.yaml -f compose.ci.yaml exec -T php bin/console -e test doctrine:database:create --connection=order --if-not-exists
+          docker compose -f compose.yaml -f compose.ci.yaml exec -T php bin/console -e test doctrine:database:create --connection=invoice --if-not-exists
+
       - name: Run Order migrations
         run: docker compose -f compose.yaml -f compose.ci.yaml exec -T php bin/console -e test doctrine:migrations:migrate --no-interaction --configuration=config/migrations_order.yaml
 
       - name: Run Invoice migrations
         run: docker compose -f compose.yaml -f compose.ci.yaml exec -T php bin/console -e test doctrine:migrations:migrate --no-interaction --configuration=config/migrations_invoice.yaml
 
-      - name: Check PHPUnit config and tests
-        run: |
-          echo "Checking if PHPUnit config exists..."
-          docker compose -f compose.yaml -f compose.ci.yaml exec -T php ls -la /app/phpunit.xml.dist || echo "phpunit.xml.dist not found"
-          echo "Checking if tests directory exists..."
-          docker compose -f compose.yaml -f compose.ci.yaml exec -T php ls -la /app/tests/ || echo "tests directory not found"
-          echo "Listing all files in /app:"
-          docker compose -f compose.yaml -f compose.ci.yaml exec -T php find /app -maxdepth 2 -type f -name "*.xml*" -o -name "*.dist*" | head -20
-
       - name: Run PHPUnit
-        run: docker compose -f compose.yaml -f compose.ci.yaml exec -T php bin/phpunit
+        run: docker compose -f compose.yaml -f compose.ci.yaml exec -T -e RUN_DATABASE_TESTS=1 php bin/phpunit
 
-      - name: Check database schema diff
+      - name: Validate database schema
         run: |
-          echo "Checking Order schema differences..."
-          docker compose -f compose.yaml -f compose.ci.yaml exec -T php bin/console -e test doctrine:schema:update --dump-sql --em=order || true
-          echo "Checking Invoice schema differences..."
-          docker compose -f compose.yaml -f compose.ci.yaml exec -T php bin/console -e test doctrine:schema:update --dump-sql --em=invoice || true
+          docker compose -f compose.yaml -f compose.ci.yaml exec -T php bin/console -e test doctrine:schema:validate --em=order
+          docker compose -f compose.yaml -f compose.ci.yaml exec -T php bin/console -e test doctrine:schema:validate --em=invoice
 
   code-quality:
     name: Code Quality
@@ -114,7 +98,7 @@ jobs:
         run: docker compose -f compose.yaml -f compose.ci.yaml up -d --no-build --wait
 
       - name: Install dependencies
-        run: docker compose -f compose.yaml -f compose.ci.yaml exec -T php composer install --prefer-dist --no-progress
+        run: docker compose -f compose.yaml -f compose.ci.yaml exec -T php composer install --prefer-dist --no-progress --no-interaction
 
       - name: Warm up cache for PHPStan
         run: docker compose -f compose.yaml -f compose.ci.yaml exec -T php bin/console cache:warmup --env=dev

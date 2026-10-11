@@ -8,10 +8,8 @@ use App\Invoice\Domain\Entity\Projection\OrderProjection;
 use App\Invoice\Domain\Repository\OrderProjectionRepository;
 use App\Shared\Domain\Bus\Event\EventHandler;
 use App\Shared\Domain\Event\OrderCreatedEvent;
-use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-#[AsMessageHandler]
-final readonly class CreateOrderProjectionEventHandler implements EventHandler
+final readonly class CreateOrderProjectionOnOrderCreated implements EventHandler
 {
     public function __construct(
         private OrderProjectionRepository $orderProjectionRepository,

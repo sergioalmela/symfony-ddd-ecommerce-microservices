@@ -31,8 +31,7 @@ final class UploadInvoiceCommandHandlerTest extends TestCase
     private InvoiceFileValidator $invoiceFileValidator;
     private UploadInvoiceCommandHandler $handler;
 
-    private const string VALID_FILE_CONTENT = 'PDF_FILE_CONTENT_HERE';
-    private const string VALID_MIME_TYPE = 'application/pdf';
+    private const string VALID_FILE_CONTENT = "%PDF-1.4\n1 0 obj\n<< /Type /Catalog >>\nendobj\n%%EOF\n";
     private const string EXPECTED_BASE_URL = 'https://storage.example.com/';
 
     protected function setUp(): void
@@ -74,8 +73,7 @@ final class UploadInvoiceCommandHandlerTest extends TestCase
         $command = new UploadInvoiceCommand(
             $orderId->value(),
             $sellerId->value(),
-            self::VALID_FILE_CONTENT,
-            self::VALID_MIME_TYPE
+            self::VALID_FILE_CONTENT
         );
 
         $this->expectException(InvoiceAlreadyExistsException::class);
@@ -96,8 +94,7 @@ final class UploadInvoiceCommandHandlerTest extends TestCase
         $command = new UploadInvoiceCommand(
             $orderId->value(),
             $sellerId->value(),
-            self::VALID_FILE_CONTENT,
-            self::VALID_MIME_TYPE
+            self::VALID_FILE_CONTENT
         );
 
         $this->expectException(OrderNotFoundException::class);
@@ -124,8 +121,7 @@ final class UploadInvoiceCommandHandlerTest extends TestCase
         $command = new UploadInvoiceCommand(
             $orderId->value(),
             $sellerId->value(),
-            self::VALID_FILE_CONTENT,
-            self::VALID_MIME_TYPE
+            self::VALID_FILE_CONTENT
         );
 
         ($this->handler)($command);
@@ -150,8 +146,7 @@ final class UploadInvoiceCommandHandlerTest extends TestCase
         $command = new UploadInvoiceCommand(
             $orderId->value(),
             $sellerId->value(),
-            self::VALID_FILE_CONTENT,
-            self::VALID_MIME_TYPE
+            self::VALID_FILE_CONTENT
         );
 
         ($this->handler)($command);
@@ -175,8 +170,7 @@ final class UploadInvoiceCommandHandlerTest extends TestCase
         $command = new UploadInvoiceCommand(
             $orderId->value(),
             $sellerId->value(),
-            self::VALID_FILE_CONTENT,
-            self::VALID_MIME_TYPE
+            self::VALID_FILE_CONTENT
         );
 
         ($this->handler)($command);
@@ -199,8 +193,7 @@ final class UploadInvoiceCommandHandlerTest extends TestCase
         $command = new UploadInvoiceCommand(
             $orderId->value(),
             $sellerId->value(),
-            self::VALID_FILE_CONTENT,
-            self::VALID_MIME_TYPE
+            self::VALID_FILE_CONTENT
         );
 
         ($this->handler)($command);
@@ -227,54 +220,6 @@ final class UploadInvoiceCommandHandlerTest extends TestCase
         $this->assertSame($expectedPayload, $event->payload());
     }
 
-    public function testShouldThrowExceptionWhenInvalidMimeType(): void
-    {
-        $orderId = OrderId::generate();
-        $sellerId = SellerId::generate();
-
-        $this->givenAnExistingOrderProjection($orderId, $sellerId);
-
-        $command = new UploadInvoiceCommand(
-            $orderId->value(),
-            $sellerId->value(),
-            self::VALID_FILE_CONTENT,
-            'application/msword'
-        );
-
-        $this->expectException(InvalidInvoiceFileTypeException::class);
-        $this->expectExceptionMessage('Invoice files must be PDF');
-
-        ($this->handler)($command);
-
-        $this->assertEmpty($this->storageService->getUploadedFiles());
-        $this->assertFalse($this->invoiceRepository->storeChanged());
-        $this->assertCount(0, $this->eventBus->domainEvents());
-    }
-
-    public function testShouldThrowExceptionWhenEmptyMimeType(): void
-    {
-        $orderId = OrderId::generate();
-        $sellerId = SellerId::generate();
-
-        $this->givenAnExistingOrderProjection($orderId, $sellerId);
-
-        $command = new UploadInvoiceCommand(
-            $orderId->value(),
-            $sellerId->value(),
-            self::VALID_FILE_CONTENT,
-            ''
-        );
-
-        $this->expectException(InvalidInvoiceFileTypeException::class);
-        $this->expectExceptionMessage('Invoice files must be PDF');
-
-        ($this->handler)($command);
-
-        $this->assertEmpty($this->storageService->getUploadedFiles());
-        $this->assertFalse($this->invoiceRepository->storeChanged());
-        $this->assertCount(0, $this->eventBus->domainEvents());
-    }
-
     public function testShouldCreateInvoiceWithGeneratedIdAndCorrectProperties(): void
     {
         $orderId = OrderId::generate();
@@ -285,8 +230,7 @@ final class UploadInvoiceCommandHandlerTest extends TestCase
         $command = new UploadInvoiceCommand(
             $orderId->value(),
             $sellerId->value(),
-            self::VALID_FILE_CONTENT,
-            self::VALID_MIME_TYPE
+            self::VALID_FILE_CONTENT
         );
 
         ($this->handler)($command);
@@ -303,6 +247,28 @@ final class UploadInvoiceCommandHandlerTest extends TestCase
         $this->assertStringContainsString('invoice-', $storedInvoice->filePath()->value());
         $this->assertStringContainsString($orderId->value(), $storedInvoice->filePath()->value());
         $this->assertStringContainsString('.pdf', $storedInvoice->filePath()->value());
+    }
+
+    public function testShouldRejectAnotherSellersInvoiceBeforeWritingFile(): void
+    {
+        $orderId = OrderId::generate();
+        $this->givenAnExistingOrderProjection($orderId, SellerId::generate());
+        try {
+            ($this->handler)(new UploadInvoiceCommand($orderId->value(), SellerId::generate()->value(), self::VALID_FILE_CONTENT));
+            $this->fail('Expected seller-scoped order lookup to reject upload');
+        } catch (OrderNotFoundException) {
+            $this->assertEmpty($this->storageService->getUploadedFiles());
+            $this->assertFalse($this->invoiceRepository->storeChanged());
+        }
+    }
+
+    public function testShouldRejectContentThatIsNotPdf(): void
+    {
+        $orderId = OrderId::generate();
+        $sellerId = SellerId::generate();
+        $this->givenAnExistingOrderProjection($orderId, $sellerId);
+        $this->expectException(InvalidInvoiceFileTypeException::class);
+        ($this->handler)(new UploadInvoiceCommand($orderId->value(), $sellerId->value(), 'plain text'));
     }
 
     /**

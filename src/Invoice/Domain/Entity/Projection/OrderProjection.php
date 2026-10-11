@@ -6,12 +6,14 @@ namespace App\Invoice\Domain\Entity\Projection;
 
 use App\Shared\Domain\ValueObject\OrderId;
 use App\Shared\Domain\ValueObject\SellerId;
+use DateTimeImmutable;
 
-final readonly class OrderProjection
+final class OrderProjection
 {
     public function __construct(
-        private OrderId $orderId,
-        private SellerId $sellerId,
+        private readonly OrderId $orderId,
+        private readonly SellerId $sellerId,
+        private ?DateTimeImmutable $shippedAt = null,
     ) {
     }
 
@@ -33,5 +35,20 @@ final readonly class OrderProjection
     public function sellerId(): SellerId
     {
         return $this->sellerId;
+    }
+
+    public function markShipped(DateTimeImmutable $shippedAt): void
+    {
+        $this->shippedAt ??= $shippedAt;
+    }
+
+    public function isShipped(): bool
+    {
+        return $this->shippedAt instanceof DateTimeImmutable;
+    }
+
+    public function shippedAt(): ?DateTimeImmutable
+    {
+        return $this->shippedAt;
     }
 }

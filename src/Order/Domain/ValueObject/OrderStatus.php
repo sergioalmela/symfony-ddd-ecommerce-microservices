@@ -49,6 +49,18 @@ final readonly class OrderStatus implements Stringable
         return OrderStatusType::SHIPPED === $this->orderStatusType;
     }
 
+    public function canTransitionTo(self $next): bool
+    {
+        $allowed = match ($this->orderStatusType) {
+            OrderStatusType::CREATED => [OrderStatusType::ACCEPTED, OrderStatusType::REJECTED],
+            OrderStatusType::ACCEPTED => [OrderStatusType::SHIPPING_IN_PROGRESS, OrderStatusType::REJECTED],
+            OrderStatusType::SHIPPING_IN_PROGRESS => [OrderStatusType::SHIPPED],
+            OrderStatusType::REJECTED, OrderStatusType::SHIPPED => [],
+        };
+
+        return \in_array($next->orderStatusType, $allowed, true);
+    }
+
     public function value(): string
     {
         return $this->orderStatusType->value;

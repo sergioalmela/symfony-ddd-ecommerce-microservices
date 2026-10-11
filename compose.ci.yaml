@@ -7,8 +7,9 @@ services:
     environment:
       APP_ENV: test
       XDEBUG_MODE: "coverage"
-    # No volume mounts - use code from Docker image
+    # Mount the checkout: .dockerignore keeps env files, tests and tool configs out of the image.
     volumes:
+      - ./:/app
       - caddy_data:/data
       - caddy_config:/config
 

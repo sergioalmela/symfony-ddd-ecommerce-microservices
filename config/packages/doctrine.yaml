@@ -5,13 +5,13 @@ doctrine:
             order:
                 url: '%env(resolve:DATABASE_ORDER_URL)%'
                 server_version: '16'
+                schema_filter: '~^(?!outbox_message$|outbox_message_sequence_seq$).*$~'
                 profiling_collect_backtrace: '%kernel.debug%'
-                use_savepoints: true
             invoice:
                 url: '%env(resolve:DATABASE_INVOICE_URL)%'
                 server_version: '16'
+                schema_filter: '~^(?!outbox_message$|outbox_message_sequence_seq$).*$~'
                 profiling_collect_backtrace: '%kernel.debug%'
-                use_savepoints: true
 
         types:
             order_id: App\Order\Infrastructure\Persistence\Doctrine\Types\OrderIdType
@@ -27,12 +27,9 @@ doctrine:
 
     orm:
         default_entity_manager: order
-        auto_generate_proxy_classes: true
-        enable_lazy_ghost_objects: true
         entity_managers:
             order:
                 connection: order
-                report_fields_where_declared: true
                 validate_xml_mapping: true
                 naming_strategy: doctrine.orm.naming_strategy.underscore_number_aware
                 auto_mapping: false
@@ -45,7 +42,6 @@ doctrine:
                         alias: Order
             invoice:
                 connection: invoice
-                report_fields_where_declared: true
                 validate_xml_mapping: true
                 naming_strategy: doctrine.orm.naming_strategy.underscore_number_aware
                 auto_mapping: false
@@ -65,8 +61,6 @@ when@test:
 when@prod:
     doctrine:
         orm:
-            auto_generate_proxy_classes: false
-            proxy_dir: '%kernel.build_dir%/doctrine/orm/Proxies'
             query_cache_driver:
                 type: pool
                 pool: doctrine.system_cache_pool

@@ -7,32 +7,33 @@ namespace App\Invoice\Infrastructure\Persistence\Doctrine\Types;
 use App\Invoice\Domain\ValueObject\SentAt;
 use DateTimeImmutable;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Types\DateTimeType;
+use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
 use Override;
 
-final class SentAtType extends DateTimeType
+final class SentAtType extends Type
 {
+    #[Override]
+    public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
+    {
+        return $platform->getDateTimeTypeDeclarationSQL($column);
+    }
+
     #[Override]
     public function convertToDatabaseValue($value, AbstractPlatform $platform): ?string
     {
         if ($value instanceof SentAt) {
-            return parent::convertToDatabaseValue($value->value(), $platform);
+            $value = $value->value();
         }
 
-        return parent::convertToDatabaseValue($value, $platform);
+        return Type::getType(Types::DATETIME_IMMUTABLE)->convertToDatabaseValue($value, $platform);
     }
 
     #[Override]
     public function convertToPHPValue($value, AbstractPlatform $platform): ?SentAt
     {
-        $dateTime = parent::convertToPHPValue($value, $platform);
+        $dateTime = Type::getType(Types::DATETIME_IMMUTABLE)->convertToPHPValue($value, $platform);
 
-        return $dateTime ? SentAt::fromPrimitives(DateTimeImmutable::createFromInterface($dateTime)) : null;
-    }
-
-    #[Override]
-    public function requiresSQLCommentHint(AbstractPlatform $platform): bool
-    {
-        return true;
+        return $dateTime instanceof DateTimeImmutable ? SentAt::fromPrimitives($dateTime) : null;
     }
 }

@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Order\Domain\Exception;
 
-use InvalidArgumentException;
+use App\Shared\Domain\Exception\DomainException;
 
-final class InvalidQuantityException extends InvalidArgumentException
+final class InvalidQuantityException extends DomainException
 {
     public function __construct(string $message = 'Invalid quantity provided')
     {

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Order\Domain\Entity;
 
+use App\Order\Domain\Exception\OrderStatusTransitionInvalidException;
 use App\Order\Domain\ValueObject\OrderStatus;
 use App\Order\Domain\ValueObject\Price;
 use App\Order\Domain\ValueObject\Quantity;
@@ -17,6 +18,9 @@ use App\Shared\Domain\ValueObject\SellerId;
 
 final class Order extends AggregateRoot
 {
+    // Doctrine increments this on each update to reject concurrent status changes.
+    private int $version = 1;
+
     public function __construct(
         private readonly OrderId $orderId,
         private readonly ProductId $productId,
@@ -57,12 +61,17 @@ final class Order extends AggregateRoot
             return;
         }
 
+        if (!$this->orderStatus->canTransitionTo($orderStatus)) {
+            throw new OrderStatusTransitionInvalidException($this->orderStatus->value(), $orderStatus->value());
+        }
+
         $this->orderStatus = $orderStatus;
 
         if ($orderStatus->isShipped()) {
             $this->recordEvent(OrderShippedEvent::create(
                 $this->orderId,
                 $this->customerId,
+                $this->sellerId,
             ));
         }
     }

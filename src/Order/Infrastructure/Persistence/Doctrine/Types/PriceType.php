@@ -6,10 +6,10 @@ namespace App\Order\Infrastructure\Persistence\Doctrine\Types;
 
 use App\Order\Domain\ValueObject\Price;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Types\DecimalType;
+use Doctrine\DBAL\Types\Type;
 use Override;
 
-final class PriceType extends DecimalType
+final class PriceType extends Type
 {
     public const string NAME = 'price';
 
@@ -26,17 +26,11 @@ final class PriceType extends DecimalType
     }
 
     #[Override]
-    public function getName(): string
-    {
-        return self::NAME;
-    }
-
-    #[Override]
     public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
     {
         $column['precision'] ??= 10;
         $column['scale'] ??= 2;
 
-        return parent::getSQLDeclaration($column, $platform);
+        return $platform->getDecimalTypeDeclarationSQL($column);
     }
 }

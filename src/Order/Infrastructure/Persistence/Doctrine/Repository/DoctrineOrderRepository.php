@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace App\Order\Infrastructure\Persistence\Doctrine\Repository;
 
 use App\Order\Domain\Entity\Order;
+use App\Order\Domain\Exception\OrderConcurrentModificationException;
 use App\Order\Domain\Repository\OrderRepository;
 use App\Shared\Domain\ValueObject\OrderId;
 use App\Shared\Domain\ValueObject\SellerId;
 use App\Shared\Infrastructure\Persistence\Doctrine\Repository\DoctrineRepository;
+use Doctrine\ORM\OptimisticLockException;
 
 final class DoctrineOrderRepository extends DoctrineRepository implements OrderRepository
 {
@@ -20,7 +22,7 @@ final class DoctrineOrderRepository extends DoctrineRepository implements OrderR
     public function findByIdAndSeller(OrderId $orderId, SellerId $sellerId): ?Order
     {
         return $this->repository(Order::class)->findOneBy([
-            'id' => $orderId,
+            'orderId' => $orderId,
             'sellerId' => $sellerId,
         ]);
     }
@@ -37,6 +39,10 @@ final class DoctrineOrderRepository extends DoctrineRepository implements OrderR
 
     public function save(Order $order): void
     {
-        $this->persist($order);
+        try {
+            $this->persist($order);
+        } catch (OptimisticLockException $optimisticLockException) {
+            throw new OrderConcurrentModificationException($order->toPrimitives()['id'], $optimisticLockException);
+        }
     }
 }

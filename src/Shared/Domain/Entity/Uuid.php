@@ -29,12 +29,12 @@ abstract readonly class Uuid implements Stringable
             throw new InvalidUuidError($value);
         }
 
-        return new static($value);
+        return new static(mb_strtolower($value));
     }
 
     public static function fromPrimitives(string $value): static
     {
-        return new static($value);
+        return new static(mb_strtolower($value));
     }
 
     private static function isValid(string $value): bool

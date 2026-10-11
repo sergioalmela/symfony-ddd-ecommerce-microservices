@@ -36,7 +36,7 @@ final class OrderProjectionRepositorySpy implements OrderProjectionRepository
         $this->stored = [];
     }
 
-    public function find(OrderId $orderId): ?OrderProjection
+    public function findForUpdate(OrderId $orderId): ?OrderProjection
     {
         foreach ($this->orderProjections as $projection) {
             if ($projection->orderId()->equals($orderId)) {

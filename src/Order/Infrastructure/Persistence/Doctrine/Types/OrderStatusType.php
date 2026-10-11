@@ -22,10 +22,4 @@ final class OrderStatusType extends StringType
     {
         return \is_string($value) ? OrderStatus::fromPrimitives($value) : null;
     }
-
-    #[Override]
-    public function requiresSQLCommentHint(AbstractPlatform $platform): bool
-    {
-        return true;
-    }
 }

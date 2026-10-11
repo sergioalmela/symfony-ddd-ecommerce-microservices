@@ -6,6 +6,7 @@ namespace App\Order\Infrastructure\Http\Controller;
 
 use App\Order\Application\Command\CreateOrder\CreateOrderCommand;
 use App\Shared\Infrastructure\Http\Controller\BaseController;
+use App\Shared\Infrastructure\Http\RequestData;
 use OpenApi\Attributes as OA;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -25,6 +26,7 @@ final class CreateOrderController extends BaseController
         required: true,
         content: new OA\JsonContent(
             type: 'object',
+            required: ['id', 'productId', 'quantity', 'price', 'customerId', 'sellerId'],
             properties: [
                 new OA\Property(property: 'id', type: 'string', example: '80ebe6dd-fc51-41d5-ad53-59386d3ee6aa'),
                 new OA\Property(property: 'productId', type: 'string', example: '70ebe6dd-fc51-41d5-ad53-59386d3ee6bb'),
@@ -57,15 +59,15 @@ final class CreateOrderController extends BaseController
     )]
     public function createOrder(Request $request): JsonResponse
     {
-        $data = json_decode($request->getContent(), true);
+        $requestData = RequestData::json($request);
 
         $createOrderCommand = new CreateOrderCommand(
-            id: $data['id'],
-            productId: $data['productId'],
-            quantity: $data['quantity'],
-            price: $data['price'],
-            customerId: $data['customerId'],
-            sellerId: $data['sellerId']
+            id: $requestData->string('id'),
+            productId: $requestData->string('productId'),
+            quantity: $requestData->integer('quantity'),
+            price: $requestData->number('price'),
+            customerId: $requestData->string('customerId'),
+            sellerId: $requestData->string('sellerId')
         );
 
         $this->dispatch($createOrderCommand);

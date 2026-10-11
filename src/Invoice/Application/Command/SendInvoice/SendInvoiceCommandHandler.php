@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace App\Invoice\Application\Command\SendInvoice;
 
 use App\Invoice\Domain\Entity\Invoice;
-use App\Invoice\Domain\Exception\InvoiceNotFoundException;
+use App\Invoice\Domain\Entity\Projection\OrderProjection;
 use App\Invoice\Domain\Repository\InvoiceRepository;
+use App\Invoice\Domain\Repository\OrderProjectionRepository;
 use App\Shared\Domain\Bus\Command\CommandHandler;
 use App\Shared\Domain\Bus\Event\EventBus;
 use App\Shared\Domain\ValueObject\OrderId;
@@ -16,6 +17,7 @@ final readonly class SendInvoiceCommandHandler implements CommandHandler
     public function __construct(
         private InvoiceRepository $invoiceRepository,
         private EventBus $eventBus,
+        private OrderProjectionRepository $orderProjectionRepository,
     ) {
     }
 
@@ -23,9 +25,14 @@ final readonly class SendInvoiceCommandHandler implements CommandHandler
     {
         $orderId = OrderId::of($sendInvoiceCommand->orderId);
 
+        $orderProjection = $this->orderProjectionRepository->findForUpdate($orderId);
+        if (!$orderProjection instanceof OrderProjection || !$orderProjection->isShipped()) {
+            return;
+        }
+
         $invoice = $this->invoiceRepository->findByOrder($orderId);
-        if (!$invoice instanceof Invoice) {
-            throw new InvoiceNotFoundException($sendInvoiceCommand->orderId);
+        if (!$invoice instanceof Invoice || $invoice->isSent()) {
+            return;
         }
 
         $invoice->send($sendInvoiceCommand->date);

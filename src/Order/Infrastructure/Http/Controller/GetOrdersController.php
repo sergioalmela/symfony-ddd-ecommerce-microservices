@@ -6,6 +6,7 @@ namespace App\Order\Infrastructure\Http\Controller;
 
 use App\Order\Application\Query\GetOrders\GetOrdersQuery;
 use App\Shared\Infrastructure\Http\Controller\BaseController;
+use App\Shared\Infrastructure\Http\RequestData;
 use OpenApi\Attributes as OA;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,7 +24,7 @@ final class GetOrdersController extends BaseController
         name: 'sellerId',
         description: 'The seller ID to filter orders',
         in: 'query',
-        required: false,
+        required: true,
         schema: new OA\Schema(type: 'string', example: '50ebe6dd-fc51-41d5-ad53-59386d3ee6dd')
     )]
     #[OA\Response(
@@ -48,12 +49,12 @@ final class GetOrdersController extends BaseController
     public function getOrders(Request $request): JsonResponse
     {
         $getOrdersQuery = new GetOrdersQuery(
-            sellerId: $request->query->get('sellerId'),
+            sellerId: RequestData::query($request)->string('sellerId'),
         );
 
         $response = $this->ask($getOrdersQuery);
 
-        $orders = array_map(fn ($order) => $order->toPrimitives(), $response->orders);
+        $orders = array_map(static fn ($order) => $order->toPrimitives(), $response->orders);
 
         return $this->jsonResponse($orders);
     }

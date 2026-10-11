@@ -18,7 +18,6 @@ use App\Shared\Domain\Exception\OrderNotFoundException;
 use App\Shared\Domain\Service\StorageService;
 use App\Shared\Domain\ValueObject\OrderId;
 use App\Shared\Domain\ValueObject\SellerId;
-use InvalidArgumentException;
 
 final readonly class UploadInvoiceCommandHandler implements CommandHandler
 {
@@ -36,25 +35,27 @@ final readonly class UploadInvoiceCommandHandler implements CommandHandler
         $orderId = OrderId::of($uploadInvoiceCommand->orderId);
         $sellerId = SellerId::of($uploadInvoiceCommand->sellerId);
 
+        $order = $this->orderProjectionRepository->findForUpdate($orderId);
+
         if ($this->invoiceRepository->findByOrderAndSeller($orderId, $sellerId) instanceof Invoice) {
             throw new InvoiceAlreadyExistsException($uploadInvoiceCommand->orderId);
         }
 
-        if (!$this->orderProjectionRepository->find($orderId) instanceof OrderProjection) {
+        if (!$order instanceof OrderProjection || !$order->sellerId()->equals($sellerId)) {
             throw new OrderNotFoundException($uploadInvoiceCommand->orderId);
         }
 
-        $this->ensureValidInvoiceFile($uploadInvoiceCommand->fileContent);
-        $this->invoiceFileValidator->validate($uploadInvoiceCommand->mimeType);
+        $this->invoiceFileValidator->validate($uploadInvoiceCommand->fileContent);
 
-        $fileName = \sprintf('invoice-%s-order-%s.pdf', InvoiceId::generate()->value(), $uploadInvoiceCommand->orderId);
+        $invoiceId = InvoiceId::generate();
+        $fileName = \sprintf('invoice-%s-order-%s.pdf', $invoiceId->value(), $orderId->value());
         $fileUrl = $this->storageService->uploadFile(
             $uploadInvoiceCommand->fileContent,
             $fileName
         );
 
         $invoice = Invoice::create(
-            InvoiceId::generate(),
+            $invoiceId,
             $orderId,
             $sellerId,
             FilePath::of($fileUrl)
@@ -63,13 +64,6 @@ final readonly class UploadInvoiceCommandHandler implements CommandHandler
         $this->invoiceRepository->save($invoice);
 
         $this->publishDomainEvents($invoice);
-    }
-
-    private function ensureValidInvoiceFile(string $fileContent): void
-    {
-        if ('' === $fileContent || '0' === $fileContent) {
-            throw new InvalidArgumentException('Invoice file content cannot be empty');
-        }
     }
 
     private function publishDomainEvents(Invoice $invoice): void

@@ -7,6 +7,7 @@
     <entity name="App\Invoice\Domain\Entity\Projection\OrderProjection" table="order_projection">
         <id name="orderId" type="order_id" column="order_id"/>
         <field name="sellerId" type="seller_id" column="seller_id"/>
+        <field name="shippedAt" type="datetimetz_immutable" column="shipped_at" nullable="true"/>
     </entity>
 
 </doctrine-mapping>

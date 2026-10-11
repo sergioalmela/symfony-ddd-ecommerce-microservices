@@ -12,7 +12,6 @@ final readonly class UploadInvoiceCommand implements Command
         public string $orderId,
         public string $sellerId,
         public string $fileContent,
-        public string $mimeType,
     ) {
     }
 }

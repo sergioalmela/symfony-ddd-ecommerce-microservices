@@ -10,7 +10,7 @@
 
         <field name="orderId" type="order_id" column="order_id" />
         <field name="sellerId" type="seller_id" column="seller_id" />
-        <field name="filePath" type="file_path" column="file_path" />
+        <field name="filePath" type="file_path" column="file_path" length="255" />
         <field name="sentAt" type="sent_at" column="sent_at" nullable="true" />
 
         <indexes>
